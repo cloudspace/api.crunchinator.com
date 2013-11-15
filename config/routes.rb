@@ -1,4 +1,13 @@
 Crunchinator::Application.routes.draw do
+  # single version of the api for now.  More will come later so lets make it an array
+  ['v1'].each do |version|
+    namespace version.to_sym do
+      resources :companies
+    end
+  end
+  
+  
+  
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
