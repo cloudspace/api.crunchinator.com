@@ -16,4 +16,4 @@
 # Using secret_token for rails3 compatibility. Change to secret_key_base
 # to avoid deprecation warning.
 # Can be safely removed in a rails3 api-only application.
-Crunchinator::Application.config.secret_token = '99e8b65be5a7a8e144edf1483af3907be89a0fe659ae1d9ef3ed39ff94b943c1ba0fb27ca853039a1436774953be0e7553f9a4ba3ccbab626008e9041dfc2f8f'
+Crunchinator::Application.config.secret_token = '6f2908a07790a8c5e63b9d013b979d5643318edbf56e8ffbe6df1cb226d96ba3f6efd5ff66f7925db8a5efaf187d7e2d53bccc410ceeadd9dc5f905ec7b6b54a'
