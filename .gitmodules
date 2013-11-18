@@ -28,3 +28,6 @@
 [submodule "cookbooks/runit"]
 	path = cookbooks/runit
 	url = git@github.com:opscode-cookbooks/runit.git
+[submodule "cookbooks/yum"]
+	path = cookbooks/yum
+	url = git@github.com:opscode-cookbooks/yum.git
