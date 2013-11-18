@@ -2,7 +2,10 @@
 # we don't want leaked to the public. Please add the appropriate keys to ensure
 # that this API works correctly.
 #
-# This file has been added to .gitignore, any changes to it will not be tracked
+# To keep from further versioning changes to this file please run
+# 
+#   git update-index --assume-unchanged confgi/environment_variables.rb
+#
 
 ENV["CRUNCHBASE_API_KEY"] = ""
 ENV["AWS_ACCESS_KEY_ID"] = ""
