@@ -1,18 +1,24 @@
 [submodule "cookbooks/ubuntu"]
-  path = cookbooks/ubuntu
-  url = git://github.com/opscode-cookbooks/ubuntu.git
+	path = cookbooks/ubuntu
+	url = git://github.com/opscode-cookbooks/ubuntu.git
 [submodule "cookbooks/apt"]
-  path = cookbooks/apt
-  url = git://github.com/opscode-cookbooks/apt.git
+	path = cookbooks/apt
+	url = git://github.com/opscode-cookbooks/apt.git
 [submodule "cookbooks/postfix"]
-  path = cookbooks/postfix
-  url = git://github.com/opscode-cookbooks/postfix.git
+	path = cookbooks/postfix
+	url = git://github.com/opscode-cookbooks/postfix.git
 [submodule "cookbooks/build-essential"]
-  path = cookbooks/build-essential
-  url = git://github.com/opscode-cookbooks/ubuntu.git
+	path = cookbooks/build-essential
+	url = git://github.com/opscode-cookbooks/ubuntu.git
 [submodule "cookbooks/git"]
-  path = cookbooks/git
-  url = git@github.com:opscode-cookbooks/git.git
+	path = cookbooks/git
+	url = git@github.com:opscode-cookbooks/git.git
 [submodule "cookbooks/postgresql"]
-  path = cookbooks/postgresql
-  url = git@github.com:opscode-cookbooks/postgresql.git
+	path = cookbooks/postgresql
+	url = git@github.com:opscode-cookbooks/postgresql.git
+[submodule "ubuntu"]
+	path = ubuntu
+	url = git://github.com/opscode-cookbooks/ubuntu.git
+[submodule "cookbooks"]
+	path = cookbooks
+	url = git://github.com/opscode-cookbooks/ubuntu.git
