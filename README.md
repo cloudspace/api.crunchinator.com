@@ -18,6 +18,7 @@ Clone the api.crunchinator.com repository and initialize/update the [chef solo](
 
     > git clone git@github.com:cloudspace/api.crunchinator.com
     > cd api.crunchinator.com
+    > git update-index --assume-unchanged config/environment_variables.rb # also update the variables in this file with your API keys
     > git submodule init
     > git submodele update
 

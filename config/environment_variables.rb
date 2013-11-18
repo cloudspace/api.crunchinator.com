@@ -1,0 +1,12 @@
+# confg/environment_variables.rb holds web service keys and other sensitive data
+# we don't want leaked to the public. Please add the appropriate keys to ensure
+# that this API works correctly.
+#
+# To keep from further versioning changes to this file please run
+# 
+#   git update-index --assume-unchanged confgi/environment_variables.rb
+#
+
+ENV["CRUNCHBASE_API_KEY"] = ""
+ENV["AWS_ACCESS_KEY_ID"] = ""
+ENV["AWS_SECRET_ACCESS_KEY"] = ""
