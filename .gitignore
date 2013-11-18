@@ -15,4 +15,5 @@
 /log/*.log
 /tmp
 .vagrant
+/cookbooks/*
 *.swp
