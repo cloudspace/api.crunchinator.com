@@ -19,8 +19,8 @@ development:
   encoding: unicode
   database: crunchinator_development
   pool: 5
-  username:
-  password:
+  username: postgres
+  password: postgres
   host: localhost
 
   # Connect on a TCP socket. Omitted by default since the client uses a
@@ -49,8 +49,8 @@ test:
   encoding: unicode
   database: crunchinator_test
   pool: 5
-  username:
-  password:
+  username: postgres
+  password: postgres
   host: localhost
 
 production:
