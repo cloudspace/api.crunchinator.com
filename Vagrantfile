@@ -8,7 +8,7 @@ Vagrant::Config.run do |config|
   
   config.ssh.private_key_path = File.join(ENV['HOME'], '.ssh', 'cs_vagrant.pem')
   
-  config.vm.share_folder("crunchinator", "/srv/crunchinator", "./")
+  config.vm.share_folder("crunchinator", "/srv/api.crunchinator.com", "./")
 
   # config.vm.boot_mode = :gui
   
