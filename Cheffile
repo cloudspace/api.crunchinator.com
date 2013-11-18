@@ -9,13 +9,6 @@ cookbook 'postfix'
 cookbook 'build-essential'
 cookbook 'git'
 cookbook 'postgresql'
-cookbook 'dmg'
-cookbook 'runit'
-cookbook 'yum'
-cookbook 'windows'
-cookbook 'chef_handler'
-cookbook 'openssl'
-
 
 # cookbook 'chef-client'
 
