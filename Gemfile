@@ -8,6 +8,10 @@ gem 'rails-api'
 # Use postgresql as the database for Active Record
 gem 'pg'
 
+group :development do
+  gem 'librarian-chef'
+end
+
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
