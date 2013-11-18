@@ -34,3 +34,9 @@
 [submodule "cookbooks/windows"]
 	path = cookbooks/windows
 	url = https://github.com/opscode-cookbooks/windows
+[submodule "cookbooks/chef_handler"]
+	path = cookbooks/chef_handler
+	url = https://github.com/opscode-cookbooks/chef_handler
+[submodule "cookbooks/openssl"]
+	path = cookbooks/openssl
+	url = git@github.com:opscode-cookbooks/openssl.git
