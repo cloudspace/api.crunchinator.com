@@ -9,7 +9,7 @@
 	url = git://github.com/opscode-cookbooks/postfix.git
 [submodule "cookbooks/build-essential"]
 	path = cookbooks/build-essential
-	url = git://github.com/opscode-cookbooks/ubuntu.git
+	url = git@github.com:opscode-cookbooks/build-essential.git
 [submodule "cookbooks/git"]
 	path = cookbooks/git
 	url = https://github.com/opscode-cookbooks/git
