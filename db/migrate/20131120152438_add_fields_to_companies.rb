@@ -1,4 +1,4 @@
-class AddFieldsToPeople < ActiveRecord::Migration
+class AddFieldsToCompanies < ActiveRecord::Migration
   def change
     change_table :companies do |t|
       t.string :permalink
