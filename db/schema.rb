@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131115213725) do
+ActiveRecord::Schema.define(version: 20131120204226) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,6 +20,27 @@ ActiveRecord::Schema.define(version: 20131115213725) do
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "permalink"
+    t.string   "crunchbase_url"
+    t.string   "homepage_url"
+    t.string   "blog_url"
+    t.string   "blog_feed_url"
+    t.string   "twitter_username"
+    t.string   "category_code"
+    t.integer  "number_of_employees"
+    t.integer  "founded_year"
+    t.integer  "founded_month"
+    t.integer  "founded_day"
+    t.integer  "deadpooled_year"
+    t.integer  "deadpooled_month"
+    t.integer  "deadpooled_url"
+    t.string   "tag_list"
+    t.string   "alias_list"
+    t.string   "email_address"
+    t.string   "phone_number"
+    t.string   "description"
+    t.text     "overview"
+    t.string   "deadpooled_day"
   end
 
   create_table "people", force: true do |t|
