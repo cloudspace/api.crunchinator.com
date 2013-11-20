@@ -8,6 +8,11 @@ gem 'rails-api'
 # Use postgresql as the database for Active Record
 gem 'pg'
 
+# Use s3 gem for doing s3 things
+gem 's3'
+
+gem 'json-stream'
+
 group :development do
   gem 'librarian-chef'
 end
