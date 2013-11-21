@@ -14,6 +14,7 @@ namespace :crunchbase do
     companies = {}
 
     if is_service
+      puts "Fetching Ojbects from Bucket..."
       s3_service = S3::Service.new(access_key_id: ENV["AWS_ACCESS_KEY_ID"], secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])
       crunchinator_bucket = s3_service.buckets.find("crunchinator.com")
       companies = crunchinator_bucket.objects
@@ -23,6 +24,7 @@ namespace :crunchbase do
 
     companies.each do |c|
       parsed_company = parse_company_info(c, is_service)
+      puts "Normalizing data for #{parsed_company["name"]}"
       parsed_company["funding_rounds"].each do |fr|
         fr["investments"].each do |inv|
           create_person(inv["person"]) unless inv["person"].nil?
@@ -46,7 +48,12 @@ def parse_company_info(company, is_service)
     end
   end
 
-  JSON::Stream::Parser.parse(content)
+  # There is no utf-8 representation of an ASCII record seperator, which causes the
+  # json serializer to be sad. The code:
+  #     content.gsub(30.chr, "")
+  # replaces this unidentified character.
+  #
+  JSON::Stream::Parser.parse(content.gsub(30.chr, ""))
 end
 
 def get_all_companies
