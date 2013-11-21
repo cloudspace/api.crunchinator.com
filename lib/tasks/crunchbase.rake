@@ -24,11 +24,12 @@ namespace :crunchbase do
     companies.each do |c|
       parsed_company = parse_company_info(c, is_service)
       parsed_company["funding_rounds"].each do |fr|
+        fr["investments"].each do |inv|
+          create_person(inv["person"]) unless inv["person"].nil?
+        end
         create_funding_round(fr)
       end
-      parsed_company["relationships"].each do |r|
-        create_person(r["person"])
-      end
+
       create_company(parsed_company)
     end
   end
