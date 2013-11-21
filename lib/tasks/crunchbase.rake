@@ -23,6 +23,9 @@ namespace :crunchbase do
 
     companies.each do |c|
       parsed_company = parse_company_info(c, is_service)
+      parsed_company["funding_rounds"].each do |fr|
+        create_funding_round(fr)
+      end
       parsed_company["relationships"].each do |r|
         create_person(r["person"])
       end
@@ -50,6 +53,11 @@ def get_all_companies
     resp = http.get("/v/1/companies.js?api_key=#{ENV["CRUNCHBASE_API_KEY"]}")
     resp.body
   end
+end
+
+def create_funding_round(parsed_funding_round)
+  parsed_funding_round.delete_if {|key| !FundingRound.column_names.include? key }
+  FundingRound.create(parsed_funding_round)
 end
 
 def create_person(parsed_person)
