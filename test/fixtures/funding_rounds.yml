@@ -1,0 +1,21 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  round_code: MyString
+  source_url: MyString
+  source_description: MyString
+  raised_amount: 9.99
+  raised_currency_code: MyString
+  funded_year: 1
+  funded_month: 1
+  funded_day: 1
+
+two:
+  round_code: MyString
+  source_url: MyString
+  source_description: MyString
+  raised_amount: 9.99
+  raised_currency_code: MyString
+  funded_year: 1
+  funded_month: 1
+  funded_day: 1
