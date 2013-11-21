@@ -23,6 +23,9 @@ namespace :crunchbase do
 
     companies.each do |c|
       parsed_company = parse_company_info(c, is_service)
+      parsed_company["relationships"].each do |r|
+        create_person(r["person"])
+      end
       create_company(parsed_company)
     end
   end
@@ -47,6 +50,13 @@ def get_all_companies
     resp = http.get("/v/1/companies.js?api_key=#{ENV["CRUNCHBASE_API_KEY"]}")
     resp.body
   end
+end
+
+def create_person(parsed_person)
+  # TODO: Write migration to rename 'firstname' and 'lastname' fields to match the
+  # crunchbase keys
+  #
+  Person.new(firstname: parsed_person["first_name"], lastname: parsed_person["last_name"], permalink: parsed_person["permalink"]).save
 end
 
 def create_company(parsed_company)
