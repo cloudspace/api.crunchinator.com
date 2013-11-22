@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131120204226) do
+ActiveRecord::Schema.define(version: 20131121154142) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,6 +41,19 @@ ActiveRecord::Schema.define(version: 20131120204226) do
     t.string   "description"
     t.text     "overview"
     t.string   "deadpooled_day"
+  end
+
+  create_table "funding_rounds", force: true do |t|
+    t.string   "round_code"
+    t.string   "source_url"
+    t.string   "source_description"
+    t.decimal  "raised_amount"
+    t.string   "raised_currency_code"
+    t.integer  "funded_year"
+    t.integer  "funded_month"
+    t.integer  "funded_day"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "people", force: true do |t|
