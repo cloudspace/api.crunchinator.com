@@ -44,11 +44,25 @@ end
 # @param [Boolean] is_service whether we are using the s3 service
 # @return nil
 def process_company(company, is_service)
-  parsed_company = parse_company_info(company, is_service)
-  parsed_company["relationships"].each do |r|
-    create_person(r["person"])
-  end
-  create_company(parsed_company)
+  companies.each do |c|
+    parsed_company = parse_company_info(c, is_service)
+    puts "Normalizing data for #{parsed_company["name"]}"
+    begin
+      parsed_company["funding_rounds"].each do |fr|
+        fr["investments"].each do |inv|
+          create_person(inv["person"]) unless inv["person"].nil?
+        end
+        create_funding_round(fr)
+      end
+
+      create_company(parsed_company)
+    rescue Exception => e
+      puts "Could not normalize data for #{parsed_company["name"]}"
+      File.open("log/import.log", "w") do |f|
+        f.write e
+      end
+    end
+end
 end
 
 def parse_company_info(company, is_service)
@@ -61,8 +75,18 @@ def parse_company_info(company, is_service)
       content = http.get("/v/1/company/#{company["permalink"]}.js?api_key=#{ENV["CRUNCHBASE_API_KEY"]}").body
     end
   end
-  
-  JSON::Stream::Parser.parse(content)
+  # There is no utf-8 representation of an ASCII record seperator, which causes the
+  # json serializer to be sad. The code:
+  #     content.gsub(30.chr, "")
+  # replaces this unidentified character.
+  #
+  begin
+    JSON::Stream::Parser.parse(content.gsub(/[[:cntrl:]]/, ''))
+  rescue Exception => e
+    File.open("log/import.log", "w") do |f|
+      f.write e
+    end
+  end
 end
 
 def get_all_companies
