@@ -22,19 +22,33 @@ namespace :crunchbase do
       companies = JSON::Stream::Parser.parse(get_all_companies)
     end
 
-    companies.each do |c|
-      parsed_company = parse_company_info(c, is_service)
-      puts "Normalizing data for #{parsed_company["name"]}"
-      parsed_company["funding_rounds"].each do |fr|
-        fr["investments"].each do |inv|
-          create_person(inv["person"]) unless inv["person"].nil?
-        end
-        create_funding_round(fr)
-      end
-
-      create_company(parsed_company)
+    companies.each do |company|
+      process_company(company,is_service)
     end
   end
+  
+  desc "Retrieve and save a single company based on permalink"
+  task :company, [:permalink] => :environment do |t, args|
+    company = {
+      "permalink" => args.permalink
+    }
+    is_service = false
+    process_company(company,is_service)
+  end
+end
+
+
+# Handles creating the objects for an indidual company
+#
+# @param [String] company the company to be parsed
+# @param [Boolean] is_service whether we are using the s3 service
+# @return nil
+def process_company(company, is_service)
+  parsed_company = parse_company_info(company, is_service)
+  parsed_company["relationships"].each do |r|
+    create_person(r["person"])
+  end
+  create_company(parsed_company)
 end
 
 def parse_company_info(company, is_service)
@@ -47,13 +61,8 @@ def parse_company_info(company, is_service)
       content = http.get("/v/1/company/#{company["permalink"]}.js?api_key=#{ENV["CRUNCHBASE_API_KEY"]}").body
     end
   end
-
-  # There is no utf-8 representation of an ASCII record seperator, which causes the
-  # json serializer to be sad. The code:
-  #     content.gsub(30.chr, "")
-  # replaces this unidentified character.
-  #
-  JSON::Stream::Parser.parse(content.gsub(30.chr, ""))
+  
+  JSON::Stream::Parser.parse(content)
 end
 
 def get_all_companies

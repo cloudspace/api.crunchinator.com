@@ -15,6 +15,7 @@ gem 'json-stream'
 
 group :development do
   gem 'librarian-chef'
+  gem 'debugger'
 end
 
 
