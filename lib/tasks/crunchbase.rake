@@ -14,7 +14,7 @@ namespace :crunchbase do
     companies = {}
 
     if is_service
-      puts "Fetching Ojbects from Bucket..."
+      puts "Fetching Objects from Bucket..."
       s3_service = S3::Service.new(access_key_id: ENV["AWS_ACCESS_KEY_ID"], secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])
       crunchinator_bucket = s3_service.buckets.find("crunchinator.com")
       companies = crunchinator_bucket.objects
@@ -38,31 +38,30 @@ namespace :crunchbase do
 end
 
 
-# Handles creating the objects for an indidual company
+# Handles creating the objects for an individual company
 #
 # @param [String] company the company to be parsed
 # @param [Boolean] is_service whether we are using the s3 service
 # @return nil
 def process_company(company, is_service)
-  companies.each do |c|
-    parsed_company = parse_company_info(c, is_service)
-    puts "Normalizing data for #{parsed_company["name"]}"
-    begin
-      parsed_company["funding_rounds"].each do |fr|
-        fr["investments"].each do |inv|
-          create_person(inv["person"]) unless inv["person"].nil?
-        end
-        create_funding_round(fr)
+  parsed_company = parse_company_info(company, is_service)
+  return unless parsed_company
+  puts "Normalizing data for #{parsed_company['name']}"
+  begin
+    parsed_company["funding_rounds"].each do |fr|
+      fr["investments"].each do |inv|
+        create_person(inv["person"]) unless inv["person"].nil?
       end
-
-      create_company(parsed_company)
-    rescue Exception => e
-      puts "Could not normalize data for #{parsed_company["name"]}"
-      File.open("log/import.log", "w") do |f|
-        f.write e
-      end
+      create_funding_round(fr)
     end
-end
+
+    create_company(parsed_company)
+  rescue Exception => e
+    puts "Could not normalize data for #{parsed_company["name"]}"
+    File.open("log/import.log", "w") do |f|
+      f.write e
+    end
+  end
 end
 
 def parse_company_info(company, is_service)
@@ -72,20 +71,29 @@ def parse_company_info(company, is_service)
     content = company.content
   else
     Net::HTTP.start("api.crunchbase.com") do |http|
-      content = http.get("/v/1/company/#{company["permalink"]}.js?api_key=#{ENV["CRUNCHBASE_API_KEY"]}").body
+      # TODO:  This does not account for redirection, make it work with redirects
+      response = http.get("/v/1/company/#{company["permalink"]}.js?api_key=#{ENV["CRUNCHBASE_API_KEY"]}")
+      content = response.body
+      if(response.code != 200)
+        return false;
+      end
     end
   end
   # There is no utf-8 representation of an ASCII record seperator, which causes the
   # json serializer to be sad. The code:
-  #     content.gsub(30.chr, "")
+  #     gsub(/[[:cntrl:]]/, '')
   # replaces this unidentified character.
   #
+  
+  
+  
   begin
     JSON::Stream::Parser.parse(content.gsub(/[[:cntrl:]]/, ''))
   rescue Exception => e
     File.open("log/import.log", "w") do |f|
       f.write e
     end
+    return false
   end
 end
 
