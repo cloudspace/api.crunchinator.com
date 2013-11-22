@@ -44,3 +44,11 @@ Once installation is complete, create, migrate, and seed the database
 At this point your project should be ready to go.  You can now start the development server.
 
     > sudo rails s -p 80
+    
+# API KEYS
+
+To setup your keys from the root of the project run
+
+  > cp config/environment_variables.rb.sample config/environment_variables.rb
+
+Then add your env variables to the new file
