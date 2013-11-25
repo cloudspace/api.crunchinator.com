@@ -18,7 +18,6 @@ Clone the api.crunchinator.com repository and initialize/update the [chef solo](
 
     > git clone git@github.com:cloudspace/api.crunchinator.com
     > cd api.crunchinator.com
-    > git update-index --assume-unchanged config/environment_variables.rb # also update the variables in this file with your API keys
     > librarian-chef install
 
 Start the [Vagrant](vagrantup.com) box.  If there are issues starting, you may need to disable usb2 support for this virtual machine from inside virtual box.
