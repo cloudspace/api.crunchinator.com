@@ -48,14 +48,13 @@ def process_company(company, is_service)
   return unless parsed_company
   puts "Normalizing data for #{parsed_company['name']}"
   begin
+    company = create_company(parsed_company)
     parsed_company["funding_rounds"].each do |fr|
       fr["investments"].each do |inv|
         create_person(inv["person"]) unless inv["person"].nil?
       end
-      create_funding_round(fr)
+      create_funding_round(fr, company)
     end
-
-    create_company(parsed_company)
   rescue Exception => e
     puts "Could not normalize data for #{parsed_company["name"]}"
     File.open("log/import.log", "w") do |f|
@@ -74,7 +73,7 @@ def parse_company_info(company, is_service)
       # TODO:  This does not account for redirection, make it work with redirects
       response = http.get("/v/1/company/#{company["permalink"]}.js?api_key=#{ENV["CRUNCHBASE_API_KEY"]}")
       content = response.body
-      if(response.code != 200)
+      if(response.code != "200")
         return false;
       end
     end
@@ -84,9 +83,6 @@ def parse_company_info(company, is_service)
   #     gsub(/[[:cntrl:]]/, '')
   # replaces this unidentified character.
   #
-  
-  
-  
   begin
     JSON::Stream::Parser.parse(content.gsub(/[[:cntrl:]]/, ''))
   rescue Exception => e
@@ -104,9 +100,12 @@ def get_all_companies
   end
 end
 
-def create_funding_round(parsed_funding_round)
-  parsed_funding_round.delete_if {|key| !FundingRound.column_names.include? key }
-  FundingRound.create(parsed_funding_round)
+def create_funding_round(parsed_funding_round, company)
+  dup = parsed_funding_round.clone
+  dup.delete_if {|key| !FundingRound.column_names.include? key }
+  puts company.id
+  dup[:company_id] = company.id
+  FundingRound.create(dup)
 end
 
 def create_person(parsed_person)
@@ -117,6 +116,7 @@ def create_person(parsed_person)
 end
 
 def create_company(parsed_company)
-  parsed_company.delete_if {|key| !Company.column_names.include? key }
-  Company.create(parsed_company) if !parsed_company["category_code"].nil?
+  dup = parsed_company.clone
+  dup.delete_if {|key| !Company.column_names.include? key }
+  Company.create(dup) if !dup["category_code"].nil?
 end
