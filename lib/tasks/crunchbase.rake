@@ -63,6 +63,7 @@ def process_company(company, is_service)
   end
 end
 
+
 def parse_company_info(company, is_service)
   content = ""
 
@@ -93,6 +94,9 @@ def parse_company_info(company, is_service)
   end
 end
 
+# Retrieves the list of companies Crunchbase has data for.
+#
+# @return [String] the list of companies.
 def get_all_companies
   Net::HTTP.start("api.crunchbase.com") do |http|
     resp = http.get("/v/1/companies.js?api_key=#{ENV["CRUNCHBASE_API_KEY"]}")
@@ -100,6 +104,11 @@ def get_all_companies
   end
 end
 
+# Handles creating funding rounds for a company
+#
+# @param [Hash{String => String}] a dictionary representation of a funding round.
+# @param [Company] the company to associate the funding round with.
+# @return [FundingRound] the created funding round.
 def create_funding_round(parsed_funding_round, company)
   dup = parsed_funding_round.clone
   dup.delete_if {|key| !FundingRound.column_names.include? key }
@@ -108,6 +117,10 @@ def create_funding_round(parsed_funding_round, company)
   FundingRound.create(dup)
 end
 
+# Handles creating a person
+#
+# @param [Hash{String => String}] a dictionary representation of a person.
+# @return [Person] the newly created person.
 def create_person(parsed_person)
   # TODO: Write migration to rename 'firstname' and 'lastname' fields to match the
   # crunchbase keys
@@ -115,6 +128,10 @@ def create_person(parsed_person)
   Person.new(firstname: parsed_person["first_name"], lastname: parsed_person["last_name"], permalink: parsed_person["permalink"]).save
 end
 
+# Handles creating a company
+#
+# @param [Hash{String => String}] a dictionary representation of a company.
+# @return [Person] the newly created company.
 def create_company(parsed_company)
   dup = parsed_company.clone
   dup.delete_if {|key| !Company.column_names.include? key }
