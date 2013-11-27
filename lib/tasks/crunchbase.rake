@@ -112,7 +112,6 @@ end
 def create_funding_round(parsed_funding_round, company)
   dup = parsed_funding_round.clone
   dup.delete_if {|key| !FundingRound.column_names.include? key }
-  puts company.id
   dup[:company_id] = company.id
   FundingRound.create(dup)
 end
