@@ -50,15 +50,25 @@ def process_company(company, is_service)
   begin
     company = create_company(parsed_company)
     parsed_company["funding_rounds"].each do |fr|
+      funding_round = create_funding_round(fr, company)
       fr["investments"].each do |inv|
-        create_person(inv["person"]) unless inv["person"].nil?
+        investor = nil
+        if !inv["person"].nil?
+          investor = create_person(inv["person"])
+        else
+          puts inv["company"]["permalink"]
+          investor = process_company({
+            "permalink" => inv["company"]["permalink"]
+          }, false)
+        end
+        create_investor(investor, funding_round.id, company)
       end
-      create_funding_round(fr, company)
     end
   rescue Exception => e
     puts "Could not normalize data for #{parsed_company["name"]}"
     File.open("log/import.log", "w") do |f|
       f.write e
+      f.write e.backtrace
     end
   end
 end
@@ -88,7 +98,7 @@ def parse_company_info(company, is_service)
     JSON::Stream::Parser.parse(content.gsub(/[[:cntrl:]]/, ''))
   rescue Exception => e
     File.open("log/import.log", "w") do |f|
-      f.write e
+      f.write e.backtrace
     end
     return false
   end
@@ -102,6 +112,14 @@ def get_all_companies
     resp = http.get("/v/1/companies.js?api_key=#{ENV["CRUNCHBASE_API_KEY"]}")
     resp.body
   end
+end
+
+def create_investor(investor, funding_round_id, company)
+  Investment.create({
+    investor_id: investor.id, 
+    investor_type: investor.class.to_s,
+    funding_round_id: funding_round_id
+  })
 end
 
 # Handles creating funding rounds for a company
@@ -124,7 +142,9 @@ def create_person(parsed_person)
   # TODO: Write migration to rename 'firstname' and 'lastname' fields to match the
   # crunchbase keys
   #
-  Person.new(firstname: parsed_person["first_name"], lastname: parsed_person["last_name"], permalink: parsed_person["permalink"]).save
+  person = Person.find_or_create_by_permalink(parsed_person["permalink"])
+  person.update_attributes({firstname: parsed_person["first_name"], lastname: parsed_person["last_name"], permalink: parsed_person["permalink"]})
+  person
 end
 
 # Handles creating a company
@@ -134,5 +154,10 @@ end
 def create_company(parsed_company)
   dup = parsed_company.clone
   dup.delete_if {|key| !Company.column_names.include? key }
-  Company.create(dup) if !dup["category_code"].nil?
+  
+  if !dup["category_code"].nil?
+    company = Company.find_or_create_by_permalink(dup["permalink"])
+    company.update_attributes(dup)
+    return company
+  end
 end
