@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131202072813) do
+ActiveRecord::Schema.define(version: 20131203191259) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -74,5 +74,16 @@ ActiveRecord::Schema.define(version: 20131202072813) do
   end
 
   add_index "people", ["permalink"], name: "index_people_on_permalink", using: :btree
+
+  create_table "trackable_tasks_task_runs", force: true do |t|
+    t.string   "task_type"
+    t.datetime "start_time"
+    t.datetime "end_time"
+    t.text     "error_text"
+    t.text     "log_text"
+    t.boolean  "success",    default: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
 end
