@@ -12,6 +12,7 @@ gem 'pg'
 gem 's3'
 
 gem 'json-stream'
+gem "active_model_serializers"
 
 gem 'pry'
 
