@@ -12,10 +12,25 @@ gem 'pg'
 gem 's3'
 
 gem 'json-stream'
+gem "active_model_serializers"
+gem 'protected_attributes'
+gem "trackable_tasks", "0.1.2"
+
+gem 'pry'
 
 group :development do
   gem 'librarian-chef'
   gem 'debugger'
+end
+
+group :test do
+  gem 'machinist'
+
+  # rspec
+  gem 'rspec'
+  gem 'rspec-rails'
+  gem 'shoulda'
+  gem 'database_cleaner'
 end
 
 

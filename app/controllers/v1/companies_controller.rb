@@ -15,10 +15,9 @@ class V1::CompaniesController < ApplicationController
   end
 
   def index
-    @companies = Company.All
+    @companies = Company.all
     @status = 200
-    result = @companies.map{|company| company.to_json }
-    render :json => result, :status => @status
+    render :json => @companies, :status => @status, :each_serializer => CompanySerializer
   end
 
   def show
