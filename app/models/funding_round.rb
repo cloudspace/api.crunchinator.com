@@ -4,7 +4,7 @@ class FundingRound < ActiveRecord::Base
 
   # Handles creating funding rounds for a company
   #
-  # @param [Hash{String => String}] a dictionary representation of a funding round.
+  # @param [Hash{String => String}] a hash representation of a funding round.
   # @param [Company] the company to associate the funding round with.
   # @return [FundingRound] the created funding round.
   def self.create_funding_round(parsed_funding_round, company)
