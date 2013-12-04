@@ -100,4 +100,17 @@ class Company < ActiveRecord::Base
       return company
     end
   end
+
+  # place holder for the zip code until we get the office/headquarter system inplace
+  # TODO: remove this and replace all references with a company.headquarters.zip_code call (JH 12-4-2013)
+  def zip_code
+    "32817"
+  end
+
+  # Concerned about how slow this will be
+  # this is only needed for the front end and it has all of the data to caluclate it
+  # may need to denormalize the value or let the front end calculate it on it's own
+  def total_funding
+    funding_rounds.to_a.sum { |fr| fr.raised_amount }
+  end
 end

@@ -8,4 +8,20 @@ describe FundingRound do
       it 'should return a new FundingRound'
     end
   end
-end 
+
+  describe 'instance methods' do
+    before(:each) do
+      @funding_round = FundingRound.new
+    end
+
+    describe 'funded_on' do
+      it 'should return a date' do
+        @funding_round.funded_year = 2013
+        @funding_round.funded_month = 1
+        @funding_round.funded_day = 1
+
+        expect(@funding_round.funded_on).to eql(Date.parse('2013-1-1'))
+      end
+    end
+  end
+end

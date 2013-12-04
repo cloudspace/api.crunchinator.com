@@ -13,4 +13,11 @@ class Person < ActiveRecord::Base
     person.update_attributes({firstname: parsed_person["first_name"], lastname: parsed_person["last_name"], permalink: parsed_person["permalink"]})
     person
   end
+
+  def name
+    output = 'Unknown Name';
+    output = firstname + ' ' if firstname
+    output += lastname if lastname
+    output
+  end
 end

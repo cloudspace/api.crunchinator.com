@@ -13,4 +13,12 @@ class FundingRound < ActiveRecord::Base
     dup[:company_id] = company.id
     self.create(dup)
   end
+
+  # temporary method. Should be replaced by a database change soon (JH 12-4-2013)
+  # also delete the test
+  def funded_on
+    if(funded_year && funded_month && funded_day)
+      Time.new(funded_year, funded_month, funded_day).to_date
+    end
+  end
 end
