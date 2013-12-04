@@ -10,13 +10,13 @@ describe Company do
     it { should have_many :funding_rounds }
     it { should have_many :investments }
   end
-  
+
   describe 'class methods' do
-    describe 'get all companies' do
+    describe 'get_all_companies' do
       it 'should return a json list of companies'
     end
 
-    describe 'process company' do
+    describe 'process_company' do
       it 'should create a company'
       it 'should build funding rounds for specified company'
       it 'should build investments for funding rounds'
@@ -24,13 +24,9 @@ describe Company do
       it 'should write to logfile [log/import.log] if unable to normalize'
     end
 
-    describe 'parse company info' do
+    describe 'parse_company_info' do
       it 'should return newly created Company if successful'
       it 'should return nil if Company object could not be created'
-    end
-
-    describe 'create company' do
-      it 'should create a company Object from a dictionary'
     end
   end
 

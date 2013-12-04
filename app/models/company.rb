@@ -3,7 +3,10 @@ require 'json/stream'
 
 class Company < ActiveRecord::Base
   has_many :funding_rounds
-  has_many :investments, as: :investor
+  has_many :investments, :as => :investor
+
+  validates :name, :uniqueness => true
+  validates :permalink, :uniqueness => true
 
   # Retrieves the list of companies Crunchbase has data for.
   #
@@ -86,9 +89,9 @@ class Company < ActiveRecord::Base
     end
   end
 
-  # Handles creating a company
+  # Handles creating a company while ignoring extraneous keys.
   #
-  # @param [Hash{String => String}] a dictionary representation of a company.
+  # @param [Hash{String => String}] a hash representation of a company. May contain extraneous keys.
   # @return [Person] the newly created company.
   def self.create_company(parsed_company)
     dup = parsed_company.clone
