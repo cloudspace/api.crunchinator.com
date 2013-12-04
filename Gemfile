@@ -13,8 +13,7 @@ gem 's3'
 
 gem 'json-stream'
 gem "active_model_serializers"
-gem 'protected_attributes'
-gem "trackable_tasks", "0.1.2"
+gem "trackable_tasks", "0.1.3"
 
 gem 'pry'
 
