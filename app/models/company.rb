@@ -36,13 +36,10 @@ class Company < ActiveRecord::Base
           investor = nil
           if !inv["person"].nil?
             investor = Person.create_person(inv["person"])
-          else
-            puts inv["company"]["permalink"]
-            investor = process_company({
-              "permalink" => inv["company"]["permalink"]
-            }, false)
+          elsif !inv["company"].nil?
+            investor = self.create({name: inv["company"]["name"], permalink: inv["company"]["permalink"]})
           end
-          Investment.create_investor(investor, funding_round.id, company)
+          Investment.create_investor(investor, funding_round.id, company) unless investor.nil?
         end
       end
     rescue Exception => e
