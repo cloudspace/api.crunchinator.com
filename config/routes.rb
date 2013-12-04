@@ -3,6 +3,7 @@ Crunchinator::Application.routes.draw do
   ['v1'].each do |version|
     namespace version.to_sym do
       resources :companies, :only => [:index]
+      resources :investors, :only => [:index]
     end
   end
   

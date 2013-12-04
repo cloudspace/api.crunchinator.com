@@ -2,6 +2,10 @@ class Investment < ActiveRecord::Base
   belongs_to :investor, polymorphic: true
   belongs_to :funding_round
 
+  # Investors who are associated with the passed in companies
+  # @param [Array<Company>] A list of Company instances
+  scope :associated_with_companies, lambda { |companies| joins(:funding_round).where("funding_rounds.company_id" => companies) }
+
   # Handles creating an Investment relationship
   #
   # @param [Person, Company] a representation of an Investor
