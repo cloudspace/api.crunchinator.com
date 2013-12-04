@@ -1,6 +1,16 @@
 require 'spec_helper'
 
 describe FundingRound do
+  describe "associations" do
+    before(:each) do
+      @funding_round = FundingRound.new
+    end
+    subject { @funding_round }
+    
+    it { should belong_to :company }
+    it { should have_many :investments }
+  end
+  
   describe 'class methods' do
     describe 'create funding round' do
       it 'should create a new FundingRound'

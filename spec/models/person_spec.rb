@@ -1,6 +1,16 @@
 require 'spec_helper'
 
 describe Person do
+
+  describe "associations" do
+    before(:each) do
+      @person = Person.new
+    end
+    subject { @person }
+    
+    it { should have_many :investments }
+  end
+
   describe 'class methods' do
     describe 'create person' do
       it 'should create a new Person'

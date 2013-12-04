@@ -1,6 +1,16 @@
 require 'spec_helper'
 
 describe Company do
+  describe "associations" do
+    before(:each) do
+      @company = Company.new
+    end
+    subject { @company }
+  
+    it { should have_many :funding_rounds }
+    it { should have_many :investments }
+  end
+  
   describe 'class methods' do
     describe 'get all companies' do
       it 'should return a json list of companies'
