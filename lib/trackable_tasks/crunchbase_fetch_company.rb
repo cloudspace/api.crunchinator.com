@@ -6,7 +6,7 @@ class CrunchbaseFetchCompany < TrackableTasks::Base
 
   def run
     company = {
-      "permalink" => @company
+      "permalink" => "23andme"
     }
     is_service = false
     Company.process_company(company,is_service)

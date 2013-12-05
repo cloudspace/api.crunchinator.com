@@ -18,3 +18,4 @@
 /cookbooks/*
 *.swp
 config/environment_variables.rb
+companies/*
