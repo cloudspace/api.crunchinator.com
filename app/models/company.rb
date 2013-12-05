@@ -10,13 +10,15 @@ class Company < ActiveRecord::Base
 
   # Retrieves the list of companies Crunchbase has data for.
   #
-  # @return [String] the list of companies.
+  # @return [Hash] the list of companies.
   def self.get_all_companies
+    resp = ""
     Net::HTTP.start("api.crunchbase.com") do |http|
       resp = http.get("/v/1/companies.js?api_key=#{ENV["CRUNCHBASE_API_KEY"]}")
       resp.body
     end
 
+    JSON::Stream::Parser.parse(resp.body)
   end
 
   # Handles creating the objects for an individual company
