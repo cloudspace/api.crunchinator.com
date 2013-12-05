@@ -2,9 +2,9 @@ require 's3'
 require 'json/stream'
 
 class CrunchbaseInitialize < TrackableTasks::Base
-  def initialize(service, log_level = :notice)
+  def initialize(service = nil, log_level = :notice)
     @service = service
-    super
+    super log_level
   end
 
   def run
