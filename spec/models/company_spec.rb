@@ -42,11 +42,11 @@ describe Company do
 
       it 'should return the sum of the funding rounds raised amount' do
         # wow rails, you so great
-        funding_round1 = FundingRound.new(:raised_amount => 1000)
-        funding_round2 = FundingRound.new(:raised_amount => 2000)
+        funding_round1 = FundingRound.new(:raw_raised_amount => BigDecimal.new('1000'), :raised_currency_code => 'USD')
+        funding_round2 = FundingRound.new(:raw_raised_amount => BigDecimal.new('2000'), :raised_currency_code => 'USD')
 
         @company.stub(:funding_rounds).and_return([funding_round1, funding_round2])
-        expect(@company.total_funding).to eql(3000)
+        expect(@company.total_funding).to eql(BigDecimal.new('3000'))
       end
     end
   end

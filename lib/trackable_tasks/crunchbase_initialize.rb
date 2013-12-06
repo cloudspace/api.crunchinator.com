@@ -8,10 +8,11 @@ class CrunchbaseInitialize < TrackableTasks::Base
   end
 
   def run
-    is_service = @service.try(:downcase) == "s3" ? true : false
+    # is_s3 = @service.try(:downcase) == "s3" ? true : false
+    is_s3 = true
     companies = {}
 
-    if is_service
+    if is_s3
       puts "Fetching Objects from Bucket..."
       s3_service = S3::Service.new(access_key_id: ENV["AWS_ACCESS_KEY_ID"], secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"])
       crunchinator_bucket = s3_service.buckets.find("crunchinator.com")
@@ -21,7 +22,7 @@ class CrunchbaseInitialize < TrackableTasks::Base
     end
 
     companies.each do |company|
-      Company.process_company(company,is_service)
+      Company.process_company(company,is_s3)
     end
   end
 end

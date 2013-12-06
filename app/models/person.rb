@@ -2,7 +2,6 @@ class Person < ActiveRecord::Base
   has_many :investments, as: :investor
 
   validates :permalink, :uniqueness => true
-  validates :firstname, :uniqueness => {:scope => :lastname}
 
   # Handles creating a person
   #
