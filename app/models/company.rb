@@ -30,23 +30,28 @@ class Company < ActiveRecord::Base
     puts "Normalizing data for #{parsed_company['name']}"
     begin
       company = create_company(parsed_company)
-      parsed_company["funding_rounds"].each do |fr|
-        funding_round = FundingRound.create_funding_round(fr, company)
-        fr["investments"].each do |inv|
-          investor = nil
-          if !inv["person"].nil?
-            investor = Person.create_person(inv["person"])
-          elsif !inv["company"].nil?
-            investor = self.create({name: inv["company"]["name"], permalink: inv["company"]["permalink"]})
+      if company
+        parsed_company["funding_rounds"].each do |fr|
+          funding_round = FundingRound.create_funding_round(fr, company)
+          fr["investments"].each do |inv|
+            investor = nil
+            if !inv["person"].nil?
+              investor = Person.create_person(inv["person"])
+            elsif !inv["company"].nil?
+              investor = self.create({name: inv["company"]["name"], permalink: inv["company"]["permalink"]})
+            end
+            Investment.create_investor(investor, funding_round.id, company) unless investor.nil?
           end
-          Investment.create_investor(investor, funding_round.id, company) unless investor.nil?
         end
+      else
+        puts "No category_code for #{parsed_company['name']}, skipping"
       end
     rescue Exception => e
       puts "Could not normalize data for #{parsed_company["name"]}"
-      File.open("log/import.log", "w") do |f|
-        f.write e
-        f.write e.backtrace
+      File.open("log/import.log", "a") do |f|
+        f.write e + "\n"
+        e.backtrace.each{|line| f.write line + "\n"}
+        f.write "-----------------------------------------------------------------------------------------\n"
       end
     end
   end
@@ -79,8 +84,13 @@ class Company < ActiveRecord::Base
     begin
       JSON::Stream::Parser.parse(content.gsub(/[[:cntrl:]]/, ''))
     rescue Exception => e
-      File.open("log/import.log", "w") do |f|
-        f.write e.backtrace
+      puts "Could not parse company info for #{company.inspect}"
+      File.open("log/import.log", "a") do |f|
+        f.write e + "\n"
+        f.write "Company: #{company.inspect}\n"
+        f.write "Content: #{content.inspect}\n"
+        e.backtrace.each{|line| f.write line + "\n"}
+        f.write "-----------------------------------------------------------------------------------------\n"
       end
       return false
     end
