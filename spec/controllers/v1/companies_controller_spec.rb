@@ -19,7 +19,7 @@ describe V1::CompaniesController do
         'name' => company.name, 
         'zip_code' => company.zip_code, 
         'total_funding' => company.total_funding.to_s,
-        'category_code' => company.category_code,
+        'category_id' => company.category_id,
         'funding_rounds' => []
       })
 

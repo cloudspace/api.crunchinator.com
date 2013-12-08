@@ -1,8 +1,13 @@
 require 'machinist/active_record'
 
 Company.blueprint do
+  permalink { "permalink #{Time.now.to_i}" }
   name { "company #{sn}" }
-  category_code { "category #{sn}" }
+  category { Category.make }
+end
+
+Category.blueprint do
+  name { "category #{sn}" }
 end
 
 FundingRound.blueprint do

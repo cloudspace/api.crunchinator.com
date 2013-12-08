@@ -11,10 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131205172313) do
+ActiveRecord::Schema.define(version: 20131206200808) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "categories", force: true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "categories", ["name"], name: "index_categories_on_name", unique: true, using: :btree
 
   create_table "companies", force: true do |t|
     t.string   "name"
@@ -26,7 +34,6 @@ ActiveRecord::Schema.define(version: 20131205172313) do
     t.string   "blog_url"
     t.string   "blog_feed_url"
     t.string   "twitter_username"
-    t.string   "category_code"
     t.integer  "number_of_employees"
     t.integer  "founded_year"
     t.integer  "founded_month"
@@ -41,7 +48,10 @@ ActiveRecord::Schema.define(version: 20131205172313) do
     t.string   "description"
     t.text     "overview"
     t.string   "deadpooled_day"
+    t.integer  "category_id"
   end
+
+  add_index "companies", ["category_id"], name: "index_companies_on_category_id", using: :btree
 
   create_table "funding_rounds", force: true do |t|
     t.string   "round_code"

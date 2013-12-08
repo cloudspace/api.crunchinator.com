@@ -14,7 +14,7 @@ describe V1::Companies::CompanySerializer do
     expect(output['company']).to have_key('name')
     expect(output['company']).to have_key('zip_code')
     expect(output['company']).to have_key('total_funding')
-    expect(output['company']).to have_key('category_code')
+    expect(output['company']).to have_key('category_id')
     expect(output['company']).to have_key('funding_rounds')
   end
 end
