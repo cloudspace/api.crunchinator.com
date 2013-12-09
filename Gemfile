@@ -20,6 +20,8 @@ gem 'pry'
 group :development do
   gem 'librarian-chef'
   gem 'debugger'
+
+  # Code Metric Gems
   gem 'rails_best_practices'
 end
 
