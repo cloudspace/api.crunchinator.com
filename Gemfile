@@ -22,6 +22,7 @@ group :development do
   gem 'debugger'
 
   # Code Metric Gems
+
   gem 'rails_best_practices'
 end
 
