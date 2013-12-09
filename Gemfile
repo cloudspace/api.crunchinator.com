@@ -20,6 +20,7 @@ gem 'pry'
 group :development do
   gem 'librarian-chef'
   gem 'debugger'
+  gem 'rails_best_practices'
 end
 
 group :test do
