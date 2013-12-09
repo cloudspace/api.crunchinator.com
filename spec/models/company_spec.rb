@@ -9,6 +9,7 @@ describe Company do
   
     it { should have_many :funding_rounds }
     it { should have_many :investments }
+    it { should belong_to :category }
   end
 
   describe 'class methods' do
