@@ -11,10 +11,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131206200808) do
+ActiveRecord::Schema.define(version: 20131209161704) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "api_queue_elements", force: true do |t|
+    t.integer  "num_runs",        default: 0
+    t.boolean  "processing",      default: false
+    t.boolean  "complete",        default: false
+    t.datetime "last_attempt_at"
+    t.string   "permalink"
+    t.text     "error"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "api_queue_elements", ["complete"], name: "index_api_queue_elements_on_complete", using: :btree
+  add_index "api_queue_elements", ["last_attempt_at"], name: "index_api_queue_elements_on_last_attempt_at", using: :btree
+  add_index "api_queue_elements", ["num_runs"], name: "index_api_queue_elements_on_num_runs", using: :btree
+  add_index "api_queue_elements", ["permalink"], name: "index_api_queue_elements_on_permalink", unique: true, using: :btree
+  add_index "api_queue_elements", ["processing"], name: "index_api_queue_elements_on_processing", using: :btree
 
   create_table "categories", force: true do |t|
     t.string   "name"
