@@ -1,19 +1,37 @@
 #!/usr/bin/env ruby
 
-puts Dir.pwd.inspect
-
 require "./config/git_hooks/metric_gem_handler.rb"
 
 # Get the ruby gem version
 
 handler = MetricGemHandler.new(:commit)
 success = true
-success = success && handler.exec("rails_best_practices .")
 
-if success 
-  puts "Success"
-  exit(0)
-else
-  puts "Failed"
-  exit(1)
+metric_gems = {
+  :rails_best_practices => "rails_best_practices .",
+  :rubocop => "rubocop --rails ./lib ./spec ./app ./config",
+  :metric_fu => "metric_fu --no-open",
+}
+
+# metric_gems.each do |gem,cmd|
+#   success = success && handler.exec(gem.to_s,cmd)
+# end
+
+success = false
+
+# No matter what on commit lets not keep the commit from happening
+unless success 
+  puts <<-eos
+  \e[31m
+  There was an error found by one of the code metric gems.
+  
+  Please tail -n1000 ./logs/code_metrics.log
+  
+  To view other stats open tmp/metric_fu/_data and view the html files in your browser
+  \e[0m
+  eos
+  
+  puts ""
 end
+
+exit(0)

@@ -15,7 +15,14 @@
 # @!attribute important_branches
 #   @return [Array] List of important branches that we should not allow a push if there are errors
 #
+# @!attribute logger
+#   @return Logger new logger created to point error messages to log/code_metrics.log
+#
 # Something doesn't feel right about this class but hey its alpha so we'll probably need to re-write it
+
+require 'logger'
+
+
 class MetricGemHandler
   #--------------------------------
   # Constants
@@ -41,6 +48,7 @@ class MetricGemHandler
     @git_branch = `git branch | sed -e '/^[^*]/d' -e 's/* \\(.*\\)/\\1/'`.strip!
     # @git_branch = "development"
     @important_branches=%w(staging production development)
+    @logger = Logger.new('./log/code_metrics.log')
   end
 
   
@@ -48,11 +56,21 @@ class MetricGemHandler
   # 
   # Runs the command and then prints the output if it fails
   #
+  # @param name [String] Name of the code metric gem for logging purposes
   # @param cmd [String] The command to be processed
   #
   # @return [Boolean]
-  def exec(cmd)
+  def exec(name, cmd)
     results = `#{cmd}`
+    @logger.debug <<-eos
+    
+    
+    ##########################################
+    #
+    # Begin #{name}
+    #
+    ##########################################
+    eos
     return print_and_fail($?,results)
   end
   
@@ -68,7 +86,12 @@ class MetricGemHandler
   # @return [Boolean]
   def print_and_fail(result,text)
     if(result.exitstatus != 0)  
-      print text
+      @logger.debug text
+      # we need to show bad commits every time
+      if(@git_hook_type == GIT_HOOKS[:commit])
+        return false
+      end
+      # we need to only show bad pushes when its an important branch
       if(@git_hook_type == GIT_HOOKS[:push] && @important_branches.include?(@git_branch))
         return false
       end
