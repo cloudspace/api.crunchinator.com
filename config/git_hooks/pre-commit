@@ -13,11 +13,9 @@ metric_gems = {
   :metric_fu => "metric_fu --no-open",
 }
 
-# metric_gems.each do |gem,cmd|
-#   success = success && handler.exec(gem.to_s,cmd)
-# end
-
-success = false
+metric_gems.each do |gem,cmd|
+  success = success && handler.exec(gem.to_s,cmd)
+end
 
 # No matter what on commit lets not keep the commit from happening
 unless success 
