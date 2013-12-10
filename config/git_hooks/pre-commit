@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# load rvm ruby
+source "$HOME/.rvm/scripts/rvm"
+
+rvm use ruby-2.0.0-p247@api.crunchinator.com
+
+#bundle install
+ruby -v
+
+rails_best_practices .
+# if [[ $? != 0 ]]; then exit 1; fi
