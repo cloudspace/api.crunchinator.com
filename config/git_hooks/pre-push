@@ -21,7 +21,6 @@ end
 
 
 if success 
-  puts "Success"
   exit(0)
 else
   puts <<-eos
