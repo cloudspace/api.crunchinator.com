@@ -44,6 +44,15 @@ At this point your project should be ready to go.  You can now start the develop
 
     > sudo rails s -p 80
     
+# Code Metric hooks
+
+We have setup a couple of code metric gems as hooks when you commit and push to github.
+
+To have those work please add the following symlinks from the root of the project
+
+    > ln -s ../../config/git_hooks/pre-push ./.git/hooks/pre-push
+    > ln -s ../../config/git_hooks/pre-commit ./.git/hooks/pre-commit
+    
 # API KEYS
 
 To setup your keys from the root of the project run

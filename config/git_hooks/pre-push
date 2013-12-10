@@ -6,7 +6,7 @@ require "./config/git_hooks/metric_gem_handler.rb"
 
 # Get the ruby gem version
 
-handler = MetricGemHandler.new(:commit)
+handler = MetricGemHandler.new(:push)
 success = true
 
 metric_gems = {

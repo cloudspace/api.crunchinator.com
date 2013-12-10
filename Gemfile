@@ -24,10 +24,6 @@ group :development do
   # Code Metric Gems
   gem 'rails_best_practices'
   gem 'rubocop'
-  gem 'cane'
-  gem 'reek'
-  gem 'flog'
-  gem 'flay'
   gem 'metric_fu'
 end
 

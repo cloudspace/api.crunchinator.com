@@ -274,11 +274,8 @@ PLATFORMS
 
 DEPENDENCIES
   active_model_serializers
-  cane
   database_cleaner
   debugger
-  flay
-  flog
   json-stream
   librarian-chef
   machinist
@@ -288,7 +285,6 @@ DEPENDENCIES
   rails (= 4.0.1)
   rails-api
   rails_best_practices
-  reek
   rspec
   rspec-rails
   rubocop
