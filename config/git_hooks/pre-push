@@ -1,37 +1,19 @@
-#!/usr/bin/env bash
+#!/usr/bin/env ruby
 
-# load rvm ruby
-source "$HOME/.rvm/scripts/rvm"
+puts Dir.pwd.inspect
 
-rvm use ruby-2.0.0-p247@api.crunchinator.com
+require "./config/git_hooks/metric_gem_handler.rb"
 
-#bundle install
-ruby -v
+# Get the ruby gem version
 
-#lets get our current branch
-branch=$(git branch | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+handler = MetricGemHandler.new(:push)
+success = true
+success = success && handler.exec("rails_best_practices .")
 
-# list of branches that we should not push to if there are errors
-important_branches=( staging production development )
-
-# Functions
-
-in_array(){
-    a=$2
-    eval "for i in \${$a[@]}; do
-        echo \$i
-        test $1 = \$i && return 1
-    done"
-    return 0
-}
-
-# rails_best_practices .
-if [ $(in_array $branch $important_branches) ]; then
-  echo "Important Branch"
+if success 
+  puts "Success"
+  exit(0)
 else
-  echo "Stupid Branch"
-fi
-# if [[ $? != 0 ]]; then exit 1; fi
-  
-
-exit 0;
+  puts "Failed"
+  exit(1)
+end

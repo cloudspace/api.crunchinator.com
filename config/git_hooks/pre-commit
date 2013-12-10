@@ -1,14 +1,19 @@
-#!/usr/bin/env bash
+#!/usr/bin/env ruby
 
-# load rvm ruby
-source "$HOME/.rvm/scripts/rvm"
+puts Dir.pwd.inspect
 
-rvm use ruby-2.0.0-p247@api.crunchinator.com
+require "./config/git_hooks/metric_gem_handler.rb"
 
-#bundle install
-ruby -v
+# Get the ruby gem version
 
-rails_best_practices .
-# if [[ $? != 0 ]]; then exit 1; fi
+handler = MetricGemHandler.new(:commit)
+success = true
+success = success && handler.exec("rails_best_practices .")
 
-exit 0;
+if success 
+  puts "Success"
+  exit(0)
+else
+  puts "Failed"
+  exit(1)
+end
