@@ -47,7 +47,7 @@ class MetricGemHandler
     @git_hook_type = GIT_HOOKS[git_hook_type.to_sym] || (raise "Invalid Git Hook Type")
     @git_branch = `git branch | sed -e '/^[^*]/d' -e 's/* \\(.*\\)/\\1/'`.strip!
     # @git_branch = "development"
-    @important_branches=%w(staging production development)
+    @important_branches=%w(staging stage master development)
     @logger = Logger.new('./log/code_metrics.log')
   end
 
