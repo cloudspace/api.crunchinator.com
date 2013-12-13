@@ -14,22 +14,12 @@ metric_gems = {
 }
 
 metric_gems.each do |gem,cmd|
-  success = success && handler.exec(gem.to_s,cmd)
+  success = success && handler.exec(gem.to_s,cmd) 
 end
 
 # No matter what on commit lets not keep the commit from happening
 unless success 
-  puts <<-eos
-  \e[31m
-  There was an error found by one of the code metric gems.
-  
-  Please tail -n1000 ./log/code_metrics.log
-  
-  To view other stats open tmp/metric_fu/_data and view the html files in your browser
-  \e[0m
-  eos
-  
-  puts ""
+  MetricGemHandler.print_error
 end
 
 exit(0)

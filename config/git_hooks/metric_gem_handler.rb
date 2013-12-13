@@ -34,6 +34,24 @@ class MetricGemHandler
   }
   
   #--------------------------------
+  # Class Methods
+  #--------------------------------
+  
+  def self.print_error
+    puts <<-eos
+    \e[31m
+    There was an error found by one of the code metric gems.
+
+    tail -n1000 ./log/code_metrics.log
+
+    To view other stats run the following command  and view the html files in your browser:
+    
+    open tmp/metric_fu/output/index.html
+    \e[0m
+    eos
+  end
+  
+  #--------------------------------
   # Methods
   #--------------------------------
   
