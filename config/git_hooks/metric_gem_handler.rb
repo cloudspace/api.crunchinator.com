@@ -50,7 +50,6 @@ class MetricGemHandler
     @important_branches=%w(staging stage master development)
     @logger = Logger.new('./log/code_metrics.log')
   end
-
   
   
   # 
