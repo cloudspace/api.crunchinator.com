@@ -16,7 +16,7 @@
 # Using secret_token for rails3 compatibility. Change to secret_key_base
 # to avoid deprecation warning.
 # Can be safely removed in a rails3 api-only application.
-MyApp::Application.config.secret_token = if Rails.env.development? or Rails.env.test?
+Crunchinator::Application.config.secret_token = if Rails.env.development? or Rails.env.test?
   ('x' * 30) # meets minimum requirement of 30 chars long
 else
   ENV['SECRET_TOKEN']
