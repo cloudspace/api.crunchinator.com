@@ -13,6 +13,5 @@ describe V1::Companies::NestedFundingRoundSerializer do
     expect(output['nested_funding_round']).to have_key('id')
     expect(output['nested_funding_round']).to have_key('raised_amount')
     expect(output['nested_funding_round']).to have_key('funded_on')
-    expect(output['nested_funding_round']).to have_key('investors')
   end
 end

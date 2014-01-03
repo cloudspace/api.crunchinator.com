@@ -13,7 +13,8 @@ describe V1::Investors::InvestorSerializer do
     expect(output['investor']).to have_key('id')
     expect(output['investor']).to have_key('name')
     expect(output['investor']).to have_key('investor_type')
-    expect(output['investor']).to have_key('zip_code')
+    expect(output['investor']).to have_key('invested_company_ids')
+    expect(output['investor']).to have_key('invested_category_ids')
   end
 
   describe 'investor_type' do
@@ -22,14 +23,11 @@ describe V1::Investors::InvestorSerializer do
     end
   end
 
-  describe 'zip_code' do
-    it 'should call zip code if the investor has a zip code method' do
-      @investor.stub(:zip_code).and_return("12345")
-      expect(@serializer.zip_code).to eq("12345")
-    end
+  describe 'invested_company_ids' do
+    it "needs tests"
+  end
 
-    it 'should return a blank string if the investor has no zip code method' do
-      expect(@serializer.zip_code).to eq("")
-    end
+  describe 'invested_category_ids' do
+    it "needs tests"
   end
 end

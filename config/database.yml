@@ -18,7 +18,7 @@ development:
   adapter: postgresql
   encoding: unicode
   database: crunchinator_development
-  pool: 5
+  pool: 50
   username: postgres
   password: postgres
   host: localhost

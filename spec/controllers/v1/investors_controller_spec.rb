@@ -9,9 +9,9 @@ describe V1::InvestorsController do
 
     it 'should return an appropriate response' do
       company = Company.make!
-      funding_round = FundingRound.make!(:company => company)
-      investor = Person.make!
-      investment = Investment.make!(:investor => investor, :funding_round => funding_round)
+      funding_round = FundingRound.make!(company: company)
+      investor = Person.make!(permalink: "boo")
+      investment = Investment.make!(investor: investor, funding_round: funding_round)
 
       expected = {'investors' => []}
       expected['investors'].push({

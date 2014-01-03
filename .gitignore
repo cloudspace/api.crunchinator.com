@@ -14,8 +14,14 @@
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
+
 .vagrant
 /cookbooks/*
 *.swp
 config/environment_variables.rb
 companies/*
+json_data/*
+.DS_Store
+.yardoc/*
+doc/*
+.rubocop.yml

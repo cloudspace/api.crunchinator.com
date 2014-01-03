@@ -8,16 +8,16 @@ gem 'rails-api'
 # Use postgresql as the database for Active Record
 gem 'pg'
 
-# Use s3 gem for doing s3 things
-gem 's3'
+# use aws-sdk for s3
+gem 'aws-sdk'
 
 gem 'json-stream'
 gem "active_model_serializers"
 gem "trackable_tasks", "0.1.3"
 
-gem 'pry'
-
 group :development do
+  gem 'pry'
+
   gem 'librarian-chef'
   gem 'debugger'
 
@@ -37,6 +37,12 @@ group :test do
   gem 'database_cleaner'
 end
 
+group :doc do
+  gem "yard"
+  gem "yard-activerecord"
+  gem "redcarpet"
+  gem "github-markup"
+end
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

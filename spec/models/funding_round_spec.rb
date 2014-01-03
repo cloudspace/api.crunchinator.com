@@ -11,11 +11,27 @@ describe FundingRound do
     it { should have_many :investments }
   end
   
-  describe 'class methods' do
-    describe 'create_funding_round' do
-      it 'should create a new FundingRound'
-      it 'should associate a new FundingRound with a company'
-      it 'should return a new FundingRound'
+  describe "validations" do
+    it { should validate_presence_of :crunchbase_id }
+    it { should validate_uniqueness_of :crunchbase_id }
+  end
+  
+  describe "fields" do
+    it { should respond_to :round_code }
+    it { should respond_to :source_url }
+    it { should respond_to :source_description}
+    it { should respond_to :raw_raised_amount }
+    it { should respond_to :raised_currency_code }
+    it { should respond_to :funded_year }
+    it { should respond_to :funded_month }
+    it { should respond_to :funded_day }
+    it { should respond_to :company_id }
+    it { should respond_to :crunchbase_id }
+  end
+  
+  describe 'scopes' do
+    describe "valid" do
+      it "needs tests"
     end
   end
 

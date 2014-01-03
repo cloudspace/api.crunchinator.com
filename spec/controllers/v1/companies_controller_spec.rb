@@ -9,17 +9,19 @@ describe V1::CompaniesController do
 
     it 'should return an appropriate response' do
       company = Company.make!
-      funding_round = FundingRound.make!(:company => company)
-      investor = Person.make!
-      investment = Investment.make!(:investor => investor, :funding_round => funding_round)
+      funding_round = FundingRound.make!(company: company)
+      investor = Person.make!(permalink: "boo")
+      investment = Investment.make!(investor: investor, funding_round: funding_round)
 
       expected = {'companies' => []}
       expected['companies'].push({
         'id' => company.id, 
         'name' => company.name, 
-        'zip_code' => company.zip_code, 
-        'total_funding' => company.total_funding.to_s,
         'category_id' => company.category_id,
+        'total_funding' => company.total_funding.to_s,
+        'latitude' => company.latitude,
+        'longitude' => company.longitude,
+        'investor_ids' => ['person-' + investor.id.to_s],
         'funding_rounds' => []
       })
 

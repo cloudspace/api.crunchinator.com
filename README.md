@@ -33,7 +33,7 @@ Once started, we can log into the machine
 Navigate to the project directory and bundle
 
     > cd /srv/api.crunchinator.com
-    > gem install bundler
+    > sudo gem install bundler
     > bundle install
 
 Once installation is complete, create, migrate, and seed the database
@@ -52,6 +52,7 @@ To have those work please add the following symlinks from the root of the projec
 
     > ln -s ../../config/git_hooks/pre-push ./.git/hooks/pre-push
     > ln -s ../../config/git_hooks/pre-commit ./.git/hooks/pre-commit
+    > ln -s ./config/rubocop_settings.yml ./.rubocop.yml
     
 # API KEYS
 

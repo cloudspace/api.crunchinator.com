@@ -17,7 +17,7 @@ describe CrunchbaseFetchCompany do
 
   describe 'integration test' do
     describe 'run' do
-      it 'should create a company and its associations'
+      # it 'should create a company and its associations'
     end
   end
 end

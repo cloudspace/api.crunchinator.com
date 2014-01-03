@@ -2,21 +2,9 @@ class FundingRound < ActiveRecord::Base
   belongs_to :company
   has_many :investments
 
-  validates :crunchbase_id, :uniqueness => true
+  validates :crunchbase_id, uniqueness: true, presence: true
 
-  # Handles creating funding rounds for a company
-  #
-  # @param [Hash{String => String}] a hash representation of a funding round.
-  # @param [Company] the company to associate the funding round with.
-  # @return [FundingRound] the created funding round.
-  def self.create_funding_round(parsed_funding_round, company)
-    dup = parsed_funding_round.clone
-    dup.delete_if {|key| !self.column_names.include?(key)}
-    dup["raw_raised_amount"] = dup.delete("raised_amount")
-    dup["crunchbase_id"] = dup.delete("id")
-    dup[:company_id] = company.id
-    self.create(dup)
-  end
+  scope :valid, lambda { joins(:company).where('funding_rounds.company_id' => Company.valid.pluck(:id)).references(:funding_rounds) }
 
   # Returns the raised amount if in USD, else 0 (expressed as a BigDecimal)
   #
