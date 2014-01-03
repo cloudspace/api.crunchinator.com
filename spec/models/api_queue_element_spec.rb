@@ -21,9 +21,9 @@ describe ApiQueue::Element do
   describe 'scopes' do
     describe 'errors' do
       before(:each) do
-        @blank_string_error = ApiQueue::Element.make!(error: "")
-        @nil_error = ApiQueue::Element.make!(error: nil)
-        @has_error = ApiQueue::Element.make!(error: "this is an error")
+        @blank_string_error = FactoryGirl.create(:api_queue_element, error: "")
+        @nil_error = FactoryGirl.create(:api_queue_element, error: nil)
+        @has_error = FactoryGirl.create(:api_queue_element, error: "this is an error")
         @elements_with_errors = ApiQueue::Element.errors
       end
 
@@ -43,8 +43,8 @@ describe ApiQueue::Element do
 
     describe 'complete' do
       before(:each) do
-        @complete_element = ApiQueue::Element.make!(complete: true)
-        @incomplete_element = ApiQueue::Element.make!(complete: false)
+        @complete_element = FactoryGirl.create(:api_queue_element, complete: true)
+        @incomplete_element = FactoryGirl.create(:api_queue_element, complete: false)
         @complete_elements = ApiQueue::Element.complete
       end
 
@@ -59,8 +59,8 @@ describe ApiQueue::Element do
     
     describe 'incomplete' do
       before(:each) do
-        @complete_element = ApiQueue::Element.make!(complete: true)
-        @incomplete_element = ApiQueue::Element.make!(complete: false)
+        @complete_element = FactoryGirl.create(:api_queue_element, complete: true)
+        @incomplete_element = FactoryGirl.create(:api_queue_element, complete: false)
         @incomplete_elements = ApiQueue::Element.incomplete
       end
 
@@ -75,8 +75,8 @@ describe ApiQueue::Element do
     
     describe 'processing' do
       before(:each) do
-        @processed_element = ApiQueue::Element.make!(processing: true)
-        @not_processed_element = ApiQueue::Element.make!(processing: false)
+        @processed_element = FactoryGirl.create(:api_queue_element, processing: true)
+        @not_processed_element = FactoryGirl.create(:api_queue_element, processing: false)
         @processed_elements = ApiQueue::Element.processing
       end
 
@@ -91,8 +91,8 @@ describe ApiQueue::Element do
     
     describe 'not_processing' do
       before(:each) do
-        @processed_element = ApiQueue::Element.make!(processing: true)
-        @not_processed_element = ApiQueue::Element.make!(processing: false)
+        @processed_element = FactoryGirl.create(:api_queue_element, processing: true)
+        @not_processed_element = FactoryGirl.create(:api_queue_element, processing: false)
         @not_processed_elements = ApiQueue::Element.not_processing
       end
 
@@ -107,8 +107,8 @@ describe ApiQueue::Element do
 
     describe 'not_failed' do
       before(:each) do
-        @failed_element = ApiQueue::Element.make!(num_runs: 5)
-        @not_failed_element = ApiQueue::Element.make!(num_runs: 4)
+        @failed_element = FactoryGirl.create(:api_queue_element, num_runs: 5)
+        @not_failed_element = FactoryGirl.create(:api_queue_element, num_runs: 4)
         @not_failed_elements = ApiQueue::Element.not_failed
       end
 
@@ -123,8 +123,8 @@ describe ApiQueue::Element do
     
     describe 'failed' do
       before(:each) do
-        @failed_element = ApiQueue::Element.make!(num_runs: 5)
-        @not_failed_element = ApiQueue::Element.make!(num_runs: 4)
+        @failed_element = FactoryGirl.create(:api_queue_element, num_runs: 5)
+        @not_failed_element = FactoryGirl.create(:api_queue_element, num_runs: 4)
         @failed_elements = ApiQueue::Element.failed
       end
 
@@ -139,9 +139,9 @@ describe ApiQueue::Element do
     
     describe 'waiting_for_retry' do
       before(:each) do
-        @ran_but_not_complete = ApiQueue::Element.make!(num_runs: 1, complete: false)
-        @completed = ApiQueue::Element.make!(complete: true)
-        @not_run = ApiQueue::Element.make!(num_runs: 0)
+        @ran_but_not_complete = FactoryGirl.create(:api_queue_element, num_runs: 1, complete: false)
+        @completed = FactoryGirl.create(:api_queue_element, complete: true)
+        @not_run = FactoryGirl.create(:api_queue_element, num_runs: 0)
         @waiting_elements = ApiQueue::Element.waiting_for_retry
       end
 
@@ -160,8 +160,8 @@ describe ApiQueue::Element do
     
     describe 'order_by_fifo' do
       before(:each) do
-        @element_1 = ApiQueue::Element.make!(num_runs: 1, complete: false)
-        @element_2 = ApiQueue::Element.make!(complete: true)
+        @element_1 = FactoryGirl.create(:api_queue_element, num_runs: 1, complete: false)
+        @element_2 = FactoryGirl.create(:api_queue_element, complete: true)
         @ordered_elements = ApiQueue::Element.order_by_fifo
       end
 
@@ -176,8 +176,8 @@ describe ApiQueue::Element do
 
     describe 'order_by_most_recently_modified' do
       before(:each) do
-        @element_1 = ApiQueue::Element.make!()
-        @element_2 = ApiQueue::Element.make!()
+        @element_1 = FactoryGirl.create(:api_queue_element, )
+        @element_2 = FactoryGirl.create(:api_queue_element, )
         @ordered_elements = ApiQueue::Element.order_by_most_recently_modified
       end
 
@@ -202,9 +202,9 @@ describe ApiQueue::Element do
     # scope :not_recently_errored, lambda { where("last_attempt_at is null OR last_attempt_at < :an_hour_ago", {:an_hour_ago => Time.now - 1.hour}) }
     describe 'not_recently_errored' do
       before(:each) do
-        @element_no_attempt = ApiQueue::Element.make!()
-        @element_hour_old_attempt = ApiQueue::Element.make!(last_attempt_at: 2.hours.ago)
-        @element_recent_attempt = ApiQueue::Element.make!(last_attempt_at: 1.minute.ago)
+        @element_no_attempt = FactoryGirl.create(:api_queue_element, )
+        @element_hour_old_attempt = FactoryGirl.create(:api_queue_element, last_attempt_at: 2.hours.ago)
+        @element_recent_attempt = FactoryGirl.create(:api_queue_element, last_attempt_at: 1.minute.ago)
         @not_recent_elements = ApiQueue::Element.not_recently_errored
       end
 

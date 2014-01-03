@@ -13,6 +13,9 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 ActiveRecord::Migration.check_pending! if defined?(ActiveRecord::Migration)
 
 RSpec.configure do |config|
+  # factory girl configuration
+  config.include FactoryGirl::Syntax::Methods
+
   # run spec tests in all folders
   config.pattern = "**/*_spec.rb"
 

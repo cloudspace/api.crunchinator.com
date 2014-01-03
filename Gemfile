@@ -15,11 +15,15 @@ gem 'json-stream'
 gem "active_model_serializers"
 gem "trackable_tasks", "0.1.3"
 
-group :development do
-  gem 'pry'
+group :development, :test do
+  gem 'factory_girl'
+  gem 'faker'
+  gem 'pry-rails'
+  gem 'pry-debugger'
+end
 
+group :development do
   gem 'librarian-chef'
-  gem 'debugger'
 
   # Code Metric Gems
   gem 'rails_best_practices'
@@ -28,8 +32,6 @@ group :development do
 end
 
 group :test do
-  gem 'machinist'
-
   # rspec
   gem 'rspec'
   gem 'rspec-rails'

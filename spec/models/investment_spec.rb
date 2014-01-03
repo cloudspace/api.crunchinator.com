@@ -20,10 +20,10 @@ describe Investment do
   describe 'scopes' do
     describe 'associated_with_companies' do
       before(:each) do
-        company = Company.make!
-        funding_round = FundingRound.make!(company: company)
-        @associated = Investment.make!(funding_round: funding_round)
-        @not_associated = Investment.make!
+        company = FactoryGirl.create(:company)
+        funding_round = FactoryGirl.create(:funding_round, company: company)
+        @associated = FactoryGirl.create(:investment, funding_round: funding_round)
+        @not_associated = FactoryGirl.create(:investment)
 
         @investments = Investment.associated_with_companies([company.id])
       end
@@ -39,11 +39,11 @@ describe Investment do
     
     describe 'associated_with_financial_organizations' do
       before(:each) do
-        financial_organization = FinancialOrganization.make!
-        company = Company.make!
-        funding_round = FundingRound.make!(company: company)
-        @associated = Investment.make!(funding_round: funding_round, investor: financial_organization)
-        @not_associated = Investment.make!(funding_round: funding_round)
+        financial_organization = FactoryGirl.create(:financial_organization)
+        company = FactoryGirl.create(:company)
+        funding_round = FactoryGirl.create(:funding_round)
+        @associated = FactoryGirl.create(:investment, funding_round: funding_round, investor: financial_organization)
+        @not_associated = FactoryGirl.create(:investment, funding_round: funding_round)
         @investments = Investment.associated_with_financial_organizations([financial_organization.id])
       end
 
