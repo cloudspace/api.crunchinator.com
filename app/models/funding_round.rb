@@ -6,6 +6,9 @@ class FundingRound < ActiveRecord::Base
 
   scope :valid, lambda { joins(:company).where('funding_rounds.company_id' => Company.valid.pluck(:id)).references(:funding_rounds) }
 
+  # Funding rounds with some amount of USD raised
+  scope :funded, lambda { where("funding_rounds.raised_currency_code = 'USD' AND funding_rounds.raw_raised_amount is not null AND funding_rounds.raw_raised_amount > 0")}
+
   # Returns the raised amount if in USD, else 0 (expressed as a BigDecimal)
   #
   # @return [BigDecimal] the raised amount.
