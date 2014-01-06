@@ -45,11 +45,21 @@ describe FinancialOrganization do
 
   describe "instance methods" do
     before(:each) do
-      @financial_oranization = FinancialOrganization.new
+      @financial_organization = FinancialOrganization.new
     end
 
     describe "headquarters" do
-      it "needs tests"
+      it "should return the first office location that is a headquarter" do
+        @financial_organization = FactoryGirl.create(:financial_organization)
+        
+        office = FactoryGirl.create(:office_location, :headquarters => false, :tenant => @financial_organization)
+        headquarter = FactoryGirl.create(:office_location, :headquarters => true, :tenant => @financial_organization)
+        expect(@financial_organization.headquarters).to eql(headquarter)
+      end
+
+      it "should return nil if there are no headquarters" do
+        expect(@financial_organization.headquarters).to be_nil
+      end
     end
   end
 end
