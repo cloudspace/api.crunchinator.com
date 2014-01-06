@@ -11,27 +11,30 @@ class Company < ActiveRecord::Base
   scope :categorized, lambda{ where('companies.category_id is not null') }
 
   # companies that have positive funding in USD on some funding round
-  scope :funded, lambda{ joins(:funding_rounds).where("funding_rounds.raised_currency_code = 'USD' AND funding_rounds.raw_raised_amount is not null AND funding_rounds.raw_raised_amount > 0")}
+  scope :funded, lambda{ joins(:funding_rounds).merge(FundingRound.funded) }
 
   # companies that DO NOT have positive funding in USD on any funding round
+  #
+  # IMPORTANT NOTE: this will return no records if funded returns an empty relation
   scope :unfunded, lambda{ where("companies.id not in (?)", funded.pluck(:id))}
 
   # companies that have a geolocated headquarters
-  scope :geolocated, lambda{ joins(:office_locations).where("office_locations.headquarters = 't' AND office_locations.latitude is not null AND office_locations.longitude is not null").references(:office_locations) }
+  scope :geolocated, lambda{ joins(:office_locations).merge(OfficeLocation.geolocated_headquarters) }
 
   # companies that have no geolocated headquarters
+  #
+  # IMPORTANT NOTE: this will return no records if geolocated returns an empty relation
   scope :unlocated, lambda{ where("companies.id not in (?)", geolocated.pluck(:id)) }
 
-  # longitude for USA coasts
-  USA_WEST_COAST = BigDecimal.new(-157)
-  USA_EAST_COAST = BigDecimal.new(-65)
   # companies whose headquarters is in the USA
-  scope :american, lambda{ geolocated.where("office_locations.country_code = 'USA' AND office_locations.longitude BETWEEN :min_long AND :max_long", {min_long: USA_WEST_COAST, max_long: USA_EAST_COAST}) }
+  scope :american, lambda{ joins(:office_locations).geolocated.merge(OfficeLocation.in_usa) }
 
   # companies that are considered valid to the client, i.e., will be displayed
   scope :valid, lambda{ categorized.funded.geolocated.american.distinct }
 
   # companies that are not considered valid to the client, i.e., will not be displayed
+  #
+  # IMPORTANT NOTE: this will return no records if valid returns an empty relation
   scope :invalid, lambda{ where("companies.id not in (?)", valid.pluck(:id)) }
 
   # companies whose name attribute does not begin with an alphabetical character
@@ -43,7 +46,7 @@ class Company < ActiveRecord::Base
   end
 
   def headquarters
-    office_locations.where(headquarters: true).first
+    office_locations.headquarters.first
   end
 
   def zip_code
@@ -83,7 +86,7 @@ class Company < ActiveRecord::Base
   # includes
   #
   def set_lat_long_cache
-    hq = office_locations.select{|ol| ol.headquarters == true}.first
+    hq = headquarters
     @latitude = hq ? hq.latitude : nil
     @longitude = hq ? hq.longitude : nil
   end

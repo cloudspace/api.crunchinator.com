@@ -33,6 +33,28 @@ describe FundingRound do
     describe "valid" do
       it "needs tests"
     end
+
+    describe "funded" do
+      it "should return funding rounds that have raised us dollars" do
+        round = FactoryGirl.create(:funding_round)
+        expect(FundingRound.funded).to include(round)
+      end
+
+      it "should not return funding rounds that have raised a different kind of currency" do
+        round = FactoryGirl.create(:funding_round, :raised_currency_code => "GBP")
+        expect(FundingRound.funded).not_to include(round)
+      end
+
+      it "should not return funding rounds whose raised amount is null" do
+        round = FactoryGirl.create(:funding_round, :raw_raised_amount => nil)
+        expect(FundingRound.funded).not_to include(round)
+      end
+
+      it "should not return funding rounds that have raised zero dollars" do
+        round = FactoryGirl.create(:funding_round, :raw_raised_amount => "0")
+        expect(FundingRound.funded).not_to include(round)
+      end
+    end
   end
 
   describe 'instance methods' do
