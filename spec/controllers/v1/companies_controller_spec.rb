@@ -8,8 +8,8 @@ describe V1::CompaniesController do
     end
 
     it 'should return an appropriate response' do
-      pending "This test no longer matches the json outputted by the controllers"
       company = FactoryGirl.create(:company)
+      headquarters = FactoryGirl.create(:headquarters, tenant: company)
       funding_round = FactoryGirl.create(:funding_round, company: company)
       investor =  FactoryGirl.create(:company, permalink: "boo")
       investment = FactoryGirl.create(:investment, investor: investor, funding_round: funding_round)
@@ -20,17 +20,17 @@ describe V1::CompaniesController do
         'name' => company.name, 
         'category_id' => company.category_id,
         'total_funding' => company.total_funding.to_s,
-        'latitude' => company.latitude,
-        'longitude' => company.longitude,
-        'investor_ids' => ['person-' + investor.id.to_s],
-        'funding_rounds' => []
+        'funding_rounds' => [],
+        'latitude' => company.latitude.to_s,
+        'longitude' => company.longitude.to_s,
+        'investor_ids' => [investment.investor_type.underscore + "-" + investor.id.to_s]
       })
 
       expected['companies'][0]['funding_rounds'].push({
         'id' => funding_round.id,
         'raised_amount' => funding_round.raised_amount.to_s,
-        'funded_on' => funding_round.funded_on.to_s,
-        'investors' => [{'id' => investor.id, 'name' => investor.name}]
+        'funded_on' => "#{funding_round.funded_month}/#{funding_round.funded_day}/#{funding_round.funded_year}",
+        'investor_ids' => [investment.investor_type.underscore + "-" + investor.id.to_s]
       })
 
       get :index

@@ -30,6 +30,23 @@ describe FundingRound do
   end
   
   describe 'scopes' do
+    describe "for_companies" do
+      before(:each) do
+        company = FactoryGirl.create(:company)
+        @company_ids = [company.id]
+        @attached = FactoryGirl.create(:funding_round, :company => company)
+        @unattached = FactoryGirl.create(:funding_round)
+      end
+
+      it "should return funding rounds attached to the given company ids" do
+        expect(FundingRound.for_companies(@company_ids)).to include(@attached)
+      end
+
+      it "should not return funding rounds that aren't attached" do
+        expect(FundingRound.for_companies(@company_ids)).not_to include(@unattached)
+      end
+    end
+
     describe "valid" do
       it "needs tests"
     end

@@ -10,6 +10,6 @@ class V1::Companies::NestedFundingRoundSerializer < ActiveModel::Serializer
   end
 
   def investor_ids
-    @object.investments.collect{ |investment| "#{investment.investor_type.underscore}-#{investment.investor_id}" }
+    @object.investments.collect{ |investment| investment.investor_guid }
   end
 end
