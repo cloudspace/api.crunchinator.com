@@ -3,6 +3,19 @@ class OfficeLocation < ActiveRecord::Base
 
   validates :tenant, presence: true
 
+  # longitude for USA coasts
+  USA_LOCATION = { :west => BigDecimal.new(-157), :east => BigDecimal.new(-65) }
+
+  # Headquarters only
+  scope :headquarters, lambda { where(:headquarters => true) }
+
+  # Headquarters that have valid longitude/latitude data
+  scope :geolocated_headquarters, lambda { headquarters.where("office_locations.latitude is not null AND office_locations.longitude is not null") }
+
+  # Country code is USA Location is in North or South America
+  # may be updated at some point to just look at lat/long for USA
+  scope :in_usa, lambda { where("office_locations.country_code = 'USA' AND office_locations.longitude BETWEEN :min_long AND :max_long", {min_long: USA_LOCATION[:west], max_long: USA_LOCATION[:east]}) }
+
   after_create :geolocate
 
   def geolocate
