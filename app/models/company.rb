@@ -38,9 +38,7 @@ class Company < ActiveRecord::Base
   scope :non_alpha, lambda{ where("substr(companies.name,1,1) NOT IN (?)", [*('a'..'z'),*('A'..'Z')]).order('companies.name asc')}
 
   # companies whose name attribute begins with the specified character
-  def self.starts_with(char)
-    where("Upper(substr(companies.name,1,1)) = :char", {char: char.upcase}).order('companies.name asc')
-  end
+  scope :starts_with, lambda { |char| where("Upper(substr(companies.name,1,1)) = :char", {char: char.upcase}).order('companies.name asc') }
 
   def headquarters
     office_locations.where(headquarters: true).first

@@ -8,9 +8,9 @@ class Person < ActiveRecord::Base
   scope :non_alpha, lambda{ where("substr((SELECT COALESCE(people.firstname, '') || COALESCE(people.lastname, '')),1,1) NOT IN (?)", [*('a'..'z'),*('A'..'Z')]).order('people.firstname, people.lastname asc')}
 
   # companies whose name attribute begins with the specified character
-  def self.starts_with(char)
+  scope :starts_with, lambda { |char|
     where("Upper(substr((SELECT COALESCE(people.firstname, '') || COALESCE(people.lastname, '')),1,1)) = :char", {char: char.upcase}).order('people.firstname, people.lastname asc')
-  end
+  }
 
   # @return [String] - returns a name value for the person it is called on
   # it will return 'Unknown Name' if the Person has no name values

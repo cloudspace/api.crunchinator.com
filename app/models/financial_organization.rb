@@ -8,9 +8,7 @@ class FinancialOrganization < ActiveRecord::Base
   scope :non_alpha, lambda{ where("substr(financial_organizations.name,1,1) NOT IN (?)", [*('a'..'z'),*('A'..'Z')]).order('financial_organizations.name asc')}
 
   # finanial_organizations whose name attribute begins with the specified character
-  def self.starts_with(char)
-    where("Upper(substr(financial_organizations.name,1,1)) = :char", {char: char.upcase}).order('financial_organizations.name asc')
-  end
+  scope :starts_with, lambda { |char| where("Upper(substr(financial_organizations.name,1,1)) = :char", {char: char.upcase}).order('financial_organizations.name asc') }
 
   def headquarters
     office_locations.where(headquarters: true).first
