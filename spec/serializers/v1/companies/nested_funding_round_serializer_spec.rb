@@ -14,4 +14,13 @@ describe V1::Companies::NestedFundingRoundSerializer do
     expect(output['nested_funding_round']).to have_key('raised_amount')
     expect(output['nested_funding_round']).to have_key('funded_on')
   end
+
+  describe "investor_ids" do
+    it "should return a list of investment guids" do
+      investment = Investment.new(:investor_type => "Company", :investor_id => "1")
+      @funding_round.stub(:investments).and_return([investment])
+
+      expect(@serializer.investor_ids).to eql(["company-1"])
+    end
+  end
 end
