@@ -1,5 +1,10 @@
 require 'csv'
 class ZipCodeGeo < ActiveRecord::Base
+
+  # Load the zip codes from the seeds file
+  #
+  # @param file The file to look at.
+  #
   def self.import_from_csv(file = File.new("#{Rails.root}/seed/zipcode.csv", 'r'))
     self.delete_all
     CSV.foreach(file.path, headers: true) do |row|
