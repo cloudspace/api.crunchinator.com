@@ -1,21 +1,24 @@
 require 'spec_helper'
 
 describe ApiQueue::Element do
+  before(:each) do
+    @element = ApiQueue::Element.new
+  end
   
   describe "validations" do
-    it { should validate_presence_of :permalink }
-    it { should validate_uniqueness_of :permalink }
+    it { expect(@element).to validate_presence_of :permalink }
+    it { expect(@element).to validate_uniqueness_of :permalink }
   end
   
   describe "fields" do
-    it { should respond_to :num_runs }
-    it { should respond_to :processing }
-    it { should respond_to :complete}
-    it { should respond_to :last_attempt_at }
-    it { should respond_to :permalink }
-    it { should respond_to :error }
-    it { should respond_to :data_source }
-    it { should respond_to :namespace }
+    it { expect(@element).to respond_to :num_runs }
+    it { expect(@element).to respond_to :processing }
+    it { expect(@element).to respond_to :complete}
+    it { expect(@element).to respond_to :last_attempt_at }
+    it { expect(@element).to respond_to :permalink }
+    it { expect(@element).to respond_to :error }
+    it { expect(@element).to respond_to :data_source }
+    it { expect(@element).to respond_to :namespace }
   end
   
   describe 'scopes' do
@@ -225,21 +228,11 @@ describe ApiQueue::Element do
     
   end
     
-    # 
-    # # Elements with a no last attempt or a last attempt more than 1 hour ago
-    # scope :not_recently_errored, lambda { where("last_attempt_at is null OR last_attempt_at < :an_hour_ago", {:an_hour_ago => Time.now - 1.hour}) }
-    # 
-    # # Elements that match all of the above scopes
-    # scope :pending, lambda { incomplete.not_processing.not_recently_errored.not_failed }
   describe 'instance methods' do
-    before(:each) do
-      @api_queue_element = ApiQueue::Element.new
-    end
-
     describe 'mark_for_processing' do
       it 'should set the processing attribute to true' do
-        @api_queue_element.mark_for_processing
-        expect(@api_queue_element.processing).to eql(true)
+        @element.mark_for_processing
+        expect(@element.processing).to eql(true)
       end
     end
   end
