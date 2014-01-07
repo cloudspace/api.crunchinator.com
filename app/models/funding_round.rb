@@ -8,7 +8,7 @@ class FundingRound < ActiveRecord::Base
   scope :for_companies, lambda { |company_ids| joins(:company).where(:company_id => company_ids) }
 
   # funding rounds attached to a valid company
-  scope :valid, lambda { joins(:company).where('funding_rounds.company_id' => Company.valid.pluck(:id)).references(:funding_rounds) }
+  scope :valid, lambda { where('funding_rounds.company_id' => Company.valid.pluck(:id)) }
 
   # Funding rounds with some amount of USD raised
   scope :funded, lambda { where("funding_rounds.raised_currency_code = 'USD' AND funding_rounds.raw_raised_amount is not null AND funding_rounds.raw_raised_amount > 0")}
