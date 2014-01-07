@@ -1,5 +1,10 @@
 language: ruby
+env: RAILS_ENV=test
 rvm:
   - "2.0.0"
-# uncomment this line if your project needs to run something other than `rake`:
-# script: bundle exec rspec spec
+before_script:
+  - bundle exec rake db:create --trace
+script:
+  - bundle exec rake db:migrate --trace
+  - bundle exec rake db:test:prepare
+  - bundle exex rspec
