@@ -1,49 +1,48 @@
 require 'spec_helper'
 
 describe Company do
+  before(:each) do
+    @company = Company.new
+  end
+
   describe "associations" do
-    before(:each) do
-      @company = Company.new
-    end
-    subject { @company }
-  
-    it { should have_many :funding_rounds }
-    it { should have_many :investments }
-    it { should have_many :office_locations }
-    it { should belong_to :category }
+    it { expect(@company).to have_many :funding_rounds }
+    it { expect(@company).to have_many :investments }
+    it { expect(@company).to have_many :office_locations }
+    it { expect(@company).to belong_to :category }
   end
   
   describe "validations" do
-    it { should validate_presence_of :permalink }
-    it { should validate_uniqueness_of :permalink }
-    it { should validate_presence_of :name }
-    it { should validate_uniqueness_of :name }
+    it { expect(@company).to validate_presence_of :permalink }
+    it { expect(@company).to validate_uniqueness_of :permalink }
+    it { expect(@company).to validate_presence_of :name }
+    it { expect(@company).to validate_uniqueness_of :name }
   end
   
   describe "fields" do
-    it { should respond_to :name }
-    it { should respond_to :permalink }
-    it { should respond_to :crunchbase_url}
-    it { should respond_to :blog_url }
-    it { should respond_to :blog_feed_url }
-    it { should respond_to :twitter_username }
-    it { should respond_to :phone_number }
-    it { should respond_to :email_address }
-    it { should respond_to :description }
-    it { should respond_to :number_of_employees }
-    it { should respond_to :overview }  
-    it { should respond_to :homepage_url }  
-    it { should respond_to :number_of_employees }
-    it { should respond_to :founded_year }
-    it { should respond_to :founded_month }
-    it { should respond_to :founded_day }  
-    it { should respond_to :deadpooled_year }
-    it { should respond_to :deadpooled_month }
-    it { should respond_to :deadpooled_url }
-    it { should respond_to :tag_list }  
-    it { should respond_to :alias_list }
-    it { should respond_to :deadpooled_day }
-    it { should respond_to :category_id }
+    it { expect(@company).to respond_to :name }
+    it { expect(@company).to respond_to :permalink }
+    it { expect(@company).to respond_to :crunchbase_url}
+    it { expect(@company).to respond_to :blog_url }
+    it { expect(@company).to respond_to :blog_feed_url }
+    it { expect(@company).to respond_to :twitter_username }
+    it { expect(@company).to respond_to :phone_number }
+    it { expect(@company).to respond_to :email_address }
+    it { expect(@company).to respond_to :description }
+    it { expect(@company).to respond_to :number_of_employees }
+    it { expect(@company).to respond_to :overview }  
+    it { expect(@company).to respond_to :homepage_url }  
+    it { expect(@company).to respond_to :number_of_employees }
+    it { expect(@company).to respond_to :founded_year }
+    it { expect(@company).to respond_to :founded_month }
+    it { expect(@company).to respond_to :founded_day }  
+    it { expect(@company).to respond_to :deadpooled_year }
+    it { expect(@company).to respond_to :deadpooled_month }
+    it { expect(@company).to respond_to :deadpooled_url }
+    it { expect(@company).to respond_to :tag_list }  
+    it { expect(@company).to respond_to :alias_list }
+    it { expect(@company).to respond_to :deadpooled_day }
+    it { expect(@company).to respond_to :category_id }
   end
 
   describe 'scopes' do
@@ -161,17 +160,17 @@ describe Company do
     describe "non_alpha" do
       it "should return companies whose name starts with a number" do
         included = FactoryGirl.create(:company, :name => "#Hashtag")
-        Company.non_alpha.should include(included)
+        expect(Company.non_alpha).to include(included)
       end
 
       it "should return companies whose name starts with a symbol" do
         included = FactoryGirl.create(:company, :name => "1st")
-        Company.non_alpha.should include(included)
+        expect(Company.non_alpha).to include(included)
       end
 
       it "should not return companies whose name starts with a letter" do
         excluded = FactoryGirl.create(:company, :name => "Albert's Apples")
-        Company.non_alpha.should_not include(excluded)
+        expect(Company.non_alpha).not_to include(excluded)
       end
     end
 
@@ -181,16 +180,16 @@ describe Company do
       end
 
       it "should return companies whose name starts with the specified character" do
-        Company.starts_with("A").should include(@included)
+        expect(Company.starts_with("A")).to include(@included)
       end
 
       it "should not exclude companies due to capitalization" do
-        Company.starts_with("a").should include(@included)
+        expect(Company.starts_with("a")).to include(@included)
       end
 
       it "should not return companies whose name does not start with the specified character" do
         excluded = FactoryGirl.create(:company, :name => "Pete's Pears")
-        Company.starts_with("a").should_not include(excluded)
+        expect(Company.starts_with("a")).not_to include(excluded)
       end
     end
   end

@@ -1,32 +1,31 @@
 require 'spec_helper'
 
 describe OfficeLocation do
+  before(:each) do
+    @office_location = OfficeLocation.new
+  end
+
   describe "associations" do
-    before(:each) do
-      @office_location = OfficeLocation.new
-    end
-    subject { @office_location }
-  
-    it { should belong_to :tenant }
+    it { expect(@office_location).to belong_to :tenant }
   end
   
   describe "validations" do
-    it { should validate_presence_of :tenant }
+    it { expect(@office_location).to validate_presence_of :tenant }
   end
   
   describe "fields" do
-    it { should respond_to :tenant_id }
-    it { should respond_to :tenant_type }
-    it { should respond_to :headquarters }
-    it { should respond_to :description }
-    it { should respond_to :address1 }
-    it { should respond_to :address2 }
-    it { should respond_to :zip_code }
-    it { should respond_to :city }
-    it { should respond_to :state_code }
-    it { should respond_to :country_code }
-    it { should respond_to :latitude }
-    it { should respond_to :longitude }
+    it { expect(@office_location).to respond_to :tenant_id }
+    it { expect(@office_location).to respond_to :tenant_type }
+    it { expect(@office_location).to respond_to :headquarters }
+    it { expect(@office_location).to respond_to :description }
+    it { expect(@office_location).to respond_to :address1 }
+    it { expect(@office_location).to respond_to :address2 }
+    it { expect(@office_location).to respond_to :zip_code }
+    it { expect(@office_location).to respond_to :city }
+    it { expect(@office_location).to respond_to :state_code }
+    it { expect(@office_location).to respond_to :country_code }
+    it { expect(@office_location).to respond_to :latitude }
+    it { expect(@office_location).to respond_to :longitude }
   end
 
   describe "scopes" do

@@ -1,20 +1,19 @@
 require 'spec_helper'
 
 describe Investment do
+  before(:each) do
+    @investment = Investment.new
+  end
+
   describe "associations" do
-    before(:each) do
-      @investment = Investment.new
-    end
-    subject { @investment }
-    
-    it { should belong_to :investor }
-    it { should belong_to :funding_round }
+    it { expect(@investment).to belong_to :investor }
+    it { expect(@investment).to belong_to :funding_round }
   end
 
   describe "fields" do
-    it { should respond_to :investor_id }
-    it { should respond_to :investor_type }
-    it { should respond_to :funding_round_id}
+    it { expect(@investment).to respond_to :investor_id }
+    it { expect(@investment).to respond_to :investor_type }
+    it { expect(@investment).to respond_to :funding_round_id}
   end
 
   describe 'scopes' do

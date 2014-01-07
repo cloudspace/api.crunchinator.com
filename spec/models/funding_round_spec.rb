@@ -1,32 +1,31 @@
 require 'spec_helper'
 
 describe FundingRound do
+  before(:each) do
+    @funding_round = FundingRound.new
+  end
+
   describe "associations" do
-    before(:each) do
-      @funding_round = FundingRound.new
-    end
-    subject { @funding_round }
-    
-    it { should belong_to :company }
-    it { should have_many :investments }
+    it { expect(@funding_round).to belong_to :company }
+    it { expect(@funding_round).to have_many :investments }
   end
   
   describe "validations" do
-    it { should validate_presence_of :crunchbase_id }
-    it { should validate_uniqueness_of :crunchbase_id }
+    it { expect(@funding_round).to validate_presence_of :crunchbase_id }
+    it { expect(@funding_round).to validate_uniqueness_of :crunchbase_id }
   end
   
   describe "fields" do
-    it { should respond_to :round_code }
-    it { should respond_to :source_url }
-    it { should respond_to :source_description}
-    it { should respond_to :raw_raised_amount }
-    it { should respond_to :raised_currency_code }
-    it { should respond_to :funded_year }
-    it { should respond_to :funded_month }
-    it { should respond_to :funded_day }
-    it { should respond_to :company_id }
-    it { should respond_to :crunchbase_id }
+    it { expect(@funding_round).to respond_to :round_code }
+    it { expect(@funding_round).to respond_to :source_url }
+    it { expect(@funding_round).to respond_to :source_description}
+    it { expect(@funding_round).to respond_to :raw_raised_amount }
+    it { expect(@funding_round).to respond_to :raised_currency_code }
+    it { expect(@funding_round).to respond_to :funded_year }
+    it { expect(@funding_round).to respond_to :funded_month }
+    it { expect(@funding_round).to respond_to :funded_day }
+    it { expect(@funding_round).to respond_to :company_id }
+    it { expect(@funding_round).to respond_to :crunchbase_id }
   end
   
   describe 'scopes' do
