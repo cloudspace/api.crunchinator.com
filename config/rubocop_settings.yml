@@ -1,2 +1,26 @@
-LineLength:
+# Do not prefix reader method names with get_.
+AccessorMethodName:
   Severity: warning
+
+# Cyclomatic complexity for _ is too high.
+CyclomaticComplexity:
+  Enabled: false
+
+Documentation:
+  Enabled: false
+
+LineLength:
+  Enabled: false
+
+MethodLength:
+  Enabled: false
+
+# Do not use semicolons to terminate expressions.
+Semicolon:
+  Enabled: false
+
+StringLiterals:
+  Enabled: false
+
+# Use the new lambda literal syntax ->(params) {...}.
+# lib, app/models, app/controllers, app/serializers, spec

@@ -1,3 +1,4 @@
+# rubocop:disable all
 # this is an experiment. i'm trying to come up with a clean way
 # to select just those attributes to assign attributes to model
 # instances from api data, and translate those keys which must be changed.
@@ -113,3 +114,4 @@ end
 #     @safe_find_or_create_mutex ||= Mutex.new
 #   end
 # end
+# rubocop:enable all

@@ -14,13 +14,12 @@ module ApiQueue
   end
 
   class Controller
-
     # logs text into the logfile
     #
     # @param [String] text the text to be logged
     def self.log(text)
-      puts text
-      File.open("#{Rails.root}/log/controller_log.log", "a"){|f| f.puts(Time.now.strftime("%m/%d/%Y %T") + ' ' + text)}
+      Rails.logger.info text
+      File.open("#{Rails.root}/log/controller_log.log", "a") { |f| f.puts(Time.now.strftime("%m/%d/%Y %T") + ' ' + text) }
     end
 
     # clears the queue and flushes the logs
@@ -84,7 +83,7 @@ module ApiQueue
     #
     # @param [Symbol] data_source the source api to use. options are :crunchbase, :s3, :local
     # @param [Symbol, Array<Symbol>] namespace the entity type or types to enqueue
-    def self.populate_missing(data_source: :crunchbase, archive: [:local,:s3], namespace: :company, process: false, num_workers: 5)
+    def self.populate_missing(data_source: :crunchbase, archive: [:local, :s3], namespace: :company, process: false, num_workers: 5)
       available = ApiQueue::Source::Crunchbase.get_entities(namespace)
       already_have = ApiQueue::Source::S3.get_entities(namespace)
       permalinks = available - already_have
@@ -94,12 +93,12 @@ module ApiQueue
 
     # makes a request to an endpoint and uploads the result to s3
     def self.upload_fakedata
-      letters = ['0',*('a'..'z')]
+      letters = ['0', *('a'..'z')]
 
       endpoints = {}
       endpoints["categories"] = "fakedata/categories.json"
-      letters.each{|letter| endpoints["companies?letter=#{letter}"] = "fakedata/companies/#{letter}.json"}
-      letters.each{|letter| endpoints["investors?letter=#{letter}"] = "fakedata/investors/#{letter}.json"}
+      letters.each { |letter| endpoints["companies?letter=#{letter}"] = "fakedata/companies/#{letter}.json" }
+      letters.each { |letter| endpoints["investors?letter=#{letter}"] = "fakedata/investors/#{letter}.json" }
 
       endpoints.each_pair do |api_endpoint, s3_filename|
         response = query_app(endpoint: api_endpoint)
@@ -122,7 +121,7 @@ module ApiQueue
 
     # returns an application object that can be queried
     def self.fakeapp
-      if !defined?(ActionDispatch::Integration::Session) 
+      unless defined?(ActionDispatch::Integration::Session)
         require "action_dispatch/integration"
       end
       ActionDispatch::Integration::Session.new(Crunchinator::Application)
