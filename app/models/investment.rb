@@ -7,4 +7,9 @@ class Investment < ActiveRecord::Base
   scope :associated_with_companies, lambda { |companies| joins(:funding_round).where("funding_rounds.company_id" => companies) }
   
   scope :associated_with_financial_organizations, lambda { |financial_organizations| where("investor_id IN (?) AND investor_type = ?", financial_organizations, "FinancialOrganization") }
+
+  # guid for investors in the front end
+  def investor_guid
+    "#{investor_type.underscore}-#{investor_id}"
+  end
 end

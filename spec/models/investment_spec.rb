@@ -55,6 +55,14 @@ describe Investment do
         expect(@investments).not_to include(@not_associated)
       end
     end
+  end
 
+  describe "instance methods" do
+    describe "investor_guid" do
+      it "should return the investor type and id" do
+        investment = Investment.new(:investor_type => "Company", :investor_id => 1)
+        expect(investment.investor_guid).to eql("company-1")
+      end
+    end
   end
 end

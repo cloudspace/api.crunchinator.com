@@ -21,6 +21,13 @@ describe V1::Companies::CompanySerializer do
   end
 
   describe "investor_ids" do
-    it "needs tests"
+    it "should return a list of investor guids" do
+      investment = Investment.new(:investor_type => "Company", :investor_id => "1")
+      funding_round = FundingRound.new
+      funding_round.stub(:investments).and_return([investment])
+      @company.stub(:funding_rounds).and_return([funding_round])
+
+      expect(@serializer.investor_ids).to eq(["company-1"])
+    end
   end
 end

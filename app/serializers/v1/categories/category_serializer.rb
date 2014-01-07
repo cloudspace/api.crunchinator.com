@@ -9,7 +9,7 @@ class V1::Categories::CategorySerializer < ActiveModel::Serializer
 
   # compound string ids
   def investor_ids
-    investments = Investment.joins(:funding_round).where('funding_rounds.company_id' => company_ids, 'funding_rounds.id' => FundingRound.valid.pluck(:id)).references(:funding_rounds)
-    investments.map{|i| "#{i.investor_type.underscore}-#{i.investor_id}"}
+    investments = Investment.joins(:funding_round).merge(FundingRound.valid.for_companies(company_ids))
+    investments.map(&:investor_guid)
   end
 end

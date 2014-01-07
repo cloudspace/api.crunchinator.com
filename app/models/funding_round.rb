@@ -4,6 +4,10 @@ class FundingRound < ActiveRecord::Base
 
   validates :crunchbase_id, uniqueness: true, presence: true
 
+  # all funding rounds attached to the given list of companies
+  scope :for_companies, lambda { |company_ids| joins(:company).where(:company_id => company_ids) }
+
+  # funding rounds attached to a valid company
   scope :valid, lambda { joins(:company).where('funding_rounds.company_id' => Company.valid.pluck(:id)).references(:funding_rounds) }
 
   # Returns the raised amount if in USD, else 0 (expressed as a BigDecimal)

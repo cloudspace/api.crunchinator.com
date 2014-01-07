@@ -4,6 +4,6 @@ class V1::Companies::CompanySerializer < ActiveModel::Serializer
   has_many :funding_rounds, :serializer => V1::Companies::NestedFundingRoundSerializer
 
   def investor_ids
-    @object.funding_rounds.map{|fr| fr.investments.map{|i| "#{i.investor_type.underscore}-#{i.investor_id}" }}.uniq
+    @object.funding_rounds.map{|fr| fr.investments.map(&:investor_guid)}.flatten.uniq
   end
 end
