@@ -4,23 +4,18 @@ AccessorMethodName:
 
 # Cyclomatic complexity for _ is too high.
 CyclomaticComplexity:
-  Enabled: false
+  Severity: warning
 
 Documentation:
-  Enabled: false
+  Severity: warning
 
 LineLength:
-  Enabled: false
+  Max: 120
+
 
 MethodLength:
-  Enabled: false
+  Severity: warning
 
 # Do not use semicolons to terminate expressions.
 Semicolon:
-  Enabled: false
-
-StringLiterals:
-  Enabled: false
-
-# Use the new lambda literal syntax ->(params) {...}.
-# lib, app/models, app/controllers, app/serializers, spec
+  Severity: warning
