@@ -47,7 +47,24 @@ describe FundingRound do
     end
 
     describe "valid" do
-      it "needs tests"
+      before(:each) do
+        Company.stub_chain(:valid, :pluck).and_return([1])
+      end
+
+      it "should include funding rounds with valid companies" do
+        funding_round = FactoryGirl.create(:funding_round, :company_id => 1)
+        expect(FundingRound.valid).to include(funding_round)
+      end
+
+      it "should not include funding rounds with no valid companies" do
+        funding_round = FactoryGirl.create(:funding_round, :company_id => 2)
+        expect(FundingRound.valid).not_to include(funding_round)
+      end
+
+      it "should not include funding rounds with no companies" do
+        funding_round = FactoryGirl.create(:funding_round, :company_id => nil)
+        expect(FundingRound.valid).not_to include(funding_round)
+      end
     end
 
     describe "funded" do
