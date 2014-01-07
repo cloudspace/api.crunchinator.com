@@ -1,5 +1,6 @@
 require Rails.root.to_s + '/lib/crunchbase_api/controller.rb'
 require Rails.root.to_s + '/lib/crunchbase_api/normalizer.rb'
+require Rails.root.to_s + '/lib/crunchbase_api/supervisor.rb'
 require Rails.root.to_s + '/lib/crunchbase_api/sources/crunchbase.rb'
 require Rails.root.to_s + '/lib/crunchbase_api/sources/s3.rb'
 require Rails.root.to_s + '/lib/crunchbase_api/sources/local.rb'

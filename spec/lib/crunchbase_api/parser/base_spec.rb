@@ -2,18 +2,13 @@ require 'spec_helper'
 
 describe ApiQueue::Parser::Base do
   describe "class methods" do
-    describe "safe_find_or_create_by and associated mutex methods" do
-      describe "meta_mutex and mutexes instance variables" do
-        it "should include the mutees" do
-          ApiQueue::Parser::Base.instance_variables.should include(:@meta_mutex)
-          ApiQueue::Parser::Base.instance_variables.should include(:@mutexes)
-        end
-
-        it "mutexes should be accessible" do
-          ApiQueue::Parser::Base.should respond_to :mutexes
-        end
+    describe "inherited" do
+      it "should create a threadsafe mutexes hash when subclassed" do
+        class Foo < ApiQueue::Parser::Base; end
+        Foo.instance_variables.should include(:@mutexes)
       end
-
+    end
+    describe "safe_find_or_create_by and associated mutex methods" do
       describe "get_mutex" do
       end
 
