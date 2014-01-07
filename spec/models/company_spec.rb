@@ -81,13 +81,39 @@ describe Company do
     end
 
     describe "non_alpha" do
-      it "needs tests"
-    end
-  end
+      it "should return companies whose name starts with a number" do
+        included = FactoryGirl.create(:company, :name => "#Hashtag")
+        Company.non_alpha.should include(included)
+      end
 
-  describe 'class methods' do
-    describe "start_with" do
-      it "needs tests"
+      it "should return companies whose name starts with a symbol" do
+        included = FactoryGirl.create(:company, :name => "1st")
+        Company.non_alpha.should include(included)
+      end
+
+      it "should not return companies whose name starts with a letter" do
+        excluded = FactoryGirl.create(:company, :name => "Albert's Apples")
+        Company.non_alpha.should_not include(excluded)
+      end
+    end
+
+    describe "starts_with" do
+      before(:each) do
+        @included = FactoryGirl.create(:company, :name => "Albert's Apples")
+      end
+
+      it "should return companies whose name starts with the specified character" do
+        Company.starts_with("A").should include(@included)
+      end
+
+      it "should not exclude companies due to capitalization" do
+        Company.starts_with("a").should include(@included)
+      end
+
+      it "should not return companies whose name does not start with the specified character" do
+        excluded = FactoryGirl.create(:company, :name => "Pete's Pears")
+        Company.starts_with("a").should_not include(excluded)
+      end
     end
   end
 

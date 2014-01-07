@@ -25,13 +25,39 @@ describe Person do
 
   describe "scopes" do
     describe "non_alpha" do
-      it "needs tests"
-    end
-  end
+      it "should return people whose name starts with a number" do
+        included = FactoryGirl.create(:person, :firstname => "#Hashtag")
+        Person.non_alpha.should include(included)
+      end
 
-  describe 'class methods' do
+      it "should return people whose name starts with a symbol" do
+        included = FactoryGirl.create(:person, :firstname => "1st")
+        Person.non_alpha.should include(included)
+      end
+
+      it "should not return people whose name starts with a letter" do
+        excluded = FactoryGirl.create(:person, :firstname => "Albert", :lastname => "Apples")
+        Person.non_alpha.should_not include(excluded)
+      end
+    end
+
     describe "starts_with" do
-      it "needs tests"
+      before(:each) do
+        @included = FactoryGirl.create(:person, :firstname => "Albert", :lastname =>  "Apples")
+      end
+
+      it "should return people whose name starts with the specified character" do
+        Person.starts_with("A").should include(@included)
+      end
+
+      it "should not exclude people due to capitalization" do
+        Person.starts_with("a").should include(@included)
+      end
+
+      it "should not return people whose name does not start with the specified character" do
+        excluded = FactoryGirl.create(:person, :firstname => "Pete", :lastname => "Pears")
+        Person.starts_with("a").should_not include(excluded)
+      end
     end
   end
 
