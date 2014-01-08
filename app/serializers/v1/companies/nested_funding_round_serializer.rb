@@ -1,3 +1,4 @@
+# Funding rounds for companies on the companies index endpoint
 class V1::Companies::NestedFundingRoundSerializer < ActiveModel::Serializer
   attributes :id, :raised_amount, :funded_on, :investor_ids
 
@@ -10,6 +11,6 @@ class V1::Companies::NestedFundingRoundSerializer < ActiveModel::Serializer
   end
 
   def investor_ids
-    @object.investments.collect{ |investment| investment.investor_guid }
+    @object.investments.map { |investment| investment.investor_guid }
   end
 end
