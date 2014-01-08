@@ -1,5 +1,5 @@
 require 'spec_helper'
-require Rails.root.to_s + "/lib/trackable_tasks/crunchbase_seed_s3"
+require Rails.root.to_s + '/lib/trackable_tasks/crunchbase_seed_s3'
 
 describe CrunchbaseSeedS3 do
   before :each do

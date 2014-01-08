@@ -5,15 +5,15 @@ describe Investment do
     @investment = Investment.new
   end
 
-  describe "associations" do
+  describe 'associations' do
     it { expect(@investment).to belong_to :investor }
     it { expect(@investment).to belong_to :funding_round }
   end
 
-  describe "fields" do
+  describe 'fields' do
     it { expect(@investment).to respond_to :investor_id }
     it { expect(@investment).to respond_to :investor_type }
-    it { expect(@investment).to respond_to :funding_round_id}
+    it { expect(@investment).to respond_to :funding_round_id }
   end
 
   describe 'scopes' do
@@ -35,12 +35,12 @@ describe Investment do
         expect(@investments).not_to include(@not_associated)
       end
     end
-    
+
     describe 'associated_with_financial_organizations' do
       before(:each) do
         financial_organization = FactoryGirl.create(:financial_organization)
         company = FactoryGirl.create(:company)
-        funding_round = FactoryGirl.create(:funding_round)
+        funding_round = FactoryGirl.create(:funding_round, company: company)
         @associated = FactoryGirl.create(:investment, funding_round: funding_round, investor: financial_organization)
         @not_associated = FactoryGirl.create(:investment, funding_round: funding_round)
         @investments = Investment.associated_with_financial_organizations([financial_organization.id])
@@ -56,11 +56,11 @@ describe Investment do
     end
   end
 
-  describe "instance methods" do
-    describe "investor_guid" do
-      it "should return the investor type and id" do
-        investment = Investment.new(:investor_type => "Company", :investor_id => 1)
-        expect(investment.investor_guid).to eql("company-1")
+  describe 'instance methods' do
+    describe 'investor_guid' do
+      it 'should return the investor type and id' do
+        investment = Investment.new(investor_type: 'Company', investor_id: 1)
+        expect(investment.investor_guid).to eql('company-1')
       end
     end
   end

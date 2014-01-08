@@ -1,5 +1,5 @@
 require 'spec_helper'
-require Rails.root.to_s + "/lib/trackable_tasks/crunchbase_company_list"
+require Rails.root.to_s + '/lib/trackable_tasks/crunchbase_company_list'
 
 describe CrunchbaseCompanyList do
   before :each do

@@ -5,20 +5,20 @@ describe FundingRound do
     @funding_round = FundingRound.new
   end
 
-  describe "associations" do
+  describe 'associations' do
     it { expect(@funding_round).to belong_to :company }
     it { expect(@funding_round).to have_many :investments }
   end
-  
-  describe "validations" do
+
+  describe 'validations' do
     it { expect(@funding_round).to validate_presence_of :crunchbase_id }
     it { expect(@funding_round).to validate_uniqueness_of :crunchbase_id }
   end
-  
-  describe "fields" do
+
+  describe 'fields' do
     it { expect(@funding_round).to respond_to :round_code }
     it { expect(@funding_round).to respond_to :source_url }
-    it { expect(@funding_round).to respond_to :source_description}
+    it { expect(@funding_round).to respond_to :source_description }
     it { expect(@funding_round).to respond_to :raw_raised_amount }
     it { expect(@funding_round).to respond_to :raised_currency_code }
     it { expect(@funding_round).to respond_to :funded_year }
@@ -27,64 +27,64 @@ describe FundingRound do
     it { expect(@funding_round).to respond_to :company_id }
     it { expect(@funding_round).to respond_to :crunchbase_id }
   end
-  
+
   describe 'scopes' do
-    describe "for_companies" do
+    describe 'for_companies' do
       before(:each) do
         company = FactoryGirl.create(:company)
         @company_ids = [company.id]
-        @attached = FactoryGirl.create(:funding_round, :company => company)
+        @attached = FactoryGirl.create(:funding_round, company: company)
         @unattached = FactoryGirl.create(:funding_round)
       end
 
-      it "should return funding rounds attached to the given company ids" do
+      it 'should return funding rounds attached to the given company ids' do
         expect(FundingRound.for_companies(@company_ids)).to include(@attached)
       end
 
-      it "should not return funding rounds that aren't attached" do
+      it 'should not return funding rounds that aren\'t attached' do
         expect(FundingRound.for_companies(@company_ids)).not_to include(@unattached)
       end
     end
 
-    describe "valid" do
+    describe 'valid' do
       before(:each) do
         Company.stub_chain(:valid, :pluck).and_return([1])
       end
 
-      it "should include funding rounds with valid companies" do
-        funding_round = FactoryGirl.create(:funding_round, :company_id => 1)
+      it 'should include funding rounds with valid companies' do
+        funding_round = FactoryGirl.create(:funding_round, company_id: 1)
         expect(FundingRound.valid).to include(funding_round)
       end
 
-      it "should not include funding rounds with no valid companies" do
-        funding_round = FactoryGirl.create(:funding_round, :company_id => 2)
+      it 'should not include funding rounds with no valid companies' do
+        funding_round = FactoryGirl.create(:funding_round, company_id: 2)
         expect(FundingRound.valid).not_to include(funding_round)
       end
 
-      it "should not include funding rounds with no companies" do
-        funding_round = FactoryGirl.create(:funding_round, :company_id => nil)
+      it 'should not include funding rounds with no companies' do
+        funding_round = FactoryGirl.create(:funding_round, company_id: nil)
         expect(FundingRound.valid).not_to include(funding_round)
       end
     end
 
-    describe "funded" do
-      it "should return funding rounds that have raised us dollars" do
+    describe 'funded' do
+      it 'should return funding rounds that have raised us dollars' do
         round = FactoryGirl.create(:funding_round)
         expect(FundingRound.funded).to include(round)
       end
 
-      it "should not return funding rounds that have raised a different kind of currency" do
-        round = FactoryGirl.create(:funding_round, :raised_currency_code => "GBP")
+      it 'should not return funding rounds that have raised a different kind of currency' do
+        round = FactoryGirl.create(:funding_round, raised_currency_code: 'GBP')
         expect(FundingRound.funded).not_to include(round)
       end
 
-      it "should not return funding rounds whose raised amount is null" do
-        round = FactoryGirl.create(:funding_round, :raw_raised_amount => nil)
+      it 'should not return funding rounds whose raised amount is null' do
+        round = FactoryGirl.create(:funding_round, raw_raised_amount: nil)
         expect(FundingRound.funded).not_to include(round)
       end
 
-      it "should not return funding rounds that have raised zero dollars" do
-        round = FactoryGirl.create(:funding_round, :raw_raised_amount => "0")
+      it 'should not return funding rounds that have raised zero dollars' do
+        round = FactoryGirl.create(:funding_round, raw_raised_amount: '0')
         expect(FundingRound.funded).not_to include(round)
       end
     end
@@ -96,7 +96,7 @@ describe FundingRound do
     end
 
     describe 'raised_amount' do
-      it 'should return the raw_raised_amount if raw_raised_amount is defined and raised_currency_code is "USD"' do
+      it 'should return the raw_raised_amount if raw_raised_amount is defined and raised_currency_code is \'USD\'' do
         @funding_round.raw_raised_amount = BigDecimal.new('1234.56')
         @funding_round.raised_currency_code = 'USD'
 
@@ -114,7 +114,7 @@ describe FundingRound do
 
         expect(@funding_round.raised_amount).to eql(BigDecimal.new('0'))
       end
-      it 'should return RawDecimal(0) if raised_currency_code is any value other than "USD"' do
+      it 'should return RawDecimal(0) if raised_currency_code is any value other than \'USD\'' do
         @funding_round.raw_raised_amount = BigDecimal.new('1234.56')
         @funding_round.raised_currency_code = 'LMNOP'
 
