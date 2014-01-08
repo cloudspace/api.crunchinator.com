@@ -1,9 +1,11 @@
+require 'logger'
+
 # Handles execution and printing of code metric gems specified in the exec method
 # Literally it just takes a command and prints results and returns false if it fails
 #
 # It will only exit with a status of 1 if you are on a major branch (master, development, staging)
 # And you are pushing.
-# 
+#
 # If you are just commiting it won't keep you from committing but it will print the errors
 #
 # @!attribute [] git_hook_type
@@ -19,24 +21,21 @@
 #   @return Logger new logger created to point error messages to log/code_metrics.log
 #
 # Something doesn't feel right about this class but hey its alpha so we'll probably need to re-write it
-
-require 'logger'
-
-
 class MetricGemHandler
   #--------------------------------
   # Constants
   #--------------------------------
-  
+
   GIT_HOOKS = {
-    :commit => 1,
-    :push => 2
+    commit: 1,
+    push: 2
   }
-  
+
   #--------------------------------
   # Class Methods
   #--------------------------------
-  
+
+  # rubocop:disable all 
   def self.print_error
     puts <<-eos
     \e[31m
@@ -45,16 +44,17 @@ class MetricGemHandler
     tail -n1000 ./log/code_metrics.log
 
     To view other stats run the following command  and view the html files in your browser:
-    
+
     open tmp/metric_fu/output/index.html
     \e[0m
     eos
   end
-  
+  # rubocop:enable all
+
   #--------------------------------
   # Methods
   #--------------------------------
-  
+
   #
   # Initializes the class with default variables
   #
@@ -62,15 +62,13 @@ class MetricGemHandler
   #
   # @return nil
   def initialize(git_hook_type = :commit)
-    @git_hook_type = GIT_HOOKS[git_hook_type.to_sym] || (raise "Invalid Git Hook Type")
+    @git_hook_type = GIT_HOOKS[git_hook_type.to_sym] || (fail 'Invalid Git Hook Type')
     @git_branch = `git branch | sed -e '/^[^*]/d' -e 's/* \\(.*\\)/\\1/'`.strip!
-    # @git_branch = "development"
-    @important_branches=%w(staging stage master development)
+    @important_branches = %w(staging stage master development)
     @logger = Logger.new('./log/code_metrics.log')
   end
-  
-  
-  # 
+
+  #
   # Runs the command and then prints the output if it fails
   #
   # @param name [String] Name of the code metric gem for logging purposes
@@ -80,20 +78,18 @@ class MetricGemHandler
   def exec(name, cmd)
     results = `#{cmd}`
     @logger.debug <<-eos
-    
-    
+
     ##########################################
     #
     # Begin #{name}
     #
     ##########################################
     eos
-    return print_and_fail($?,results)
+    print_and_fail($CHILD_STATUS, results)
   end
-  
-  
-  private 
-  
+
+  private
+
   #
   # Prints any errors and returns false if it shouldn't execute the git command
   #
@@ -101,18 +97,14 @@ class MetricGemHandler
   # @param text [String] String returned from the script that ran
   #
   # @return [Boolean]
-  def print_and_fail(result,text)
-    if(result.exitstatus != 0)  
+  def print_and_fail(result, text)
+    if result.exitstatus != 0
       @logger.debug text
       # we need to show bad commits every time
-      if(@git_hook_type == GIT_HOOKS[:commit])
-        return false
-      end
+      return false if @git_hook_type == GIT_HOOKS[:commit]
       # we need to only show bad pushes when its an important branch
-      if(@git_hook_type == GIT_HOOKS[:push] && @important_branches.include?(@git_branch))
-        return false
-      end
+      return false if @git_hook_type == GIT_HOOKS[:push] && @important_branches.include?(@git_branch)
     end
-    return true
+    true
   end
 end

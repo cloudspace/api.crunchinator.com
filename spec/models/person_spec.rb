@@ -5,6 +5,12 @@ describe Person do
     @person = Person.new
   end
 
+  describe 'mixins' do
+    it 'should be an investor' do
+      expect(Person.ancestors.select { |o| o.class == Module }).to include(Investor)
+    end
+  end
+
   describe 'associations' do
     it { expect(@person).to have_many :investments }
     it { expect(@person).to have_many :office_locations }
@@ -22,39 +28,39 @@ describe Person do
   end
 
   describe 'scopes' do
-    describe 'non_alpha' do
+    describe 'starts_with_non_alpha' do
       it 'should return people whose name starts with a number' do
         included = FactoryGirl.create(:person, firstname: '#Hashtag')
-        expect(Person.non_alpha).to include(included)
+        expect(Person.starts_with_non_alpha).to include(included)
       end
 
       it 'should return people whose name starts with a symbol' do
         included = FactoryGirl.create(:person, firstname: '1st')
-        expect(Person.non_alpha).to include(included)
+        expect(Person.starts_with_non_alpha).to include(included)
       end
 
       it 'should not return people whose name starts with a letter' do
         excluded = FactoryGirl.create(:person, firstname: 'Albert', lastname: 'Apples')
-        expect(Person.non_alpha).not_to include(excluded)
+        expect(Person.starts_with_non_alpha).not_to include(excluded)
       end
     end
 
-    describe 'starts_with' do
+    describe 'starts_with_letter' do
       before(:each) do
         @included = FactoryGirl.create(:person, firstname: 'Albert', lastname:  'Apples')
       end
 
       it 'should return people whose name starts with the specified character' do
-        expect(Person.starts_with('A')).to include(@included)
+        expect(Person.starts_with_letter('A')).to include(@included)
       end
 
       it 'should not exclude people due to capitalization' do
-        expect(Person.starts_with('a')).to include(@included)
+        expect(Person.starts_with_letter('a')).to include(@included)
       end
 
       it 'should not return people whose name does not start with the specified character' do
         excluded = FactoryGirl.create(:person, firstname: 'Pete', lastname: 'Pears')
-        expect(Person.starts_with('a')).not_to include(excluded)
+        expect(Person.starts_with_letter('a')).not_to include(excluded)
       end
     end
   end

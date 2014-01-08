@@ -2,9 +2,9 @@
 class V1::Investors::InvestorSerializer < ActiveModel::Serializer
   attributes :id, :name, :investor_type, :invested_company_ids, :invested_category_ids
 
-  # this should have the same output as investment.investor_guid
+  # Aliasing the guid to id for the frontend
   def id
-    "#{@object.class.to_s.underscore}-#{@object.id}"
+    @object.guid
   end
 
   # @return [String] Convert model to front end friendly version

@@ -15,7 +15,6 @@ EmptyLinesAroundBody:
 LineLength:
   Max: 120
 
-
 MethodLength:
   Max: 15
 
