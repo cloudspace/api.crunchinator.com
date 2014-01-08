@@ -14,10 +14,10 @@ class V1::Investors::InvestorSerializer < ActiveModel::Serializer
 
   # @return [Array<Fixnum>] the ids of the companies in which the investor has invested
   def invested_company_ids
-    @object.investments.map{|inv| inv.funding_round.company_id}.uniq
+    @object.investments.map { |inv| inv.funding_round.company_id }.uniq
   end
 
   def invested_category_ids
-    @object.investments.map{|inv| inv.funding_round.company.category_id}.uniq
+    @object.investments.map { |inv| inv.funding_round.company.category_id }.uniq
   end
 end

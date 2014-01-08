@@ -1,3 +1,4 @@
+# Create the json data for a CategoriesController index call
 class V1::Categories::CategorySerializer < ActiveModel::Serializer
   attributes :id, :name, :company_ids, :investor_ids
 
