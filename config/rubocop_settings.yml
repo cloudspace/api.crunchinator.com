@@ -1,2 +1,21 @@
+# Do not prefix reader method names with get_.
+AccessorMethodName:
+  Severity: warning
+
+# Cyclomatic complexity for _ is too high.
+CyclomaticComplexity:
+  Severity: warning
+
+Documentation:
+  Severity: warning
+
 LineLength:
+  Max: 120
+
+
+MethodLength:
+  Severity: warning
+
+# Do not use semicolons to terminate expressions.
+Semicolon:
   Severity: warning

@@ -9,7 +9,7 @@ success = true
 
 metric_gems = {
   :rails_best_practices => "rails_best_practices .",
-  :rubocop => "rubocop --rails ./lib ./spec ./app ./config",
+  :rubocop => "rubocop --rails --config ./config/rubocop_settings.yml ./lib ./spec ./app ./config",
   :metric_fu => "metric_fu --no-open",
 }
 

@@ -181,8 +181,6 @@ GEM
     pry-debugger (0.2.2)
       debugger (~> 1.3)
       pry (~> 0.9.10)
-    pry-rails (0.3.2)
-      pry (>= 0.9.10)
     puma (1.6.3)
       rack (~> 1.2)
     rack (1.5.2)
@@ -302,7 +300,6 @@ DEPENDENCIES
   metric_fu
   pg
   pry-debugger
-  pry-rails
   rails (= 4.0.1)
   rails-api
   rails_best_practices
@@ -311,6 +308,7 @@ DEPENDENCIES
   rspec-rails
   rubocop
   shoulda
+  thread_safe
   trackable_tasks (= 0.1.3)
   yard
   yard-activerecord

@@ -7,31 +7,14 @@
 # will be much harder to debug. IF IT IS GOING TO BREAK, LET IT BREAK.
 module ApiQueue
   class Worker
-    # a place to store references to all the workers at the class level
-    @workers ||= {}
-    @workers_mutex ||= Mutex.new
 
-    # registers a worker with the class
-    #
-    # @param [ApiQueue::Worker] worker the worker to be registered
-    def self.register_worker(worker)
-      @workers_mutex.synchronize do
-        @workers[worker.__id__] = worker
-      end
-    end
-
-    # stops all the workers
-    def self.stop_all
-      @workers.values.map(&:stop)
-    end
-
-    def initialize(id: nil, process: true, archive: [:local, :s3])
+    def initialize(id: nil, process: true, archive: [:local, :s3], supervisor: nil)
       @archive = archive                # the target(s) for archiving the json responses
       @process = process                # insert into the db or just move files?
       @running = false                  # a flag used to stop workers
       @retry = false                    # a flag used to retry after errors
       @id = id                          # used for logging purposes
-      self.class.register_worker(self)  # register self at the class level
+      @supervisor = supervisor          # set a reference to this worker's supervisor
       @queue = ApiQueue::Queue          # the queue could be swapped out later
     end
 
@@ -45,7 +28,7 @@ module ApiQueue
       # there has to be a better way than this, but i couldn't
       # figure out how
       # TODO: find a better way to handle interrupts gracefully
-      Kernel.trap( "INT" ) { ApiQueue::Worker.stop_all }
+      Kernel.trap( "INT" ) { @supervisor.stop_all }
 
       # this is the main loop. workers continue to loop until
       # their stop method is called, or the queue is empty
@@ -93,7 +76,7 @@ module ApiQueue
           archive_data(@response_body)
 
           # if the process flag is truthy, save the objects in the db.
-          get_parser(@response_body.namespace).process_(@entity) if @process
+          parser.process_entity(@entity) if @process
 
         # all exceptions should be allowed to bubble up to here to be handled and logged.
         rescue StandardError => e
@@ -105,7 +88,7 @@ module ApiQueue
         # if anything went wrong, log the error, incremement the error counter,
         # and set the retry flag if the element hasn't hit the retry limit.
         @queue.update_element(@element, @error) if @element
-        self.class.reset_error_count unless @error
+        @supervisor.reset_error_count unless @error
         @retry = true if @error && @element && @element.num_runs < 5
       end
     end
@@ -124,15 +107,16 @@ module ApiQueue
       File.open("log/import_worker#{(@id ? '_' + @id.to_s : '')}.log", "a"){|f| f.puts(text)}
     end
 
-    # gets the class corresponding to the data_source of the element
-    #
-    # @return [Class] an api class
     def api
       get_api(@element.data_source)
     end
 
     def get_api(api_name)
       "ApiQueue::Source::#{api_name.to_s.classify}".constantize
+    end
+
+    def parser
+      get_parser(@element.namespace)
     end
 
     def get_parser(namespace)
@@ -156,18 +140,11 @@ module ApiQueue
       end
     end
 
-    # keep track of recent errors
-    # if this @error_threshold or more api calls in a row raise
-    # exceptions, the error_threshold_reached method will be called
-    @error_threshold ||= 50
-    @error_count ||= 0
-    @error_count_mutex ||= Mutex.new
-
     # record an exception, and if the count reaches the threshold,
     # it triggers the error_threshold_reached method also
     # logs the error text to the logfile and on the element itself
     def record_error(exception)
-      self.class.increment_error_count
+      @supervisor.increment_error_count
 
       @error = exception.message + "\n" + exception.backtrace.join("\n") +
         "\n#{('-' * 90)}\nQUEUE ELEMENT:\n#{@element.inspect}" +
@@ -175,29 +152,6 @@ module ApiQueue
         "\n#{('-' * 90)}\nRAW BODY:\n#{@response_body.inspect}" +
         "\n#{('-' * 90)}\nPARSED PAYLOAD:\n#{@entity.inspect}"
       log ("=" * 90) + "\nERROR processing data!" + @error
-    end
-
-    # increment the error count
-    def self.increment_error_count
-      @error_count_mutex.synchronize do
-        @error_count = @error_count + 1
-        error_threshold_reached if @error_count >= @error_threshold
-      end
-    end
-
-    # reset the error count to 0
-    def self.reset_error_count
-      @error_count_mutex.synchronize do
-        @error_count = 0
-      end
-    end
-
-    # use this to set what the workers should do if
-    # the error threshold is reached
-    # for now just stop all the workers
-    # TODO: decide whether sleeping or stopping is appropriate
-    def self.error_threshold_reached
-      stop_all
     end
   end
 end

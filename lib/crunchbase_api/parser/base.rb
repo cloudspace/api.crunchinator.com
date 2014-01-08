@@ -7,10 +7,11 @@ module ApiQueue
     #
     # There are additional tickets to complete the ApiParser.
     class Base
-      # a mutex for writing to @mutexes
-      @meta_mutex ||= Mutex.new
-      # a store for write mutexes
-      @mutexes ||= {}
+
+      def self.inherited(subclass)
+        # create a threadsafe hash to store write mutexes
+        subclass.instance_variable_set(:@mutexes, ThreadSafe::Hash.new)
+      end
 
       # an accessor for the mutexes hash
       #
@@ -24,13 +25,7 @@ module ApiQueue
       # @param [Class] klass the class for which a mutex is needed
       # @return [Mutex] the mutex for the specified class
       def self.get_mutex(klass)
-        mutex = @mutexes[klass]
-        unless mutex
-          @meta_mutex.synchronize do
-            mutex = @mutexes[klass] = Mutex.new
-          end
-        end
-        mutex
+        @mutexes[klass] ||= Mutex.new
       end
 
       # does a find_or_create_by in a threadsafe transaction to ensure no duplicates
@@ -66,10 +61,10 @@ module ApiQueue
       # @return [Company] the newly created company.
       def self.create_company(company_data)
         category = create_category(company_data['category_code'])
-        column_names = Company.column_names - ["id"]
+        column_names = ::Company.column_names - ["id"]
         attributes = company_data.select{ |attribute| column_names.include?(attribute.to_s) }
         attributes[:category_id] = category.id
-        safe_find_or_create_by(Company, permalink: attributes['permalink']){ attributes }
+        safe_find_or_create_by(::Company, permalink: attributes['permalink']){ attributes }
       end
 
       # Handles creating an office location.
@@ -77,13 +72,13 @@ module ApiQueue
       # @param [Hash{String => String}] office_location_data A representation of the office_location. May contain extraneous keys.
       # @return [OfficeLocation] the newly created company.
       def self.create_office_location(office_location_data, tenant)
-        column_names = OfficeLocation.column_names
+        column_names = ::OfficeLocation.column_names
         attributes = office_location_data.select{ |attribute| column_names.include?(attribute.to_s) }
         attributes[:tenant_id] = tenant.id
         attributes[:tenant_type] = tenant.class.to_s
         attributes[:latitude] &&= BigDecimal.new(attributes[:latitude])
         attributes[:longitude] &&= BigDecimal.new(attributes[:longitude])
-        OfficeLocation.create(attributes)
+        ::OfficeLocation.create(attributes)
       end
 
       # handles creation of categories. returns a new category if a null attr is passed
@@ -92,7 +87,7 @@ module ApiQueue
       # @param [String, nil] name the name of the category to be created, or nil
       # @return [Category] the newly created category
       def self.create_category(name)
-        name.present? ? safe_find_or_create_by(Category, name: name) : Category.new
+        name.present? ? safe_find_or_create_by(::Category, name: name) : ::Category.new
       end
       
       # Handles creating a financial organization while ignoring extraneous keys.
@@ -100,9 +95,9 @@ module ApiQueue
       # @param [Hash{String => String}] financial_org_data A representation of the financial organization. May contain extraneous keys.
       # @return [FinancialOrganization] the newly created financial organization
       def self.create_financial_org(financial_org_data)
-        column_names = FinancialOrganization.column_names
+        column_names = ::FinancialOrganization.column_names
         attributes = financial_org_data.select{ |attribute| column_names.include?(attribute.to_s) }
-        safe_find_or_create_by(FinancialOrganization, permalink: attributes['permalink']){ attributes }
+        safe_find_or_create_by(::FinancialOrganization, permalink: attributes['permalink']){ attributes }
       end
 
       # Handles creating funding rounds for a company
@@ -111,13 +106,13 @@ module ApiQueue
       # @param [Company] company The company with which to associate the funding round.
       # @return [FundingRound] the created funding round.
       def self.create_funding_round(funding_round_data, company)
-        column_names = FundingRound.column_names
+        column_names = ::FundingRound.column_names
         attributes = funding_round_data.dup
         attributes[:raw_raised_amount] = BigDecimal.new(attributes.delete('raised_amount').to_s)
         attributes[:crunchbase_id] = attributes.delete('id')
         attributes[:company_id] = company.id
         attributes = attributes.select{ |attribute| column_names.include?(attribute.to_s) }
-        safe_find_or_create_by(FundingRound, crunchbase_id: attributes[:crunchbase_id]){ attributes }
+        safe_find_or_create_by(::FundingRound, crunchbase_id: attributes[:crunchbase_id]){ attributes }
       end
 
       # Handles creating an Investment relationship
@@ -126,7 +121,7 @@ module ApiQueue
       # @param [Integer] funding_round_id The funding round id
       # @return [Investment] The Investment object
       def self.create_investment(investor, funding_round_id)
-        Investment.create(investor: investor, funding_round_id: funding_round_id)
+        ::Investment.create(investor: investor, funding_round_id: funding_round_id)
       end
 
       # Handles creating a person
@@ -138,7 +133,7 @@ module ApiQueue
         attributes = parsed_person.dup
         attributes['firstname'] = attributes.delete('first_name')
         attributes['lastname'] = attributes.delete('last_name')
-        safe_find_or_create_by(Person, permalink: attributes['permalink']){ attributes }
+        safe_find_or_create_by(::Person, permalink: attributes['permalink']){ attributes }
       end
     end
   end

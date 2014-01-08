@@ -12,13 +12,13 @@ gem 'pg'
 gem 'aws-sdk'
 
 gem 'json-stream'
-gem "active_model_serializers"
-gem "trackable_tasks", "0.1.3"
+gem 'active_model_serializers'
+gem 'trackable_tasks', '0.1.3'
+gem 'thread_safe'
 
 group :development, :test do
   gem 'factory_girl'
   gem 'faker'
-  gem 'pry-rails'
   gem 'pry-debugger'
 end
 
