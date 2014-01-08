@@ -7,4 +7,6 @@ before_script:
 script:
   - bundle exec rake db:migrate --trace
   - bundle exec rake db:test:prepare
-  - bundle exex rspec
+  - bundle exec rspec
+  - bundle exec rails_best_practices .
+  - bundle exec rubocop --rails --config ./config/rubocop_settings.yml ./lib ./spec ./app ./config
