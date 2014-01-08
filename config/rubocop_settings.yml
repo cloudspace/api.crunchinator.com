@@ -9,6 +9,9 @@ CyclomaticComplexity:
 Documentation:
   Severity: warning
 
+EmptyLinesAroundBody:
+  Enabled: false
+
 LineLength:
   Max: 120
 
