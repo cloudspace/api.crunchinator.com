@@ -3,7 +3,7 @@ require Rails.root.to_s + '/spec/factories/sequences' unless FactoryGirl.sequenc
 FactoryGirl.define do
   factory :funding_round do
     company
-    raw_raised_amount { BigDecimal.new("1000.01") }
+    raw_raised_amount { BigDecimal.new('1000.01') }
     raised_currency_code { 'USD' }
     funded_year { 10.days.ago.year }
     funded_month { 10.days.ago.month }

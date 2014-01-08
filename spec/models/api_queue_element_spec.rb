@@ -4,37 +4,37 @@ describe ApiQueue::Element do
   before(:each) do
     @element = ApiQueue::Element.new
   end
-  
-  describe "validations" do
+
+  describe 'validations' do
     it { expect(@element).to validate_presence_of :permalink }
     it { expect(@element).to validate_uniqueness_of :permalink }
   end
-  
-  describe "fields" do
+
+  describe 'fields' do
     it { expect(@element).to respond_to :num_runs }
     it { expect(@element).to respond_to :processing }
-    it { expect(@element).to respond_to :complete}
+    it { expect(@element).to respond_to :complete }
     it { expect(@element).to respond_to :last_attempt_at }
     it { expect(@element).to respond_to :permalink }
     it { expect(@element).to respond_to :error }
     it { expect(@element).to respond_to :data_source }
     it { expect(@element).to respond_to :namespace }
   end
-  
+
   describe 'scopes' do
     describe 'errors' do
       before(:each) do
-        @blank_string_error = FactoryGirl.create(:api_queue_element, error: "")
+        @blank_string_error = FactoryGirl.create(:api_queue_element, error: '')
         @nil_error = FactoryGirl.create(:api_queue_element, error: nil)
-        @has_error = FactoryGirl.create(:api_queue_element, error: "this is an error")
+        @has_error = FactoryGirl.create(:api_queue_element, error: 'this is an error')
         @elements_with_errors = ApiQueue::Element.errors
       end
 
       it 'should include an Element with an error' do
         expect(@elements_with_errors).to include(@has_error)
       end
-      
-      #an error occurred - even if it records a blank string, this is how it is coded
+
+      # an error occurred - even if it records a blank string, this is how it is coded
       it 'should include an Element with a blank string error value' do
         expect(@elements_with_errors).to include(@blank_string_error)
       end
@@ -59,7 +59,7 @@ describe ApiQueue::Element do
         expect(@complete_elements).not_to include(@incomplete_element)
       end
     end
-    
+
     describe 'incomplete' do
       before(:each) do
         @complete_element = FactoryGirl.create(:api_queue_element, complete: true)
@@ -75,7 +75,7 @@ describe ApiQueue::Element do
         expect(@incomplete_elements).to include(@incomplete_element)
       end
     end
-    
+
     describe 'processing' do
       before(:each) do
         @processed_element = FactoryGirl.create(:api_queue_element, processing: true)
@@ -91,7 +91,7 @@ describe ApiQueue::Element do
         expect(@processed_elements).not_to include(@not_processed_element)
       end
     end
-    
+
     describe 'not_processing' do
       before(:each) do
         @processed_element = FactoryGirl.create(:api_queue_element, processing: true)
@@ -123,7 +123,7 @@ describe ApiQueue::Element do
         expect(@not_failed_elements).to include(@not_failed_element)
       end
     end
-    
+
     describe 'failed' do
       before(:each) do
         @failed_element = FactoryGirl.create(:api_queue_element, num_runs: 5)
@@ -139,7 +139,7 @@ describe ApiQueue::Element do
         expect(@failed_elements).to include(@failed_element)
       end
     end
-    
+
     describe 'waiting_for_retry' do
       before(:each) do
         @ran_but_not_complete = FactoryGirl.create(:api_queue_element, num_runs: 1, complete: false)
@@ -151,16 +151,16 @@ describe ApiQueue::Element do
       it 'should include an element that has run and not completed' do
         expect(@waiting_elements).to include(@ran_but_not_complete)
       end
-      
+
       it 'should not include an element that has completed' do
         expect(@waiting_elements).not_to include(@ran_and_complete)
       end
-      
+
       it 'should not include an element that has not run' do
         expect(@waiting_elements).not_to include(@not_run)
       end
-    end    
-    
+    end
+
     describe 'order_by_fifo' do
       before(:each) do
         @element_1 = FactoryGirl.create(:api_queue_element, num_runs: 1, complete: false)
@@ -171,7 +171,7 @@ describe ApiQueue::Element do
       it 'the element created first to be first' do
         expect(@ordered_elements.first.id).to eql(@element_1.id)
       end
-      
+
       it 'the element created last to be last' do
         expect(@ordered_elements.last.id).to eql(@element_2.id)
       end
@@ -179,20 +179,20 @@ describe ApiQueue::Element do
 
     describe 'order_by_most_recently_modified' do
       before(:each) do
-        @element_1 = FactoryGirl.create(:api_queue_element, )
-        @element_2 = FactoryGirl.create(:api_queue_element, )
+        @element_1 = FactoryGirl.create(:api_queue_element)
+        @element_2 = FactoryGirl.create(:api_queue_element)
         @ordered_elements = ApiQueue::Element.order_by_most_recently_modified
       end
 
       it 'the element created last to be first' do
         expect(@ordered_elements.first.id).to eql(@element_2.id)
       end
-      
+
       it 'the element created first to be last' do
         last_element = @ordered_elements.last.id
         expect(last_element).to eql(@element_1.id)
       end
-      
+
       it 'the element last saved will be first' do
         @element_1.complete = true
         @element_1.save
@@ -200,12 +200,10 @@ describe ApiQueue::Element do
         expect(@ordered_elements.first.id).to eql(@element_1.id)
       end
     end
-    
-    # Elements with a no last attempt or a last attempt more than 1 hour ago
-    # scope :not_recently_errored, lambda { where("last_attempt_at is null OR last_attempt_at < :an_hour_ago", {:an_hour_ago => Time.now - 1.hour}) }
+
     describe 'not_recently_errored' do
       before(:each) do
-        @element_no_attempt = FactoryGirl.create(:api_queue_element, )
+        @element_no_attempt = FactoryGirl.create(:api_queue_element)
         @element_hour_old_attempt = FactoryGirl.create(:api_queue_element, last_attempt_at: 2.hours.ago)
         @element_recent_attempt = FactoryGirl.create(:api_queue_element, last_attempt_at: 1.minute.ago)
         @not_recent_elements = ApiQueue::Element.not_recently_errored
@@ -214,20 +212,17 @@ describe ApiQueue::Element do
       it 'will include elements with no attempts' do
         expect(@not_recent_elements).to include(@element_no_attempt)
       end
-      
+
       it 'will include elements with attempts over an hour old' do
         expect(@not_recent_elements).to include(@element_hour_old_attempt)
       end
-      
+
       it 'will not include elements with attempts less than an hour old' do
         expect(@not_recent_elements).not_to include(@element_recent_attempt)
       end
     end
-    
-
-    
   end
-    
+
   describe 'instance methods' do
     describe 'mark_for_processing' do
       it 'should set the processing attribute to true' do
@@ -236,5 +231,4 @@ describe ApiQueue::Element do
       end
     end
   end
-  
 end
