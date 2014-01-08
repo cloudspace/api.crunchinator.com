@@ -1,4 +1,6 @@
 require 'csv'
+
+# Stores lat/long per zip code in the US
 class ZipCodeGeo < ActiveRecord::Base
 
   # Load the zip codes from the seeds file
@@ -6,7 +8,7 @@ class ZipCodeGeo < ActiveRecord::Base
   # @param file The file to look at.
   #
   def self.import_from_csv(file = File.new("#{Rails.root}/seed/zipcode.csv", 'r'))
-    self.delete_all
+    delete_all
     CSV.foreach(file.path, headers: true) do |row|
       begin
         attributes = row.to_hash
@@ -16,7 +18,7 @@ class ZipCodeGeo < ActiveRecord::Base
         attributes['latitude'] = BigDecimal.new(attributes['latitude'])
         attributes['longitude'] = BigDecimal.new(attributes['longitude'])
         self.create! attributes
-      rescue => e
+      rescue
         next
       end
     end
