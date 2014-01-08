@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131228041012) do
+ActiveRecord::Schema.define(version: 20140108194146) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -61,7 +61,7 @@ ActiveRecord::Schema.define(version: 20131228041012) do
     t.integer  "founded_day"
     t.integer  "deadpooled_year"
     t.integer  "deadpooled_month"
-    t.integer  "deadpooled_url"
+    t.string   "deadpooled_url"
     t.string   "tag_list"
     t.string   "alias_list"
     t.string   "email_address"
