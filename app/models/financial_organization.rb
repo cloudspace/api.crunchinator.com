@@ -1,13 +1,15 @@
 # A type of investor
 # Not exactly sure how it differs from a company
 class FinancialOrganization < ActiveRecord::Base
+  include Investor
+
   has_many :investments, as: :investor
   has_many :office_locations, as: :tenant
 
   validates :permalink, uniqueness: true, presence: true
 
   # finanial_organizations whose name attribute does not begin with an alphabetical character
-  scope :non_alpha, lambda {
+  scope :starts_with_non_alpha, lambda {
     where(
       'substr(financial_organizations.name,1,1) NOT IN (?)',
       [*('a'..'z'), *('A'..'Z')]
@@ -15,7 +17,7 @@ class FinancialOrganization < ActiveRecord::Base
   }
 
   # finanial_organizations whose name attribute begins with the specified character
-  scope :starts_with, lambda { |char|
+  scope :starts_with_letter, lambda { |char|
     where(
       'Upper(substr(financial_organizations.name,1,1)) = :char',
       char: char.upcase

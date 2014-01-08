@@ -1,8 +1,11 @@
 # An investor in other companies, an investee through funding rounds
 class Company < ActiveRecord::Base
+  include Investor
+
   has_many :funding_rounds, dependent: :destroy
   has_many :investments, as: :investor, dependent: :destroy
   has_many :office_locations, as: :tenant, dependent: :destroy
+
   belongs_to :category
 
   validates :name, uniqueness: true, presence: true
@@ -39,7 +42,7 @@ class Company < ActiveRecord::Base
   scope :invalid, -> { where('companies.id not in (?)', valid.pluck(:id)) }
 
   # companies whose name attribute does not begin with an alphabetical character
-  scope :non_alpha, lambda {
+  scope :starts_with_non_alpha, lambda {
     where(
       'substr(companies.name,1,1) NOT IN (?)',
       [*('a'..'z'), *('A'..'Z')]
@@ -47,7 +50,7 @@ class Company < ActiveRecord::Base
   }
 
   # companies whose name attribute begins with the specified character
-  scope :starts_with, lambda { |char|
+  scope :starts_with_letter, lambda { |char|
     where(
       'Upper(substr(companies.name,1,1)) = :char',
       char: char.upcase

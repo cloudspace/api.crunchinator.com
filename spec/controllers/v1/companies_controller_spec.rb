@@ -36,5 +36,8 @@ describe V1::CompaniesController do
       get :index
       expect(JSON.parse(response.body)).to eq(expected)
     end
+
+    it 'should return an appropriate response when passing in a letter'
+    it 'should return an appropriate response when passing in a 0'
   end
 end

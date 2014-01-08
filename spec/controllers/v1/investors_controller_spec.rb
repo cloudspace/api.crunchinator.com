@@ -7,8 +7,7 @@ describe V1::InvestorsController do
       expect(response.status).to eq(200)
     end
 
-    it 'should return an appropriate response' do
-      # pending 'This test no longer matches the json outputted by the controllers'
+    it 'should return an appropriate response with no query params' do
       company = FactoryGirl.create(:company)
       FactoryGirl.create(:headquarters, tenant: company)
       funding_round = FactoryGirl.create(:funding_round, company: company)
@@ -27,5 +26,8 @@ describe V1::InvestorsController do
       get :index
       expect(JSON.parse(response.body)).to eq(expected)
     end
+
+    it 'should return an appropriate response when passing in a letter'
+    it 'should return an appropriate response when passing in a 0'
   end
 end

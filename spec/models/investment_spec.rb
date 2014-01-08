@@ -54,6 +54,20 @@ describe Investment do
         expect(@investments).not_to include(@not_associated)
       end
     end
+
+    describe 'by_investor_type' do
+      before(:each) do
+        @investment = FactoryGirl.create(:investment, investor: FactoryGirl.create(:person))
+      end
+
+      it 'should match investments invested in by the specified class' do
+        expect(Investment.by_investor_class(Person)).to include(@investment)
+      end
+
+      it 'should not match investments not invested in by the specified class'do
+        expect(Investment.by_investor_class(Company)).not_to include(@investment)
+      end
+    end
   end
 
   describe 'instance methods' do
@@ -61,6 +75,12 @@ describe Investment do
       it 'should return the investor type and id' do
         investment = Investment.new(investor_type: 'Company', investor_id: 1)
         expect(investment.investor_guid).to eql('company-1')
+      end
+
+      it 'should match the investor guid' do
+        investor = Person.new(id: 1)
+        investment = Investment.new(investor: investor)
+        expect(investment.investor_guid).to eql(investor.guid)
       end
     end
   end

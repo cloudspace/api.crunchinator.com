@@ -16,7 +16,12 @@ class Investment < ActiveRecord::Base
     where(investor_id: financial_organizations, investor_type: 'FinancialOrganization')
   }
 
+  # Investments that are invested in by the specified investor type
+  scope :by_investor_class, ->(klass) { where(investor_type: klass.name) }
+
   # guid for investors in the front end
+  #
+  # This should match Investor.guid.  It is duplicated here to save a query when necessary
   def investor_guid
     "#{investor_type.underscore}-#{investor_id}"
   end

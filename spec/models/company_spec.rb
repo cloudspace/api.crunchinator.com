@@ -5,6 +5,12 @@ describe Company do
     @company = Company.new
   end
 
+  describe 'mixins' do
+    it 'should be an investor' do
+      expect(Company.ancestors.select { |o| o.class == Module }).to include(Investor)
+    end
+  end
+
   describe 'associations' do
     it { expect(@company).to have_many :funding_rounds }
     it { expect(@company).to have_many :investments }
@@ -157,39 +163,39 @@ describe Company do
       end
     end
 
-    describe 'non_alpha' do
+    describe 'starts_with_non_alpha' do
       it 'should return companies whose name starts with a number' do
         included = FactoryGirl.create(:company, name: '#Hashtag')
-        expect(Company.non_alpha).to include(included)
+        expect(Company.starts_with_non_alpha).to include(included)
       end
 
       it 'should return companies whose name starts with a symbol' do
         included = FactoryGirl.create(:company, name: '1st')
-        expect(Company.non_alpha).to include(included)
+        expect(Company.starts_with_non_alpha).to include(included)
       end
 
       it 'should not return companies whose name starts with a letter' do
         excluded = FactoryGirl.create(:company, name: 'Albert\'s Apples')
-        expect(Company.non_alpha).not_to include(excluded)
+        expect(Company.starts_with_non_alpha).not_to include(excluded)
       end
     end
 
-    describe 'starts_with' do
+    describe 'starts_with_letter' do
       before(:each) do
         @included = FactoryGirl.create(:company, name: 'Albert\'s Apples')
       end
 
       it 'should return companies whose name starts with the specified character' do
-        expect(Company.starts_with('A')).to include(@included)
+        expect(Company.starts_with_letter('A')).to include(@included)
       end
 
       it 'should not exclude companies due to capitalization' do
-        expect(Company.starts_with('a')).to include(@included)
+        expect(Company.starts_with_letter('a')).to include(@included)
       end
 
       it 'should not return companies whose name does not start with the specified character' do
         excluded = FactoryGirl.create(:company, name: 'Pete\'s Pears')
-        expect(Company.starts_with('a')).not_to include(excluded)
+        expect(Company.starts_with_letter('a')).not_to include(excluded)
       end
     end
   end

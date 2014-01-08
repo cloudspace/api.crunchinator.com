@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require "./config/git_hooks/metric_gem_handler.rb"
+require './config/git_hooks/metric_gem_handler.rb'
 
 # Get the ruby gem version
 
@@ -8,17 +8,16 @@ handler = MetricGemHandler.new(:push)
 success = true
 
 metric_gems = {
-  :rails_best_practices => "rails_best_practices .",
-  :rubocop => "rubocop --rails --config ./config/rubocop_settings.yml ./lib ./spec ./app ./config",
-  :metric_fu => "metric_fu --no-open",
+  rails_best_practices: 'rails_best_practices .',
+  rubocop: 'rubocop --rails --config ./config/rubocop_settings.yml ./lib ./spec ./app ./config',
+  metric_fu: 'metric_fu --no-open',
 }
 
-metric_gems.each do |gem,cmd|
-  success = success && handler.exec(gem.to_s,cmd)
+metric_gems.each do |gem, cmd|
+  success = success && handler.exec(gem.to_s, cmd)
 end
 
-
-if success 
+if success
   exit(0)
 else
   MetricGemHandler.print_error
