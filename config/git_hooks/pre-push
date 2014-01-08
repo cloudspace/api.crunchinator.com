@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 
-#!/usr/bin/env ruby
-
 require "./config/git_hooks/metric_gem_handler.rb"
 
 # Get the ruby gem version
