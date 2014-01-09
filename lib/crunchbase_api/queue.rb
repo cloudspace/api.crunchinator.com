@@ -18,10 +18,13 @@ module ApiQueue
     # @param [Array<String>] permalinks the permalinks to enqueue
     # @param [Symbol] data_source the api data source, options are :crunchbase, :s3, :local
     def self.batch_enqueue(namespace, permalinks, data_source = :crunchbase)
-      if !permalinks.empty?
+      unless permalinks.empty?
         namespace = namespace.to_s.singularize
-        values = permalinks.uniq.map{|pl| "('#{data_source}', '#{namespace}', '#{pl}', current_timestamp, current_timestamp)"}.join(',')
-        sql = "INSERT INTO api_queue_elements (data_source, namespace, permalink, created_at, updated_at) VALUES #{values}"
+        values = permalinks.uniq.map do |pl|
+          "('#{data_source}', '#{namespace}', '#{pl}', current_timestamp, current_timestamp)"
+        end
+        sql = 'INSERT INTO api_queue_elements (data_source, namespace, permalink, created_at, updated_at) VALUES '
+        sql << values.join(',')
         ApiQueue::Element.connection.execute(sql)
       end
     end
@@ -33,7 +36,7 @@ module ApiQueue
     # @param [Symbol] data_source api data source, options are :crunchbase, :s3, :local
     # @return [ApiQueue::Element] the element created
     def self.enqueue(namespace, permalink, data_source = :crunchbase)
-      ApiQueue::Element.create(:permalink => permalink)
+      ApiQueue::Element.create(permalink: permalink)
     end
 
     # dequeues a single element, marks it for processing, and returns it
@@ -46,10 +49,10 @@ module ApiQueue
       @dequeue_mutex.synchronize do
         element = get_next_element
         if element
-          puts "dequeueing element: #{element.inspect}"
+          Rails.logger.info "dequeueing element: #{element.inspect}"
           element.mark_for_processing
         else
-          puts "there's nothing to dequeue!"
+          Rails.logger.info "there's nothing to dequeue!"
         end
         element
       end
@@ -62,7 +65,8 @@ module ApiQueue
     # @return [ApiQueue::Element] the element updated
     def self.update_element(element, error)
       if error
-        element.update_attributes(error: error, num_runs: element.num_runs + 1, last_attempt_at: DateTime.now, processing: false)
+        element.update_attributes(error: error, num_runs: element.num_runs + 1,
+                                  last_attempt_at: DateTime.now, processing: false)
       else
         element.update_attributes(complete: true, num_runs: element.num_runs + 1, processing: false)
       end
@@ -74,7 +78,7 @@ module ApiQueue
     #
     # @return [ApiQueue::Element, nil] the next element in the queue, or nil if empty
     def self.get_next_element
-      ApiQueue::Element.pending.order_by_fifo.first 
+      ApiQueue::Element.pending.order_by_fifo.first
     end
   end
 end

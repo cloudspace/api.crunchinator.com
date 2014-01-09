@@ -28,11 +28,11 @@ module ApiQueue
       # there has to be a better way than this, but i couldn't
       # figure out how
       # TODO: find a better way to handle interrupts gracefully
-      Kernel.trap( "INT" ) { @supervisor.stop_all }
+      Kernel.trap('INT') { @supervisor.stop_all }
 
       # this is the main loop. workers continue to loop until
       # their stop method is called, or the queue is empty
-      while @running do
+      while @running
         begin
           # wipe relevant instance variables to avoid using the last element's data
           @error = @response = @response_body = @response_code = @entity = nil
@@ -46,10 +46,12 @@ module ApiQueue
             @element = @queue.dequeue || break
           end
 
+          # @retry &&= false || @element = @queue.dequeue || break
+
           # log the element, get the api singleton, and trigger the api call
           log "#{Time.now.to_s} - Processing #{@element.namespace.to_s.singularize} #{@element.permalink.inspect}"
           @response = api.get_entity(@element.namespace, @element.permalink)
-          @response_code = @response.respond_to?(:code) ? @response.code : "200"
+          @response_code = @response.respond_to?(:code) ? @response.code : '200'
           @response_body = @response.respond_to?(:body) ? @response.body : @response
 
           # if QPS rate limiting is detected, sleep the thread for 1 minute, then
@@ -58,7 +60,7 @@ module ApiQueue
           # to do with this specific entity. The sleep should provide a crude form of throttling
           # TODO: find a better way to handle error codes than right here in the main loop
           # TODO: make this only happen when the api source is crunchbase
-          if @response_code == "403" && @response_body == "<h1>Developer Over Qps</h1>"
+          if @response_code == '403' && @response_body == '<h1>Developer Over Qps</h1>'
             log ('*' * 90) + "\nQPS RATE LIMITING DETECTED\n" + ('*' * 90)
             @retry = true
             sleep(60)
@@ -95,7 +97,7 @@ module ApiQueue
 
     # stops the worker after the current iteration
     def stop
-      puts "STOPPING WORKER #{@id}!"
+      Rails.logger.info "STOPPING WORKER #{@id}!"
       log "STOPPING WORKER #{@id}!"
       @running = false
     end
@@ -104,7 +106,7 @@ module ApiQueue
     #
     # @param [String] text the text to be logged
     def log(text)
-      File.open("log/import_worker#{(@id ? '_' + @id.to_s : '')}.log", "a"){|f| f.puts(text)}
+      File.open("log/import_worker#{(@id ? '_' + @id.to_s : '')}.log", 'a') { |f| f.puts(text) }
     end
 
     def api
@@ -121,6 +123,10 @@ module ApiQueue
 
     def get_parser(namespace)
       "ApiQueue::Parser::#{namespace.to_s.classify}".constantize
+    end
+
+    def next_element
+
     end
 
     private
@@ -151,7 +157,7 @@ module ApiQueue
         "\n#{('-' * 90)}\nRAW PAYLOAD:\n#{@response.inspect}" +
         "\n#{('-' * 90)}\nRAW BODY:\n#{@response_body.inspect}" +
         "\n#{('-' * 90)}\nPARSED PAYLOAD:\n#{@entity.inspect}"
-      log ("=" * 90) + "\nERROR processing data!" + @error
+      log ('=' * 90) + "\nERROR processing data!" + @error
     end
   end
 end

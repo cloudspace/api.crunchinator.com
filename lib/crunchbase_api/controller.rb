@@ -19,7 +19,9 @@ module ApiQueue
     # @param [String] text the text to be logged
     def self.log(text)
       Rails.logger.info text
-      File.open("#{Rails.root}/log/controller_log.log", "a") { |f| f.puts(Time.now.strftime("%m/%d/%Y %T") + ' ' + text) }
+      File.open("#{Rails.root}/log/controller_log.log", 'a') do |f|
+        f.puts(Time.now.strftime('%m/%d/%Y %T') + ' ' + text)
+      end
     end
 
     # clears the queue and flushes the logs
@@ -83,12 +85,11 @@ module ApiQueue
     #
     # @param [Symbol] data_source the source api to use. options are :crunchbase, :s3, :local
     # @param [Symbol, Array<Symbol>] namespace the entity type or types to enqueue
-    def self.populate_missing(data_source: :crunchbase, archive: [:local, :s3], namespace: :company, process: false, num_workers: 5)
+    def self.populate_missing(data_source: :crunchbase, archive: [:local, :s3], namespace: :company)
       available = ApiQueue::Source::Crunchbase.get_entities(namespace)
       already_have = ApiQueue::Source::S3.get_entities(namespace)
       permalinks = available - already_have
       ApiQueue::Queue.batch_enqueue(namespace, permalinks, data_source)
-      start_workers(num_workers, archive: archive, process: process)
     end
 
     # makes a request to an endpoint and uploads the result to s3
@@ -96,7 +97,7 @@ module ApiQueue
       letters = ['0', *('a'..'z')]
 
       endpoints = {}
-      endpoints["categories"] = "fakedata/categories.json"
+      endpoints['categories'] = 'fakedata/categories.json'
       letters.each { |letter| endpoints["companies?letter=#{letter}"] = "fakedata/companies/#{letter}.json" }
       letters.each { |letter| endpoints["investors?letter=#{letter}"] = "fakedata/investors/#{letter}.json" }
 
@@ -121,9 +122,7 @@ module ApiQueue
 
     # returns an application object that can be queried
     def self.fakeapp
-      unless defined?(ActionDispatch::Integration::Session)
-        require "action_dispatch/integration"
-      end
+      require 'action_dispatch/integration' unless defined?(ActionDispatch::Integration::Session)
       ActionDispatch::Integration::Session.new(Crunchinator::Application)
     end
 

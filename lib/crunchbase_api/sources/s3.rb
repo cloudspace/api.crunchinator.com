@@ -8,12 +8,12 @@ module ApiQueue
       BUCKET_NAME = 'crunchinator.com'
 
       def self.get_all_entities
-        bucket(BUCKET_NAME).objects.map{|obj| obj.key}
+        bucket(BUCKET_NAME).objects.map { |obj| obj.key }
       end
 
       def self.get_entities(namespace)
         prefix = namespace.to_s.pluralize + '/'
-        bucket(BUCKET_NAME).objects.with_prefix(prefix).map{|obj| obj.key.gsub(prefix, '').gsub('.json', '')}
+        bucket(BUCKET_NAME).objects.with_prefix(prefix).map { |obj| obj.key.gsub(prefix, '').gsub('.json', '') }
       end
 
       def self.get_entity(namespace, permalink)
@@ -51,19 +51,19 @@ module ApiQueue
       end
 
       def self.service
-        AWS::S3.new(:access_key_id => ENV["AWS_ACCESS_KEY_ID"], :secret_access_key => ENV["AWS_SECRET_ACCESS_KEY"])
+        AWS::S3.new(access_key_id: ENV['AWS_ACCESS_KEY_ID'], secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'])
       end
 
       private
-          
+
       def self.gzip(string)
-        wio = StringIO.new("w")
+        wio = StringIO.new('w')
         w_gz = Zlib::GzipWriter.new(wio)
         w_gz.write(string)
         w_gz.close
-        compressed = wio.string
+        wio.string
       end
-      
+
     end
   end
 end

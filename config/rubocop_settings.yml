@@ -15,9 +15,8 @@ EmptyLinesAroundBody:
 LineLength:
   Max: 120
 
-
 MethodLength:
-  Severity: warning
+  Max: 15
 
 # Do not use semicolons to terminate expressions.
 Semicolon:
