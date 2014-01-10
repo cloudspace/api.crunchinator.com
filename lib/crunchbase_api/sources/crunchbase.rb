@@ -31,46 +31,35 @@ module ApiQueue
       # @return [Hash] the list of companies.
       def self.get_entities(namespace)
         plural_namespace = namespace.to_s.pluralize
-        response = Net::HTTP.start("api.crunchbase.com") do |http|
+        response = Net::HTTP.start('api.crunchbase.com') do |http|
           http.get("/v/1/#{plural_namespace}.js?api_key=#{ENV['CRUNCHBASE_API_KEY']}").body.gsub(/[[:cntrl:]]/, '')
         end
-        JSON::Stream::Parser.parse(response).map{|c| c['permalink'] }
+        JSON::Stream::Parser.parse(response).map { |c| c['permalink'] }
       end
 
       def self.get_random_entities(namespace = :companies, n = 2000)
         get_entities(namespace).sample(n)
       end
 
-      def self.get_entity(namespace, permalink, limit = 10, uri_str: nil)
-        raise ArgumentError, 'too many HTTP redirects' if limit == 0
-
-        unless uri_str
-          singular_namespace = namespace.to_s.singularize
-          uri_str = "http://api.crunchbase.com/v/1/#{singular_namespace}/#{permalink}.js?api_key=#{ENV['CRUNCHBASE_API_KEY']}"
-        end
-
+      def self.get_entity(namespace, permalink, limit: 10, uri_str: nil)
+        fail ArgumentError, 'too many HTTP redirects' if limit == 0
+        uri_str ||= build_uri(namespace, permalink)
         response = Net::HTTP.get_response(URI(uri_str))
-
-        case response
-        when Net::HTTPSuccess then
-          response
-        when Net::HTTPRedirection then
-          location = response['location'] + "?api_key=#{ENV['CRUNCHBASE_API_KEY']}"
-          warn "redirected to #{location}"
-          get_entity(namespace, permalink, limit - 1, uri_str: location)
-        when Net::HTTPForbidden then
-          if response.body == '<h1>Developer Over Qps</h1>'
-            # handle QPS rate limiting here somehow
-            response # and replace this
-          else
-            response
-          end
-        else 
-          response
+        catch :redirect do
+          handler_klass = "ApiQueue::Response::#{response.class.to_s.split('::').last.sub('HTTP', '')}".constantize
+          return handler_klass.new.handle(response).body
         end
-
+        location = response['location'] + "?api_key=#{ENV['CRUNCHBASE_API_KEY']}"
+        Rails.logger.info "redirected to #{location}"
+        get_entity(namespace, permalink, limit: limit - 1, uri_str: location)
       end
 
+      private
+
+      def self.build_uri(namespace, permalink)
+        singular_namespace = namespace.to_s.singularize
+        "http://api.crunchbase.com/v/1/#{singular_namespace}/#{permalink}.js?api_key=#{ENV['CRUNCHBASE_API_KEY']}"
+      end
     end
   end
 end
