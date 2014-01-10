@@ -7,27 +7,44 @@ describe V1::InvestorsController do
       expect(response.status).to eq(200)
     end
 
-    it 'should return an appropriate response with no query params' do
-      company = FactoryGirl.create(:company)
-      FactoryGirl.create(:headquarters, tenant: company)
-      funding_round = FactoryGirl.create(:funding_round, company: company)
-      investor =  FactoryGirl.create(:company, permalink: 'boo')
-      investment = FactoryGirl.create(:investment, investor: investor, funding_round: funding_round)
+    describe 'appropriate response' do
+      before(:each) do
+        @company = FactoryGirl.create(:company)
+        FactoryGirl.create(:headquarters, tenant: @company)
+        @funding_round = FactoryGirl.create(:funding_round, company: @company)
+        @investor =  FactoryGirl.create(:company, permalink: 'boo')
+        @investment = FactoryGirl.create(:investment, investor: @investor, funding_round: @funding_round)
+      end
 
-      expected = { 'investors' => [] }
-      expected['investors'].push(
-        'id' => investment.investor_type.underscore + '-' + investor.id.to_s,
-        'name' => investor.name,
-        'investor_type' => investor.class.to_s.underscore,
-        'invested_company_ids' => [company.id],
-        'invested_category_ids' => [company.category_id]
-      )
+      it 'with no query params' do
+        # do nothing, general case
+        get :index
+      end
 
-      get :index
-      expect(JSON.parse(response.body)).to eq(expected)
+      it 'with a letter as a query param' do
+        @investor.name = 'Albert\'s Apples'
+        @investor.save
+        get :index
+      end
+
+      it 'with a number as a query param' do
+        @investor.name = '1st Apples'
+        @investor.save
+        get :index
+      end
+
+      after(:each) do
+        expected = { 'investors' => [] }
+        expected['investors'].push(
+          'id' => @investor.guid,
+          'name' => @investor.name,
+          'investor_type' => @investor.class.to_s.underscore,
+          'invested_company_ids' => [@company.id],
+          'invested_category_ids' => [@company.category_id]
+        )
+
+        expect(JSON.parse(response.body)).to eq(expected)
+      end
     end
-
-    it 'should return an appropriate response when passing in a letter'
-    it 'should return an appropriate response when passing in a 0'
   end
 end

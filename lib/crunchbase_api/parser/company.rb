@@ -3,36 +3,46 @@ module ApiQueue
     class Company < ApiQueue::Parser::Base
       # Handles creating the objects for an individual company
       #
-      # @param [Hash] company_data the json data for the company to be parsed
+      # @param [Hash] entity_data the json data for the company to be parsed
       # @return [nil]
-      def self.process_entity(company_data)
-        puts "Normalizing data for #{company_data['name']}"
-        if company_data['category_code']
-          company = create_company(company_data)
-          company_data['funding_rounds'].each do |fr|
-            funding_round = create_funding_round(fr, company)
-            if fr['investments'].present?
-              funding_round.investments.destroy_all
-              fr['investments'].each do |investment|
-                investor = if !investment['person'].nil?
-                  create_person(investment['person'])
-                elsif !investment['company'].nil?
-                  create_company(investment['company'])
-                elsif !investment['financial_org'].nil?
-                  create_financial_org(investment['financial_org'])
-                else
-                  raise "Unknown investment type! - #{inves†ment.inspect}"
+      def process_entity(entity_data)
+        @entity_data = entity_data
+        Rails.logger.info "Normalizing data for #{@entity_data['name']}"
+        if @entity_data['category_code']
+          @company = create_company(@entity_data)
+          process_funding_rounds
+          process_offices
+        end
+      end
+
+      private
+
+      # Handles creating the objects for the funding_rounds on the current company
+      def process_funding_rounds
+        @entity_data['funding_rounds'].each do |funding_round_data|
+          funding_round = create_funding_round(funding_round_data, @company)
+          if funding_round_data['investments'].present?
+            funding_round.investments.destroy_all
+            funding_round_data['investments'].each do |investment|
+              investor = nil
+              %w[person company financial_org].each do |investor_type|
+                if investment[investor_type]
+                  investor = send("create_#{investor_type}".to_sym, investment[investor_type])
                 end
-                create_investment(investor, funding_round.id) if investor
               end
+              create_investment(investor, funding_round.id) if investor
             end
           end
-          if company_data['offices'].present?
-            company.office_locations.destroy_all
-            company_data['offices'].each_with_index do |office_data, index|
-              hq_data = (index == 0 ? {headquarters: true} : {})
-              create_office_location(office_data.merge(hq_data), company)
-            end
+        end
+      end
+
+      # Handles creating the office locations current company
+      def process_offices
+        if @entity_data['offices'].present?
+          @company.office_locations.destroy_all
+          @entity_data['offices'].each_with_index do |office_data, index|
+            hq_data = (index == 0 ? { headquarters: true } : {})
+            create_office_location(office_data.merge(hq_data), @company)
           end
         end
       end
