@@ -20,7 +20,7 @@ module ApiQueue
       # Handles creating the objects for the funding_rounds on the current company
       def process_funding_rounds
         @entity_data['funding_rounds'].each do |funding_round_data|
-          funding_round = create_funding_round(fr, @company)
+          funding_round = create_funding_round(funding_round_data, @company)
           if funding_round_data['investments'].present?
             funding_round.investments.destroy_all
             funding_round_data['investments'].each do |investment|

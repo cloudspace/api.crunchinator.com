@@ -22,7 +22,7 @@ module ApiQueue
     # if the stop method is called on it, or the queue is empty
     def start
       log "Initializing worker #{@id}..."
-      @running = true
+      @running = element_found = true
 
       # this allows interrupts to be caught and stop the workers
       # there has to be a better way than this, but i couldn't
@@ -32,67 +32,65 @@ module ApiQueue
 
       # this is the main loop. workers continue to loop until
       # their stop method is called, or the queue is empty
-      while @running
-        begin
-          # wipe relevant instance variables to avoid using the last element's data
-          @error = @response = @response_body = @response_code = @entity = nil
 
-          # if the retry flag is set, unset it and use the element
-          # from the last iteration. if it is not set, attempt to get
-          # a new element from the queue. if none is available, halt
-          if @retry
-            @retry = false
-          else
-            @element = @queue.dequeue || break
-          end
+      element_found = fetch_and_parse_next_element while @running && element_found
+    end
 
-          # @retry &&= false || @element = @queue.dequeue || break
+    def fetch_and_parse_next_element
+      begin
+        @error = nil
+        @element = retry_or_dequeue
+        return false unless @element
 
-          # log the element, get the api singleton, and trigger the api call
-          log "#{Time.now.to_s} - Processing #{@element.namespace.to_s.singularize} #{@element.permalink.inspect}"
-          @response = api.get_entity(@element.namespace, @element.permalink)
-          @response_code = @response.respond_to?(:code) ? @response.code : '200'
-          @response_body = @response.respond_to?(:body) ? @response.body : @response
-
-          # if QPS rate limiting is detected, sleep the thread for 1 minute, then
-          # try again. this doesn't count toward the maximum 5 errors per element,
-          # nor does it increment the error_count, since QPS rate limiting has nothing
-          # to do with this specific entity. The sleep should provide a crude form of throttling
-          # TODO: find a better way to handle error codes than right here in the main loop
-          # TODO: make this only happen when the api source is crunchbase
-          if @response_code == '403' && @response_body == '<h1>Developer Over Qps</h1>'
-            log ('*' * 90) + "\nQPS RATE LIMITING DETECTED\n" + ('*' * 90)
-            @retry = true
-            sleep(60)
-            next
-          end
-
-          # turn the json into a hash
-          # There is no utf-8 representation of an ASCII record seperator, which causes the
-          # json serializer to be sad. The code:
-          #     gsub(/[[:cntrl:]]/, '')
-          # replaces this unidentified character.
-          @entity = JSON::Stream::Parser.parse(@response_body.gsub(/[[:cntrl:]]/, ''))
-
-          # save the raw text response to the specified archive targets
-          archive_data(@response_body)
-
-          # if the process flag is truthy, save the objects in the db.
-          parser.process_entity(@entity) if @process
-
-        # all exceptions should be allowed to bubble up to here to be handled and logged.
-        rescue StandardError => e
-          # increment the error counter, log the error
-          record_error(e)
-        end
-
-        # if everything worked, flag the element as complete.
-        # if anything went wrong, log the error, incremement the error counter,
-        # and set the retry flag if the element hasn't hit the retry limit.
-        @queue.update_element(@element, @error) if @element
-        @supervisor.reset_error_count unless @error
-        @retry = true if @error && @element && @element.num_runs < 5
+        response = fetch_entity
+        process_response(response)
+      rescue StandardError => e
+        record_error(e)
       end
+
+      # if everything worked, flag the element as complete.
+      # if anything went wrong, log the error, incremement the error counter,
+      # and set the retry flag if the element hasn't hit the retry limit.
+      @queue.update_element(@element, @error)
+      @supervisor.reset_error_count unless @error
+
+      @previous_element = should_retry? ? @element : nil
+      true
+    end
+
+    def should_retry?
+      @error && @element && @element.num_runs < 5
+    end
+
+    def retry_or_dequeue
+      if @previous_element
+        @previous_element
+      else
+        @queue.dequeue
+      end
+    end
+
+    # pulls from the remote api, handles qps issues by sleeping and retrying silently
+    def fetch_entity
+      # old version minus QPS handling, should work in most cases
+      # log the element, get the api singleton, and trigger the api call
+      log "#{Time.now.to_s} - Processing #{@element.namespace.to_s.singularize} #{@element.permalink.inspect}"
+      api.get_entity(@element.namespace, @element.permalink)
+    end
+
+    def process_response(response_body)
+      # turn the json into a hash
+      # There is no utf-8 representation of an ASCII record seperator, which causes the
+      # json serializer to be sad. The code:
+      #     gsub(/[[:cntrl:]]/, '')
+      # replaces this unidentified character.
+      entity = JSON::Stream::Parser.parse(response_body.gsub(/[[:cntrl:]]/, ''))
+
+      # save the raw text response to the specified archive targets
+      archive_data(response_body)
+
+      # if the process flag is truthy, save the objects in the db.
+      parser.process_entity(entity) if @process
     end
 
     # stops the worker after the current iteration
@@ -122,7 +120,7 @@ module ApiQueue
     end
 
     def get_parser(namespace)
-      "ApiQueue::Parser::#{namespace.to_s.classify}".constantize
+      "ApiQueue::Parser::#{namespace.to_s.classify}".constantize.new
     end
 
     def next_element
@@ -157,7 +155,7 @@ module ApiQueue
         "\n#{('-' * 90)}\nRAW PAYLOAD:\n#{@response.inspect}" +
         "\n#{('-' * 90)}\nRAW BODY:\n#{@response_body.inspect}" +
         "\n#{('-' * 90)}\nPARSED PAYLOAD:\n#{@entity.inspect}"
-      log ('=' * 90) + "\nERROR processing data!" + @error
+      log(('=' * 90) + "\nERROR processing data!" + @error)
     end
   end
 end

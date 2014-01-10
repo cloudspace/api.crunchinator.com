@@ -47,7 +47,7 @@ module ApiQueue
         response = Net::HTTP.get_response(URI(uri_str))
         catch :redirect do
           handler_klass = "ApiQueue::Response::#{response.class.to_s.split('::').last.sub('HTTP', '')}".constantize
-          return handler_klass.new.handle(response)
+          return handler_klass.new.handle(response).body
         end
         location = response['location'] + "?api_key=#{ENV['CRUNCHBASE_API_KEY']}"
         Rails.logger.info "redirected to #{location}"
