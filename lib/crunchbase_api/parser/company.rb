@@ -1,5 +1,6 @@
 module ApiQueue
   module Parser
+    # The parser for entities in the companies namespace. Accepts JSON and produces ActiveRecord::Base objects
     class Company < ApiQueue::Parser::Base
       # Handles creating the objects for an individual company
       #

@@ -1,8 +1,14 @@
 module ApiQueue
   module Source
+    # An interface to interact with the local filesystem and serve JSON data to queue workers
+    # as well as save data to local files. Files are saved to /json_data/<namespace>/<filename>
     class Local
 
-      def self.get_entities(namespace)
+      # Retrieves the list of permalinks corresponding to entities for which there is data on s3
+      #
+      # @param [Symbol,String] namespace The type of entity (company, person, etc)
+      # @return [Array] the list of permalinks.
+      def self.fetch_entities(namespace)
         plural_namespace = namespace.to_s.pluralize
         folder = "#{Rails.root}/json_data/#{plural_namespace}"
         if Dir.exist?(folder)
@@ -12,15 +18,21 @@ module ApiQueue
         end
       end
 
-      def self.get_random_entities(namespace = :companies, n = 2000)
-        get_entities(namespace).sample(n)
-      end
-
-      def self.get_entity(namespace, permalink)
+      # Retrieves json data corresponding to the company with the specified permalink
+      #
+      # @param [Symbol,String] namespace The type of entity
+      # @param [Symbol,String] permalink The permalink for this entity
+      # @return [String] JSON data for the specified entity
+      def self.fetch_entity(namespace, permalink)
         plural_namespace = namespace.to_s.pluralize
         File.open("#{Rails.root}/json_data/#{plural_namespace}/#{permalink}.json") { |f| f.read }
       end
 
+      # Saves the JSON for the entity with the specified permalink within the specified namespace
+      #
+      # @param [Symbol, String] namespace the namespace for this entity
+      # @param [Symbol, String] permalink the permalink for this entity
+      # @param [String] json the data to be saved
       def self.save_entity(namespace, permalink, json)
         plural_namespace = namespace.to_s.pluralize
 

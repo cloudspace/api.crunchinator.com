@@ -1,64 +1,62 @@
 module ApiQueue
   module Source
-    # Both methods should parse the json, handle errors, and return ruby hashes.
-    # Saving data to S3 should happen automatically if necessary.
-    # The source parameter will try to get the data from local/s3/crunchbase as specified.
-    # No additional data should be passed in such as api keys.
-    #
-    # Make sure that unexpected html or xml responses are handled.
+    # An interface to interact with the crunchbase API and serve JSON data to queue workers
     #
     # The plural available namespaces are:
     # ['companies', 'people', 'financial-organizations', 'products', 'service-providers']
-    #
-    # Syntax:
-    #
-    # For all entities except people:
-    # http://api.crunchbase.com/v/1/<plural entity namespace>/permalink?name=<entity name>
-    #
-    # For people:
-    # http://api.crunchbase.com/v/1/people/permalink?first_name=<person first name>&last_name=<person last name>
-    #
-    # EXAMPLES:
-    # http://api.crunchbase.com/v/1/<plural entity namespace>/permalink?name=<entity name>
-    # http://api.crunchbase.com/v/1/companies/permalink?name=Google
-    # http://api.crunchbase.com/v/1/financial-organizations/permalink?name=Sequoia%20Capital
-    # http://api.crunchbase.com/v/1/products/permalink?name=iPhone
-    # http://api.crunchbase.com/v/1/people/permalink?first_name=Ron&last_name=Conway
     class Crunchbase
 
-      # Retrieves the list of companies Crunchbase/S3 has data for.
+      # Retrieves the list of permalinks corresponding to entities for which Crunchbase has data
+      #   within the specified namespace.
       #
-      # @return [Hash] the list of companies.
-      def self.get_entities(namespace)
+      # @param [Symbol,String] namespace The type of entity (company, person, etc)
+      # @return [Array] the list of permalinks.
+      def self.fetch_entities(namespace)
         plural_namespace = namespace.to_s.pluralize
-        response = Net::HTTP.start('api.crunchbase.com') do |http|
-          http.get("/v/1/#{plural_namespace}.js?api_key=#{ENV['CRUNCHBASE_API_KEY']}").body.gsub(/[[:cntrl:]]/, '')
-        end
-        JSON::Stream::Parser.parse(response).map { |c| c['permalink'] }
+        response = HTTParty.get("http://api.crunchbase.com/v/1/#{plural_namespace}.js?api_key=#{api_key}")
+        response_body = response.body.gsub(/[[:cntrl:]]/, '')
+        JSON::Stream::Parser.parse(response_body).map { |c| c['permalink'] }
       end
 
-      def self.get_random_entities(namespace = :companies, n = 2000)
-        get_entities(namespace).sample(n)
-      end
-
-      def self.get_entity(namespace, permalink, limit: 10, uri_str: nil)
-        fail ArgumentError, 'too many HTTP redirects' if limit == 0
-        uri_str ||= build_uri(namespace, permalink)
-        response = Net::HTTP.get_response(URI(uri_str))
-        catch :redirect do
-          handler_klass = "ApiQueue::Response::#{response.class.to_s.split('::').last.sub('HTTP', '')}".constantize
-          return handler_klass.new.handle(response).body
+      # Retrieves json data corresponding to the company with the specified permalink
+      #
+      # @param [Symbol,String] namespace The type of entity
+      # @param [Symbol,String] permalink The permalink for this entity
+      # @return [String] JSON data for the specified entity
+      def self.fetch_entity(namespace, permalink)
+        singular_namespace = namespace.to_s.singularize
+        uri = "http://api.crunchbase.com/v/1/#{singular_namespace}/#{permalink}.js?api_key=#{api_key}"
+        @retry = true
+        while @retry
+          response = HTTParty.get(uri)
+          @retry = rate_limited?(response)
+          sleep(60) if @retry
         end
-        location = response['location'] + "?api_key=#{ENV['CRUNCHBASE_API_KEY']}"
-        Rails.logger.info "redirected to #{location}"
-        get_entity(namespace, permalink, limit: limit - 1, uri_str: location)
+        response.code == 200 ? response.body : handle_failure(response)
       end
 
       private
 
-      def self.build_uri(namespace, permalink)
-        singular_namespace = namespace.to_s.singularize
-        "http://api.crunchbase.com/v/1/#{singular_namespace}/#{permalink}.js?api_key=#{ENV['CRUNCHBASE_API_KEY']}"
+      # Checks a response to see if it has been rate limited
+      #
+      # @param [HTTParty::Response] response the response to check
+      # @return [Boolean] true if rate limited, else false
+      def self.rate_limited?(response)
+        response.code == 403 && response.body == '<h1>Developer Over Qps</h1>'
+      end
+
+      # Raises an exception with useful information associated
+      #
+      # @param [HTTParty::Response] response the failed response used to generate the message
+      def self.handle_failure(response)
+        fail "#{response.response.class} #{response.code} #{response.message}"
+      end
+
+      # The API key for crunchbase
+      #
+      # @return [String] the API key
+      def self.api_key
+        ENV['CRUNCHBASE_API_KEY']
       end
     end
   end

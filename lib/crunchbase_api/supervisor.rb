@@ -1,10 +1,13 @@
 module ApiQueue
+  # Supervises ApiQueue::Worker objects. Creates, controls, starts, and stops workers as needed
   class Supervisor
 
-    def initialize(error_threshold: 50)
+    def initialize(error_threshold: 50, archive: [:local, :s3], process: true)
       # a place to store references to all the workers
       @workers = ThreadSafe::Array.new
       @worker_threads = ThreadSafe::Array.new
+      @archive = archive # the target(s) for archiving the json responses
+      @process = process # insert into the db or just move files?
 
       # keep track of recent errors
       # if this @error_threshold or more api calls in a row raise
@@ -14,6 +17,8 @@ module ApiQueue
       @error_count_mutex = Mutex.new
     end
 
+    attr_accessor :archive, :process
+
     # instantiates and starts queue workers. don't create more workers than
     # there are database connections, or the extra workers will sit idle
     # waiting for connections. rails seems to reserve 1-2 connections for
@@ -22,12 +27,10 @@ module ApiQueue
     #
     # @param [FixNum] num_workers the number of workers to start
     # @return [Array<Thread>] an array of threads, returned upon completion
-    def start_workers(num_workers = 5, archive: [:local, :s3], process: true)
-      @worker_threads = ThreadSafe::Array.new
+    def start_workers(num_workers = 5)
       num_workers.times do |index|
-        @worker_threads << Thread.new(index, archive, process) do |thread_index, archive, process|
-          worker = ApiQueue::Worker.new(id: thread_index + 1, archive: archive, process: process, supervisor: self)
-          @workers << worker
+        @worker_threads << Thread.new(index) do |thread_index|
+          worker = create_worker(thread_index + 1)
           worker.start
         end
       end
@@ -35,8 +38,14 @@ module ApiQueue
       @worker_threads.each(&:join)
     end
 
+    def create_worker(id)
+      worker = ApiQueue::Worker.new(id: id, supervisor: self)
+      @workers << worker
+      worker
+    end
+
     # stops all the workers
-    def stop_all
+    def stop_workers
       @workers.map(&:stop)
     end
 
@@ -60,7 +69,7 @@ module ApiQueue
     # for now just stop all the workers
     # TODO: decide whether sleeping or stopping is appropriate
     def error_threshold_reached
-      stop_all
+      stop_workers
     end
   end
 end

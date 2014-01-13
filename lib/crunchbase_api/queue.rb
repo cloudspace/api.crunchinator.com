@@ -1,5 +1,6 @@
 require 'json/stream'
 module ApiQueue
+  # An interface for the queue implementation
   class Queue
     # A mutex to lock dequeueing actions at the class level
     @dequeue_mutex ||= Mutex.new
@@ -47,7 +48,7 @@ module ApiQueue
     # @return [ApiQueue::Element, nil] the element dequeued or nil if queue empty
     def self.dequeue
       @dequeue_mutex.synchronize do
-        element = get_next_element
+        element = next_element
         if element
           Rails.logger.info "dequeueing element: #{element.inspect}"
           element.mark_for_processing
@@ -77,7 +78,7 @@ module ApiQueue
     # returns the next element in the queue
     #
     # @return [ApiQueue::Element, nil] the next element in the queue, or nil if empty
-    def self.get_next_element
+    def self.next_element
       ApiQueue::Element.pending.order_by_fifo.first
     end
   end
