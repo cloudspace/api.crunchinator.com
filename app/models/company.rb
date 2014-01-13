@@ -58,7 +58,12 @@ class Company < ActiveRecord::Base
   }
 
   def headquarters
-    office_locations.headquarters.first
+    # note that this does not depend on the headquarters scope on the OfficeLocation model
+    # to make endpoint response quicker
+    #
+    # Here is the traditional way to do this:
+    # office_locations.headquarters.first
+    office_locations.select{|ol| ol.headquarters}.first
   end
 
   def zip_code
