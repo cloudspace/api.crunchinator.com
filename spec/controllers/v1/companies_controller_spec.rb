@@ -39,6 +39,7 @@ describe V1::CompaniesController do
         expected['companies'].push(
           'id' => @company.id,
           'name' => @company.name,
+          'permalink' => @company.permalink,
           'category_id' => @company.category_id,
           'total_funding' => @company.total_funding.to_s,
           'funding_rounds' => [],

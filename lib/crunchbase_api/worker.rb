@@ -1,18 +1,15 @@
-# Takes elements off the queue, queries the api, and attempts to produce
-# objects from the result.
-#
-# NOTE: ALL exceptions should be handled by the queue worker in the run method,
-# and not by any of the other classes within ApiQueue, in order for errors to
-# be properly logged and recovered. Components that handle their own exceptions
-# will be much harder to debug. IF IT IS GOING TO BREAK, LET IT BREAK.
 module ApiQueue
+  # The queue worker implementation. Workers take elements off the queue,
+  # query the api, and attempts to produce objects from the result.
+  #
+  # NOTE: ALL exceptions should be handled by the queue worker in the run method,
+  # and not by any of the other classes within ApiQueue, in order for errors to
+  # be properly logged and recovered. Components that handle their own exceptions
+  # will be much harder to debug. IF IT IS GOING TO BREAK, LET IT BREAK.
   class Worker
 
-    def initialize(id: nil, process: true, archive: [:local, :s3], supervisor: nil)
-      @archive = archive                # the target(s) for archiving the json responses
-      @process = process                # insert into the db or just move files?
+    def initialize(id: nil, supervisor: nil)
       @running = false                  # a flag used to stop workers
-      @retry = false                    # a flag used to retry after errors
       @id = id                          # used for logging purposes
       @supervisor = supervisor          # set a reference to this worker's supervisor
       @queue = ApiQueue::Queue          # the queue could be swapped out later
@@ -28,12 +25,13 @@ module ApiQueue
       # there has to be a better way than this, but i couldn't
       # figure out how
       # TODO: find a better way to handle interrupts gracefully
-      Kernel.trap('INT') { @supervisor.stop_all }
+      Kernel.trap('INT') { @supervisor.stop_workers }
 
       # this is the main loop. workers continue to loop until
       # their stop method is called, or the queue is empty
-
-      element_found = fetch_and_parse_next_element while @running && element_found
+      while @running && element_found
+        element_found = fetch_and_parse_next_element
+      end
     end
 
     def fetch_and_parse_next_element
@@ -72,10 +70,9 @@ module ApiQueue
 
     # pulls from the remote api, handles qps issues by sleeping and retrying silently
     def fetch_entity
-      # old version minus QPS handling, should work in most cases
       # log the element, get the api singleton, and trigger the api call
       log "#{Time.now.to_s} - Processing #{@element.namespace.to_s.singularize} #{@element.permalink.inspect}"
-      api.get_entity(@element.namespace, @element.permalink)
+      api(@element.data_source).fetch_entity(@element.namespace, @element.permalink)
     end
 
     def process_response(response_body)
@@ -90,7 +87,7 @@ module ApiQueue
       archive_data(response_body)
 
       # if the process flag is truthy, save the objects in the db.
-      parser.process_entity(entity) if @process
+      parser(@element.namespace).process_entity(entity) if process_json?
     end
 
     # stops the worker after the current iteration
@@ -107,36 +104,32 @@ module ApiQueue
       File.open("log/import_worker#{(@id ? '_' + @id.to_s : '')}.log", 'a') { |f| f.puts(text) }
     end
 
-    def api
-      get_api(@element.data_source)
-    end
-
-    def get_api(api_name)
+    def api(api_name)
       "ApiQueue::Source::#{api_name.to_s.classify}".constantize
     end
 
-    def parser
-      get_parser(@element.namespace)
-    end
-
-    def get_parser(namespace)
+    def parser(namespace)
       "ApiQueue::Parser::#{namespace.to_s.classify}".constantize.new
     end
 
-    def next_element
+    private
 
+    def archive_locations
+      @supervisor.archive
     end
 
-    private
+    def process_json?
+      @supervisor.process
+    end
 
     # save the json payload for the current element to a local file and/or s3
     # don't save to the source, For example, if an element's data_source is
     # local, then don't save it back to local
     def archive_data(data)
       if data.present?
-        [*@archive].each do |target_name|
+        [*archive_locations].each do |target_name|
           if target_name.present? && target_name.to_sym != @element.data_source.to_sym
-            target = get_api(target_name)
+            target = api(target_name)
             log "archiving #{@element.namespace.to_s.pluralize}/#{@element.permalink}.json to #{target_name.inspect}"
             target.save_entity(@element.namespace, @element.permalink, data)
           end

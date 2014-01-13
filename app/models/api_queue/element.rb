@@ -45,6 +45,7 @@ class ApiQueue::Element < ActiveRecord::Base
   # Elements that have errored and are marked for retry
   scope :waiting_for_retry, -> { where('num_runs > ? AND complete != ?', 0, true) }
 
+  # flags an element to indicate it is being processed
   def mark_for_processing
     update_attributes(processing: true)
   end
