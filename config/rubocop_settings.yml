@@ -21,3 +21,6 @@ MethodLength:
 # Do not use semicolons to terminate expressions.
 Semicolon:
   Severity: warning
+
+WhileUntilModifier:
+  Enabled: false

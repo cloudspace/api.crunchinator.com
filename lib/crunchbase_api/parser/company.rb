@@ -1,5 +1,9 @@
+# attempting to fix a travis error
+require Rails.root.to_s + '/lib/crunchbase_api/parser/base'
+
 module ApiQueue
   module Parser
+    # The parser for entities in the companies namespace. Accepts JSON and produces ActiveRecord::Base objects
     class Company < ApiQueue::Parser::Base
       # Handles creating the objects for an individual company
       #
