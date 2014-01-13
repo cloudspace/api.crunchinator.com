@@ -80,14 +80,12 @@ module ApiQueue
     # that are not currently represented in both local and s3
     #
     # @param [Symbol] data_source the source api to use. options are :crunchbase, :s3, :local
-    # @param [Symbol, Array<Symbol>] namespace the entity type to enqueue (interchangeable with namespaces)
-    # @param [Symbol, Array<Symbol>] multiple entity types to enqueue (interchangeable with namespace)
-    def self.populate_missing(data_source: :crunchbase, namespace: nil, namespaces: nil)
-      namespaces = [*(namespace || namespaces || :company)]
-      available = ApiQueue::Source::Crunchbase.fetch_entities(namespaces)
-      already_have = ApiQueue::Source::S3.fetch_entities(namespaces)
+    # @param [Symbol, Array<Symbol>] namespace the entity type to enqueue
+    def self.populate_missing(data_source: :crunchbase, namespace: nil)
+      available = ApiQueue::Source::Crunchbase.fetch_entities(namespace)
+      already_have = ApiQueue::Source::S3.fetch_entities(namespace)
       permalinks = available - already_have
-      ApiQueue::Queue.batch_enqueue(namespaces, permalinks, data_source)
+      ApiQueue::Queue.batch_enqueue(namespace, permalinks, data_source)
     end
 
     # makes a request to an endpoint and uploads the result to s3
