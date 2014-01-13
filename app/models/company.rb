@@ -63,7 +63,7 @@ class Company < ActiveRecord::Base
     #
     # Here is the traditional way to do this:
     # office_locations.headquarters.first
-    office_locations.select{|ol| ol.headquarters}.first
+    office_locations.select { |ol| ol.headquarters }.first
   end
 
   def zip_code
