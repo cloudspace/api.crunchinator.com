@@ -38,10 +38,10 @@ describe V1::CompaniesController do
         expected = { 'companies' => [] }
         expected['companies'].push(
           'id' => @company.id,
-          'name' => @company.name,
           'permalink' => @company.permalink,
+          'name' => @company.name,
           'category_id' => @company.category_id,
-          'total_funding' => @company.total_funding.to_s,
+          'total_funding' => @company.total_funding,
           'funding_rounds' => [],
           'latitude' => @company.latitude.to_s,
           'longitude' => @company.longitude.to_s,

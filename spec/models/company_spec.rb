@@ -214,30 +214,18 @@ describe Company do
       end
     end
 
-    describe 'zip_code' do
-      it 'should return the headquarters zip code' do
-        headquarters = OfficeLocation.new(zip_code: '12345')
-        @company.stub(:headquarters).and_return(headquarters)
-        expect(@company.zip_code).to eql('12345')
-      end
-
-      it 'should return a blank string if no headquarters' do
-        expect(@company.zip_code).to be_blank
-      end
-    end
-
     describe 'total_funding' do
       it 'should return 0 if there are no funding rounds' do
         expect(@company.total_funding).to eql(0)
       end
 
-      it 'should return the sum of the funding rounds raised amount' do
+      it 'should return the sum of the funding rounds raised amount, expressed as a FixNum' do
         # wow rails, you so great
         funding_round1 = FundingRound.new(raw_raised_amount: BigDecimal.new('1000'), raised_currency_code: 'USD')
         funding_round2 = FundingRound.new(raw_raised_amount: BigDecimal.new('2000'), raised_currency_code: 'USD')
 
         @company.stub(:funding_rounds).and_return([funding_round1, funding_round2])
-        expect(@company.total_funding).to eql(BigDecimal.new('3000'))
+        expect(@company.total_funding).to eql(3000)
       end
     end
 

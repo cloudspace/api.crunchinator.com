@@ -7,9 +7,11 @@ module ApiQueue
   # be properly logged and recovered. Components that handle their own exceptions
   # will be much harder to debug. IF IT IS GOING TO BREAK, LET IT BREAK.
   class Worker
+    attr_accessor :succeeded
 
     def initialize(id: nil, supervisor: nil)
       @running = false                  # a flag used to stop workers
+      @succeeded = false                # set to true if the worker exits normally
       @id = id                          # used for logging purposes
       @supervisor = supervisor          # set a reference to this worker's supervisor
       @queue = ApiQueue::Queue          # the queue could be swapped out later
@@ -20,6 +22,7 @@ module ApiQueue
     def start
       log "Initializing worker #{@id}..."
       @running = element_found = true
+      @suceeded = false
 
       # this allows interrupts to be caught and stop the workers
       # there has to be a better way than this, but i couldn't
@@ -32,8 +35,17 @@ module ApiQueue
       while @running && element_found
         element_found = fetch_and_parse_next_element
       end
+
+      # if the loop exited while @running is still true, then the worker exited
+      # because it ran out of queue elements, not because it crashed or because
+      # of a sigint, or some other failure
+      @succeeded = @running
+      log "worker #{@id} finished and exiting"
     end
 
+    # fetches an element from the queue and processes it
+    #
+    # @return [Boolean] true unless the queue is empty
     def fetch_and_parse_next_element
       begin
         @error = nil
@@ -56,10 +68,17 @@ module ApiQueue
       true
     end
 
+    # Determines whether an element should be retried. An element should be retried if it
+    # exists, encountered an error, and has been run less than 5 times
+    #
+    # @return [Boolean] true if element should be retried, else false
     def should_retry?
       @error && @element && @element.num_runs < 5
     end
 
+    # Returns the element to be processed, or nil if the queue is empty
+    #
+    # @return [ApiQueue::Element, nil] the element to be processed this iteration
     def retry_or_dequeue
       if @previous_element
         @previous_element
@@ -68,13 +87,19 @@ module ApiQueue
       end
     end
 
-    # pulls from the remote api, handles qps issues by sleeping and retrying silently
+    # Pulls from the remote api, handles qps issues by sleeping and retrying silently
+    #
+    # @return [String] the json for the current endpoint
     def fetch_entity
       # log the element, get the api singleton, and trigger the api call
-      log "#{Time.now.to_s} - Processing #{@element.namespace.to_s.singularize} #{@element.permalink.inspect}"
+      log "Processing #{@element.namespace.to_s.singularize} #{@element.permalink.inspect}"
       api(@element.data_source).fetch_entity(@element.namespace, @element.permalink)
     end
 
+    # Processes a response into json, and if it parses successfully, archives it onto s3/local,
+    # and passes the json along to a parser which turns it into database objects
+    #
+    # @param [String] the raw response string (json)
     def process_response(response_body)
       # turn the json into a hash
       # There is no utf-8 representation of an ASCII record seperator, which causes the
@@ -97,27 +122,42 @@ module ApiQueue
       @running = false
     end
 
-    # logs text into the logfile corresponding to the worker's @id
+    # Returns a ApiQueue::Source class based on an api name
     #
-    # @param [String] text the text to be logged
-    def log(text)
-      File.open("log/import_worker#{(@id ? '_' + @id.to_s : '')}.log", 'a') { |f| f.puts(text) }
-    end
-
+    # @param [String, Symbol] api_name the name of the api (:crunchbase, :local, :s3)
+    # @param [Class] the source class
     def api(api_name)
       "ApiQueue::Source::#{api_name.to_s.classify}".constantize
     end
 
+    # Returns an instance of a subclass of ApiQueue::Parser::Base based on the specified namespace
+    #
+    # @param [String, Symbol] namespace the name of the parser (:company, etc)
+    # @return [ApiQueue::Parser::Base] the parser instance
     def parser(namespace)
       "ApiQueue::Parser::#{namespace.to_s.classify}".constantize.new
     end
 
     private
 
+    # logs text into the logfile corresponding to the worker's @id
+    #
+    # @param [String] text the text to be logged
+    def log(text)
+      @supervisor.log(text, @id)
+      File.open("log/import_worker#{(@id ? '_' + @id.to_s : '')}.log", 'a') { |f| f.puts(text) }
+    end
+
+    # the location or locations in which to archive the json
+    #
+    # @return [Symbol, Array<Symbol>, nil] a location, array of locations, or nil
     def archive_locations
       @supervisor.archive
     end
 
+    # a flag to determine whether to create database objects or not
+    #
+    # @return [Boolean] true if the database should be touched, else false
     def process_json?
       @supervisor.process
     end

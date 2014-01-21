@@ -13,13 +13,14 @@ class FundingRound < ActiveRecord::Base
 
   # funding rounds attached to a valid company
   scope :valid, lambda {
-    where('funding_rounds.company_id' => Company.valid.pluck(:id))
+    funded.where('funding_rounds.company_id' => Company.valid.pluck(:id))
   }
 
   # Funding rounds with some amount of USD raised
   scope :funded, lambda {
     where(raised_currency_code: 'USD')
     .where('funding_rounds.raw_raised_amount is not null AND funding_rounds.raw_raised_amount > 0')
+    .references(:funding_rounds)
   }
 
   # Returns the raised amount if in USD, else 0 (expressed as a BigDecimal)

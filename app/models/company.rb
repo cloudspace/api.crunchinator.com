@@ -66,19 +66,11 @@ class Company < ActiveRecord::Base
     office_locations.select { |ol| ol.headquarters }.first
   end
 
-  def zip_code
-    if headquarters
-      headquarters.zip_code
-    else
-      ''
-    end
-  end
-
   # Concerned about how slow this will be
   # this is only needed for the front end and it has all of the data to calculate it
   # may need to denormalize the value or let the front end calculate it on it's own
   def total_funding
-    funding_rounds.to_a.sum { |fr| fr.raised_amount }
+    funding_rounds.to_a.sum { |fr| fr.raised_amount }.to_i
   end
 
   # Returns the latitude of this company's HQ. caches the result on the

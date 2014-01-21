@@ -13,7 +13,6 @@ gem 'aws-sdk'
 
 gem 'json-stream'
 gem 'active_model_serializers'
-gem 'trackable_tasks', '0.1.3'
 gem 'thread_safe'
 gem 'httparty'
 
