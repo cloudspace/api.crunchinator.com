@@ -23,5 +23,4 @@ namespace :api_queue do
   task :run, [:workers, :source] => [:environment] do |t, args|
     ApiQueue.run((args.workers || 5), data_source: (args.source || :crunchbase))
   end
-
 end
