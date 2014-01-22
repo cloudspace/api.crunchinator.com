@@ -34,6 +34,20 @@ describe V1::CompaniesController do
         get :index, letter: '0'
       end
 
+      it 'with a company that is invalid due to lack of hq' do
+        @unlocated_company = FactoryGirl.create(:company)
+        get :index
+      end
+
+      it 'with a company with no funded funding rounds' do
+        @unfunded_company = FactoryGirl.create(:company)
+        FactoryGirl.create(:headquarters, tenant: @unfunded_company)
+        @unfunded_funding_round = FactoryGirl.create(:funding_round,
+                                                     company: @unfunded_company,
+                                                     raw_raised_amount: BigDecimal.new('0'))
+        get :index
+      end
+
       after(:each) do
         expected = { 'companies' => [] }
         expected['companies'].push(
