@@ -33,6 +33,17 @@ describe V1::InvestorsController do
         get :index
       end
 
+      it 'should not include investors for companies with no valid funding rounds' do
+        @unfunded_company = FactoryGirl.create(:company)
+        FactoryGirl.create(:headquarters, tenant: @unfunded_company)
+        @unfunded_funding_round = FactoryGirl.create(:unfunded_funding_round, company: @unfunded_company)
+        @unfunded_investor =  FactoryGirl.create(:company, permalink: 'fred')
+        @unfunded_investment = FactoryGirl.create(:investment,
+                                                  investor: @unfunded_investor,
+                                                  funding_round: @unfunded_funding_round)
+        get :index
+      end
+
       after(:each) do
         expected = { 'investors' => [] }
         expected['investors'].push(

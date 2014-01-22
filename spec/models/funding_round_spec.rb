@@ -65,6 +65,11 @@ describe FundingRound do
         funding_round = FactoryGirl.create(:funding_round, company_id: nil)
         expect(FundingRound.valid).not_to include(funding_round)
       end
+
+      it 'should not include funding rounds with valid companies where the funding round is unfunded' do
+        funding_round = FactoryGirl.create(:funding_round, company_id: 1, raw_raised_amount: BigDecimal.new('0'))
+        expect(FundingRound.valid).not_to include(funding_round)
+      end
     end
 
     describe 'funded' do

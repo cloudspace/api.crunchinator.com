@@ -61,3 +61,37 @@ To setup your keys from the root of the project run
   > cp config/environment_variables.rb.sample config/environment_variables.rb
 
 Then add your env variables to the new file
+
+# Using the importer
+
+The importer can be operated using rake tasks, or from the console
+
+### Rake tasks
+
+Empty the queue and clear the logs.
+	
+	rake api_queue:reset
+	
+Clears and populates the queue with all companies from crunchbase. The default data source is 'crunchbase'.
+
+The options for the data source are 'local', 's3', and 'crunchbase'.
+
+	rake api_queue:populate[<data source>]
+
+Start the specified number of queue workers (defaults to 5 if no argument is given).
+
+	rake api_queue:start_workers[<number of workers>]
+	
+Upload fresh JSON data to S3, gzipped, and set the ACL on the files to public. Note: Do not do this unless your local database is fully populated.
+
+	rake api_queue:upload_data
+
+Flush the queue, populate it, start the specified number of workers to process the queue, and upload JSON to S3 if the queue is processed successfully. The number of workers defaults to 5, and the data source defaults to crunchbase. If you have a new development environment and want to deploy, use run, set the source to 's3', and the number of workers to at least 10 (I have tested up to 25 and it works, but that that point you become more bandwidth-limited than worker-limited). Note: this can take a long time.
+
+The options for the data source are 'local', 's3', and 'crunchbase'.
+
+	rake api_queue:run[<number of workers>, <data source>]
+
+### Console use
+
+Everything that can be done using rake tasks can also be done at the console. For more details and documentation, look at lib/crunchbase_api/controller.rb

@@ -9,5 +9,9 @@ FactoryGirl.define do
     funded_month { 10.days.ago.month }
     funded_day { 10.days.ago.day }
     crunchbase_id  { FactoryGirl.generate(:guid) }
+
+    factory :unfunded_funding_round, class: FundingRound do
+      raw_raised_amount { BigDecimal.new('0') }
+    end
   end
 end
