@@ -14,6 +14,7 @@ class V1::InvestorsController < ApplicationController
       @investors += klass.includes(investments: { funding_round: :company })
         .where(id: klass_investor_ids)
         .starts_with(letter)
+        .merge(FundingRound.funded)
     end
 
     @investors.sort! { |x, y| x.name <=> y.name }

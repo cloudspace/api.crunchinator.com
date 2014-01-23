@@ -33,11 +33,11 @@ module ApiQueue
       # @yield optional block containing attributes to assign/update
       # @yieldreturn [Hash] extra attributes to assign/update
       # @return [Person] the newly created person.
-      def safe_find_or_create_by(klass, condition)
+      def safe_find_or_create_by(klass, condition, &block)
         self.class.get_mutex(klass).synchronize do
           klass.transaction do
             entity = klass.find_or_create_by(condition)
-            entity.update_attributes(yield) if block_given?
+            entity.update_attributes!(block.call) if block_given?
             entity
           end
         end
@@ -76,7 +76,7 @@ module ApiQueue
         attributes[:tenant_type] = tenant.class.to_s
         attributes[:latitude] &&= BigDecimal.new(attributes[:latitude])
         attributes[:longitude] &&= BigDecimal.new(attributes[:longitude])
-        ::OfficeLocation.create(attributes)
+        ::OfficeLocation.create!(attributes)
       end
 
       # handles creation of categories. returns a new category if a null attr is passed
@@ -120,7 +120,7 @@ module ApiQueue
       # @param [Integer] funding_round_id The funding round id
       # @return [Investment] The Investment object
       def create_investment(investor, funding_round_id)
-        ::Investment.create(investor: investor, funding_round_id: funding_round_id)
+        ::Investment.create!(investor: investor, funding_round_id: funding_round_id)
       end
 
       # Handles creating a person
