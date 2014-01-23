@@ -12,22 +12,36 @@ module ApiQueue
       ApiQueue::Element.delete_all
     end
 
-    # Build a query string and insert is directly as a single sql statement. This is many times faster
-    # than doing individual inserts or using the activerecord-import gem
+    # This method is used to insert queue elements when querying the companies endpoint.  Due to the way
+    # crunchinator works, first you have to get a list of every company, then make an additional query per
+    # company.  In this case, each ApiQueue::Element instance represents a single company data request.
+    # There could be a few hundred thousand of them.
+    #
+    # It runs a single query manually instead of many through ActiveRecord.  Note that normal model checks
+    # do not run including after_create and after_save
     #
     # @param [Symbol, String] namespace the namespace for the permalinks (singular or plural)
     # @param [Array<String>] permalinks the permalinks to enqueue
     # @param [Symbol] data_source the api data source, options are :crunchbase, :s3, :local
     def self.batch_enqueue(namespace, permalinks, data_source = :crunchbase)
       unless permalinks.empty?
-        namespace = namespace.to_s.singularize
-        values = permalinks.uniq.map do |pl|
-          "('#{data_source}', '#{namespace}', '#{pl}', current_timestamp, current_timestamp)"
-        end
-        sql = 'INSERT INTO api_queue_elements (data_source, namespace, permalink, created_at, updated_at) VALUES '
-        sql << values.join(',')
-        ApiQueue::Element.connection.execute(sql)
+        ApiQueue::Element.connection.execute(batch_enqueue_sql(namespace, permalinks, data_source))
       end
+    end
+
+    # Builds the sql query for the batch enqueue based on the data about the permalinks and data source
+    #
+    # @param [Symbol, String] namespace the namespace for the permalinks (singular or plural)
+    # @param [Array<String>] permalinks the permalinks to enqueue
+    # @param [Symbol] data_source the api data source, options are :crunchbase, :s3, :local
+    def self.batch_enqueue_sql(namespace, permalinks, data_source)
+      namespace = namespace.to_s.singularize
+      values = permalinks.uniq.map do |pl|
+        "('#{data_source}', '#{namespace}', '#{pl}', current_timestamp, current_timestamp)"
+      end
+      sql = 'INSERT INTO api_queue_elements (data_source, namespace, permalink, created_at, updated_at) VALUES '
+      sql << values.join(',')
+      sql
     end
 
     # pushes a single element onto the queue
