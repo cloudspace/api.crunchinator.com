@@ -20,6 +20,11 @@ describe ApiQueue::Parser::Company do
       expect(Company.where(permalink: @response['permalink']).count).to eq(1)
     end
 
+    it 'should process deadpooled information' do
+      company = Company.where(permalink: @response['permalink']).first.deadpooled_on
+      expect(company).to eq(Date.parse('2014-1-24'))
+    end
+
     it 'should create a funding round for each record in the response' do
       @response['funding_rounds'].each do |funding_round|
         expect(FundingRound.where(crunchbase_id: funding_round['id']).size).to eq(1)

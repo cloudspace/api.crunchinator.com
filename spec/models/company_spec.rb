@@ -42,12 +42,9 @@ describe Company do
     it { expect(@company).to respond_to :founded_year }
     it { expect(@company).to respond_to :founded_month }
     it { expect(@company).to respond_to :founded_day }
-    it { expect(@company).to respond_to :deadpooled_year }
-    it { expect(@company).to respond_to :deadpooled_month }
-    it { expect(@company).to respond_to :deadpooled_url }
+    it { expect(@company).to respond_to :deadpooled_on }
     it { expect(@company).to respond_to :tag_list }
     it { expect(@company).to respond_to :alias_list }
-    it { expect(@company).to respond_to :deadpooled_day }
     it { expect(@company).to respond_to :category_id }
   end
 
