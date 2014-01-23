@@ -64,7 +64,9 @@ module ApiQueue
       log "WARNING: #{@error_count}/#{@error_threshold} consecutive errors" if @error_count > 0
     end
 
-    # reset the error count to 0
+    # should be called if any worker is processing elements correctly
+    # if all of the workers are failing, then this should not be called
+    # eventually, the error count will be over the threshold and an error state will be triggered
     def reset_error_count
       @error_count_mutex.synchronize do
         @error_count = 0
