@@ -10,6 +10,7 @@ module ApiQueue
   def self.respond_to?(name)
     super || ApiQueue::Controller.respond_to?(name)
   end
+
   def self.methods
     (super + (ApiQueue::Controller.methods - Class.methods)).uniq
   end
@@ -23,9 +24,9 @@ module ApiQueue
     def self.hard_reset!
       log 'clearing the queue and the logs'
       ApiQueue::Queue.clear!
-      `rm #{Rails.root}/log/import_worker*`
-      `rm #{Rails.root}/log/supervisor.log`
-      `rm #{Rails.root}/log/controller.log`
+      Dir["#{Rails.root}/log/import_worker*"].select { |f| File.delete(f) }
+      File.delete("#{Rails.root}/log/supervisor.log") if File.exists?("#{Rails.root}/log/supervisor.log")
+      File.delete("#{Rails.root}/log/controller.log") if File.exists?("#{Rails.root}/log/controller.log")
     end
 
     # flushes the logs, deletes the local json files, populates the queue, starts workers to process
@@ -191,6 +192,5 @@ module ApiQueue
         f.puts(Time.now.strftime('%m/%d/%Y %T') + ' ' + text)
       end
     end
-
   end
 end
