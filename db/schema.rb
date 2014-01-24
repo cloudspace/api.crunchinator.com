@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140108194146) do
+ActiveRecord::Schema.define(version: 20140124201728) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -99,13 +99,11 @@ ActiveRecord::Schema.define(version: 20140108194146) do
     t.string   "source_description"
     t.decimal  "raw_raised_amount"
     t.string   "raised_currency_code"
-    t.integer  "funded_year"
-    t.integer  "funded_month"
-    t.integer  "funded_day"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "company_id"
     t.integer  "crunchbase_id"
+    t.date     "funded_on"
   end
 
   add_index "funding_rounds", ["company_id"], name: "index_funding_rounds_on_company_id", using: :btree

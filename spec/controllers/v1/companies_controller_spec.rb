@@ -65,7 +65,7 @@ describe V1::CompaniesController do
         expected['companies'][0]['funding_rounds'].push(
           'id' => @funding_round.id,
           'raised_amount' => @funding_round.raised_amount.to_s,
-          'funded_on' => "#{@funding_round.funded_month}/#{@funding_round.funded_day}/#{@funding_round.funded_year}",
+          'funded_on' => @funding_round.funded_on.strftime('%-m/%-d/%Y'),
           'investor_ids' => [@investment.investor_guid]
         )
 

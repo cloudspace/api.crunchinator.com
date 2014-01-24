@@ -23,6 +23,10 @@ describe ApiQueue::Parser::Company do
     it 'should create a funding round for each record in the response' do
       @response['funding_rounds'].each do |funding_round|
         expect(FundingRound.where(crunchbase_id: funding_round['id']).size).to eq(1)
+        fr = FundingRound.where(crunchbase_id: funding_round['id']).first
+        expect(fr.funded_on).to eq(
+          Date.parse("#{funding_round['funded_year']}/#{funding_round['funded_month']}/#{funding_round['funded_day']}")
+        )
       end
     end
 
