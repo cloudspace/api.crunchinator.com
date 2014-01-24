@@ -110,6 +110,15 @@ module ApiQueue
         attributes[:raw_raised_amount] = BigDecimal.new(attributes.delete('raised_amount').to_s)
         attributes[:crunchbase_id] = attributes.delete('id')
         attributes[:company_id] = company.id
+
+        # set funded information defaulting to January 1st depending on which fields are missing
+        funded_year = funding_round_data['funded_year']
+        if funded_year
+          funded_month = funding_round_data['funded_month'] || 1
+          funded_day = funding_round_data['funded_day'] || 1
+          attributes[:funded_on] = Date.parse("#{funded_year}/#{funded_month}/#{funded_day}")
+        end
+
         attributes = attributes.select { |attribute| column_names.include?(attribute.to_s) }
         safe_find_or_create_by(::FundingRound, crunchbase_id: attributes[:crunchbase_id]) { attributes }
       end

@@ -33,10 +33,4 @@ class FundingRound < ActiveRecord::Base
       BigDecimal.new('0')
     end
   end
-
-  # temporary method. Should be replaced by a database change soon (JH 12-4-2013)
-  # also delete the test
-  def funded_on
-    Time.new(funded_year, funded_month, funded_day).to_date if funded_year && funded_month && funded_day
-  end
 end

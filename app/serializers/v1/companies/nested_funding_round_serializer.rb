@@ -3,8 +3,8 @@ class V1::Companies::NestedFundingRoundSerializer < ActiveModel::Serializer
   attributes :id, :raised_amount, :funded_on, :investor_ids
 
   def funded_on
-    if @object.funded_year && @object.funded_month && @object.funded_day
-      "#{@object.funded_month}/#{@object.funded_day}/#{@object.funded_year}"
+    if @object.funded_on.present?
+      @object.funded_on.strftime('%-m/%-d/%Y')
     else
       nil
     end

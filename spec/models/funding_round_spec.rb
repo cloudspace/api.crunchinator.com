@@ -21,9 +21,7 @@ describe FundingRound do
     it { expect(@funding_round).to respond_to :source_description }
     it { expect(@funding_round).to respond_to :raw_raised_amount }
     it { expect(@funding_round).to respond_to :raised_currency_code }
-    it { expect(@funding_round).to respond_to :funded_year }
-    it { expect(@funding_round).to respond_to :funded_month }
-    it { expect(@funding_round).to respond_to :funded_day }
+    it { expect(@funding_round).to respond_to :funded_on }
     it { expect(@funding_round).to respond_to :company_id }
     it { expect(@funding_round).to respond_to :crunchbase_id }
   end
@@ -124,16 +122,6 @@ describe FundingRound do
         @funding_round.raised_currency_code = 'LMNOP'
 
         expect(@funding_round.raised_amount).to eql(BigDecimal.new('0'))
-      end
-    end
-
-    describe 'funded_on' do
-      it 'should return a date' do
-        @funding_round.funded_year = 2013
-        @funding_round.funded_month = 1
-        @funding_round.funded_day = 1
-
-        expect(@funding_round.funded_on).to eql(Date.parse('2013-1-1'))
       end
     end
   end
