@@ -61,6 +61,15 @@ module ApiQueue
         column_names = ::Company.column_names - ['id']
         attributes = company_data.select { |attribute| column_names.include?(attribute.to_s) }
         attributes[:category_id] = category.id
+
+        # set deadpooled information defaulting to January 1st depending on which fields are missing
+        deadpooled_year = company_data['deadpooled_year']
+        if deadpooled_year
+          deadpooled_month = company_data['deadpooled_month'] || 1
+          deadpooled_day = company_data['deadpooled_day'] || 1
+          attributes[:deadpooled_on] = Date.parse("#{deadpooled_year}/#{deadpooled_month}/#{deadpooled_day}")
+        end
+
         safe_find_or_create_by(::Company, permalink: attributes['permalink']) { attributes }
       end
 
