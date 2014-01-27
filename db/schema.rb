@@ -26,7 +26,6 @@ ActiveRecord::Schema.define(version: 20140130165551) do
     t.integer "acquiring_company_id"
     t.integer "acquired_company_id"
   end
-
   add_index "acquisitions", ["acquired_company_id"], name: "index_acquisitions_on_acquired_company_id", using: :btree
   add_index "acquisitions", ["acquiring_company_id"], name: "index_acquisitions_on_acquiring_company_id", using: :btree
 
