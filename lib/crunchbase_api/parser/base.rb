@@ -57,10 +57,8 @@ module ApiQueue
       # @param [Hash{String => String}] company_data A representation of the company. May contain extraneous keys.
       # @return [Company] the newly created company.
       def create_company(company_data)
-        category = create_category(company_data['category_code'])
         column_names = ::Company.column_names - ['id']
         attributes = company_data.select { |attribute| column_names.include?(attribute.to_s) }
-        attributes[:category_id] = category.id
 
         # set deadpooled information defaulting to January 1st depending on which fields are missing
         deadpooled_year = company_data['deadpooled_year']
@@ -69,7 +67,11 @@ module ApiQueue
           deadpooled_day = company_data['deadpooled_day'] || 1
           attributes[:deadpooled_on] = Date.parse("#{deadpooled_year}/#{deadpooled_month}/#{deadpooled_day}")
         end
-
+        category_code = company_data['category_code']
+        if category_code
+          category = create_category(category_code)
+          attributes[:category_id] = category.id
+        end
         safe_find_or_create_by(::Company, permalink: attributes['permalink']) { attributes }
       end
 

@@ -93,11 +93,6 @@ describe ApiQueue::Parser::Company do
         @parser.stub(:process_offices)
       end
 
-      it 'should do nothing if there is no category code in the input' do
-        @parser.should_not_receive(:create_company)
-        @parser.process_entity({})
-      end
-
       it 'should create a company' do
         @parser.should_receive(:create_company).with(@attributes)
         @parser.process_entity(@attributes)

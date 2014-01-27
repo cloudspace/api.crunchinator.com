@@ -44,15 +44,22 @@ describe ApiQueue::Parser::Base do
     describe 'create_company' do
       before(:each) do
         @attributes = {
-          'permalink' => 'company-1'
+          'permalink' => 'company-1',
+          'category_code' => 'category-1'
         }
 
         @parser.stub(:create_category).and_return(::Category.new)
         @parser.stub(:safe_find_or_create_by)
       end
 
-      it 'should create a category' do
+      it 'should create a category if one is provided' do
         @parser.should_receive(:create_category).and_return(::Category.new)
+        @parser.create_company(@attributes)
+      end
+
+      it 'should not create a category if none is provided' do
+        @attributes.delete('category_code')
+        @parser.should_not_receive(:create_category)
         @parser.create_company(@attributes)
       end
 
