@@ -11,8 +11,6 @@ class Company < ActiveRecord::Base
   validates :name, uniqueness: true, presence: true
   validates :permalink, uniqueness: true, presence: true
 
-  scope :deadpooled, -> { where('deadpooled_year is not null') }
-
   # companies that belong to a category
   scope :categorized, -> { where('companies.category_id is not null') }
 
