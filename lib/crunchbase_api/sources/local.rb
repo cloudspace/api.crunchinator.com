@@ -1,3 +1,5 @@
+require 'fileutils'
+
 module ApiQueue
   module Source
     # An interface to interact with the local filesystem and serve JSON data to queue workers
@@ -10,7 +12,7 @@ module ApiQueue
       # @return [Array] the list of permalinks.
       def self.fetch_entities(namespace)
         plural_namespace = namespace.to_s.pluralize
-        folder = "#{Rails.root}/json_data/#{plural_namespace}"
+        folder = File.join(json_path, plural_namespace)
         if Dir.exist?(folder)
           Dir.entries(folder).select { |f| f.end_with? '.json' }.map { |f| f.gsub('.json', '') }
         else
@@ -25,7 +27,7 @@ module ApiQueue
       # @return [String] JSON data for the specified entity
       def self.fetch_entity(namespace, permalink)
         plural_namespace = namespace.to_s.pluralize
-        File.open("#{Rails.root}/json_data/#{plural_namespace}/#{permalink}.json") { |f| f.read }
+        File.open(File.join(json_path, plural_namespace, "#{permalink}.json")) { |f| f.read }
       end
 
       # Saves the JSON for the entity with the specified permalink within the specified namespace
@@ -37,15 +39,18 @@ module ApiQueue
         plural_namespace = namespace.to_s.pluralize
 
         # make local directory into which to save json, if needed
-        unless Dir.exist?("#{Rails.root}/json_data/#{plural_namespace}")
-          Dir.mkdir("#{Rails.root}/json_data") unless Dir.exist?("#{Rails.root}/json_data")
-          Dir.mkdir("#{Rails.root}/json_data/#{plural_namespace}/")
-        end
+        FileUtils.mkpath(File.join(json_path, plural_namespace))
 
         # save to a file locally
-        open("#{Rails.root}/json_data/#{plural_namespace}/#{permalink}.json", 'wb') do |f|
+        open(File.join(json_path, plural_namespace, "#{permalink}.json"), 'wb') do |f|
           f.write(json)
         end
+      end
+
+      private
+
+      def self.json_path
+        File.join(Rails.root, 'json_data')
       end
 
     end
