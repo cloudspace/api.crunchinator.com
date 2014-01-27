@@ -252,7 +252,17 @@
   [],
  "acquisition": null,
  "acquisitions":
-  [],
+   [{"price_amount": null,
+     "price_currency_code": "USD",
+     "term_code": "cash",
+     "source_url": "http://www.techcrunch.com/2007/07/19/breaking-facebook-has-acquired-parakey/",
+     "source_description": "",
+     "acquired_year": 2007,
+     "acquired_month": 7,
+     "acquired_day": 1,
+     "company":
+     {"name": "Parakey",
+       "permalink": "parakey"}}],
  "offices":
   [{"description": "",
     "address1": "222 Merchandise Mart Plaza",

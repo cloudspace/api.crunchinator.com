@@ -15,6 +15,7 @@ module ApiQueue
         @company = create_company(@entity_data)
         process_funding_rounds
         process_offices
+        process_acquisitions
       end
 
       private
@@ -45,6 +46,16 @@ module ApiQueue
           @entity_data['offices'].each_with_index do |office_data, index|
             hq_data = (index == 0 ? { headquarters: true } : {})
             create_office_location(office_data.merge(hq_data), @company)
+          end
+        end
+      end
+
+      # Handles creating acquisitions for transactions where the current company is the buyer
+      def process_acquisitions
+        if @entity_data['acquisitions'].present?
+          @company.acquisitions.destroy_all
+          @entity_data['acquisitions'].each do |acquisition|
+            create_acquisition(acquisition, @company)
           end
         end
       end

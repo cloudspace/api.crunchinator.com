@@ -16,6 +16,8 @@ describe Company do
     it { expect(@company).to have_many :investments }
     it { expect(@company).to have_many :office_locations }
     it { expect(@company).to belong_to :category }
+    it { expect(@company).to have_many :acquisitions }
+    it { expect(@company).to have_many :acquired_by }
   end
 
   describe 'validations' do
