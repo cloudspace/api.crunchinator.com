@@ -24,18 +24,22 @@ module ApiQueue
       # @param [Symbol,String] permalink The permalink for this entity
       # @return [String] JSON data for the specified entity
       def self.fetch_entity(namespace, permalink)
-        singular_namespace = namespace.to_s.singularize
-        uri = "http://api.crunchbase.com/v/1/#{singular_namespace}/#{permalink}.js?api_key=#{api_key}"
-        @retry = true
-        while @retry
+        should_retry = true
+        while should_retry
+          uri = entity_uri(namespace, permalink)
           response = HTTParty.get(uri)
-          @retry = rate_limited?(response)
-          sleep(60) if @retry
+          should_retry = rate_limited?(response)
+          sleep(60) if should_retry
         end
         response.code == 200 ? response.body : handle_failure(response)
       end
 
       private
+
+      # produces a uri complete wit
+      def self.entity_uri(namespace, permalink)
+        "http://api.crunchbase.com/v/1/#{namespace.to_s.singularize}/#{permalink}.js?api_key=#{api_key}"
+      end
 
       # Checks a response to see if it has been rate limited
       #

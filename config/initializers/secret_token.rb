@@ -18,6 +18,8 @@
 # Can be safely removed in a rails3 api-only application.
 if Rails.env.development? || Rails.env.test?
   Crunchinator::Application.config.secret_token = ('x' * 30) # meets minimum requirement of 30 chars long
+  Crunchinator::Application.config.secret_key_base = ('y' * 30) # meets minimum requirement of 30 chars long
 else
   Crunchinator::Application.config.secret_token = ENV['SECRET_TOKEN']
+  Crunchinator::Application.config.secret_key_base = ENV['SECRET_KEY_BASE']
 end

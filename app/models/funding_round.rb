@@ -13,13 +13,14 @@ class FundingRound < ActiveRecord::Base
 
   # funding rounds attached to a valid company
   scope :valid, lambda {
-    where('funding_rounds.company_id' => Company.valid.pluck(:id))
+    funded.where('funding_rounds.company_id' => Company.valid.pluck(:id))
   }
 
   # Funding rounds with some amount of USD raised
   scope :funded, lambda {
     where(raised_currency_code: 'USD')
     .where('funding_rounds.raw_raised_amount is not null AND funding_rounds.raw_raised_amount > 0')
+    .references(:funding_rounds)
   }
 
   # Returns the raised amount if in USD, else 0 (expressed as a BigDecimal)
@@ -31,11 +32,5 @@ class FundingRound < ActiveRecord::Base
     else
       BigDecimal.new('0')
     end
-  end
-
-  # temporary method. Should be replaced by a database change soon (JH 12-4-2013)
-  # also delete the test
-  def funded_on
-    Time.new(funded_year, funded_month, funded_day).to_date if funded_year && funded_month && funded_day
   end
 end

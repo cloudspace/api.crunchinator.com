@@ -34,14 +34,28 @@ describe V1::CompaniesController do
         get :index, letter: '0'
       end
 
+      it 'with a company that is invalid due to lack of hq' do
+        @unlocated_company = FactoryGirl.create(:company)
+        get :index
+      end
+
+      it 'with a company with no funded funding rounds' do
+        @unfunded_company = FactoryGirl.create(:company)
+        FactoryGirl.create(:headquarters, tenant: @unfunded_company)
+        @unfunded_funding_round = FactoryGirl.create(:funding_round,
+                                                     company: @unfunded_company,
+                                                     raw_raised_amount: BigDecimal.new('0'))
+        get :index
+      end
+
       after(:each) do
         expected = { 'companies' => [] }
         expected['companies'].push(
           'id' => @company.id,
-          'name' => @company.name,
           'permalink' => @company.permalink,
+          'name' => @company.name,
           'category_id' => @company.category_id,
-          'total_funding' => @company.total_funding.to_s,
+          'total_funding' => @company.total_funding,
           'funding_rounds' => [],
           'latitude' => @company.latitude.to_s,
           'longitude' => @company.longitude.to_s,
@@ -51,7 +65,7 @@ describe V1::CompaniesController do
         expected['companies'][0]['funding_rounds'].push(
           'id' => @funding_round.id,
           'raised_amount' => @funding_round.raised_amount.to_s,
-          'funded_on' => "#{@funding_round.funded_month}/#{@funding_round.funded_day}/#{@funding_round.funded_year}",
+          'funded_on' => @funding_round.funded_on.strftime('%-m/%-d/%Y'),
           'investor_ids' => [@investment.investor_guid]
         )
 

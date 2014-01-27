@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140108194146) do
+ActiveRecord::Schema.define(version: 20140127140645) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -59,8 +59,6 @@ ActiveRecord::Schema.define(version: 20140108194146) do
     t.integer  "founded_year"
     t.integer  "founded_month"
     t.integer  "founded_day"
-    t.integer  "deadpooled_year"
-    t.integer  "deadpooled_month"
     t.string   "deadpooled_url"
     t.string   "tag_list"
     t.string   "alias_list"
@@ -68,8 +66,8 @@ ActiveRecord::Schema.define(version: 20140108194146) do
     t.string   "phone_number"
     t.string   "description"
     t.text     "overview"
-    t.string   "deadpooled_day"
     t.integer  "category_id"
+    t.date     "deadpooled_on"
   end
 
   add_index "companies", ["category_id"], name: "index_companies_on_category_id", using: :btree
@@ -99,13 +97,11 @@ ActiveRecord::Schema.define(version: 20140108194146) do
     t.string   "source_description"
     t.decimal  "raw_raised_amount"
     t.string   "raised_currency_code"
-    t.integer  "funded_year"
-    t.integer  "funded_month"
-    t.integer  "funded_day"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "company_id"
     t.integer  "crunchbase_id"
+    t.date     "funded_on"
   end
 
   add_index "funding_rounds", ["company_id"], name: "index_funding_rounds_on_company_id", using: :btree
@@ -156,17 +152,6 @@ ActiveRecord::Schema.define(version: 20140108194146) do
   end
 
   add_index "people", ["permalink"], name: "index_people_on_permalink", using: :btree
-
-  create_table "trackable_tasks_task_runs", force: true do |t|
-    t.string   "task_type"
-    t.datetime "start_time"
-    t.datetime "end_time"
-    t.text     "error_text"
-    t.text     "log_text"
-    t.boolean  "success",    default: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
 
   create_table "zip_code_geos", force: true do |t|
     t.string   "zip_code"

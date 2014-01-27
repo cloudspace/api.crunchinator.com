@@ -12,11 +12,9 @@ module ApiQueue
       def process_entity(entity_data)
         @entity_data = entity_data
         Rails.logger.info "Normalizing data for #{@entity_data['name']}"
-        if @entity_data['category_code']
-          @company = create_company(@entity_data)
-          process_funding_rounds
-          process_offices
-        end
+        @company = create_company(@entity_data)
+        process_funding_rounds
+        process_offices
       end
 
       private

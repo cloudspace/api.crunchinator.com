@@ -33,11 +33,11 @@ module ApiQueue
       # @yield optional block containing attributes to assign/update
       # @yieldreturn [Hash] extra attributes to assign/update
       # @return [Person] the newly created person.
-      def safe_find_or_create_by(klass, condition)
+      def safe_find_or_create_by(klass, condition, &block)
         self.class.get_mutex(klass).synchronize do
           klass.transaction do
             entity = klass.find_or_create_by(condition)
-            entity.update_attributes(yield) if block_given?
+            entity.update_attributes!(block.call) if block_given?
             entity
           end
         end
@@ -57,10 +57,21 @@ module ApiQueue
       # @param [Hash{String => String}] company_data A representation of the company. May contain extraneous keys.
       # @return [Company] the newly created company.
       def create_company(company_data)
-        category = create_category(company_data['category_code'])
         column_names = ::Company.column_names - ['id']
         attributes = company_data.select { |attribute| column_names.include?(attribute.to_s) }
-        attributes[:category_id] = category.id
+
+        # set deadpooled information defaulting to January 1st depending on which fields are missing
+        deadpooled_year = company_data['deadpooled_year']
+        if deadpooled_year
+          deadpooled_month = company_data['deadpooled_month'] || 1
+          deadpooled_day = company_data['deadpooled_day'] || 1
+          attributes[:deadpooled_on] = Date.parse("#{deadpooled_year}/#{deadpooled_month}/#{deadpooled_day}")
+        end
+        category_code = company_data['category_code']
+        if category_code
+          category = create_category(category_code)
+          attributes[:category_id] = category.id
+        end
         safe_find_or_create_by(::Company, permalink: attributes['permalink']) { attributes }
       end
 
@@ -76,7 +87,7 @@ module ApiQueue
         attributes[:tenant_type] = tenant.class.to_s
         attributes[:latitude] &&= BigDecimal.new(attributes[:latitude])
         attributes[:longitude] &&= BigDecimal.new(attributes[:longitude])
-        ::OfficeLocation.create(attributes)
+        ::OfficeLocation.create!(attributes)
       end
 
       # handles creation of categories. returns a new category if a null attr is passed
@@ -110,6 +121,15 @@ module ApiQueue
         attributes[:raw_raised_amount] = BigDecimal.new(attributes.delete('raised_amount').to_s)
         attributes[:crunchbase_id] = attributes.delete('id')
         attributes[:company_id] = company.id
+
+        # set funded information defaulting to January 1st depending on which fields are missing
+        funded_year = funding_round_data['funded_year']
+        if funded_year
+          funded_month = funding_round_data['funded_month'] || 1
+          funded_day = funding_round_data['funded_day'] || 1
+          attributes[:funded_on] = Date.parse("#{funded_year}/#{funded_month}/#{funded_day}")
+        end
+
         attributes = attributes.select { |attribute| column_names.include?(attribute.to_s) }
         safe_find_or_create_by(::FundingRound, crunchbase_id: attributes[:crunchbase_id]) { attributes }
       end
@@ -120,7 +140,7 @@ module ApiQueue
       # @param [Integer] funding_round_id The funding round id
       # @return [Investment] The Investment object
       def create_investment(investor, funding_round_id)
-        ::Investment.create(investor: investor, funding_round_id: funding_round_id)
+        ::Investment.create!(investor: investor, funding_round_id: funding_round_id)
       end
 
       # Handles creating a person

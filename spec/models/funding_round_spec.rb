@@ -21,9 +21,7 @@ describe FundingRound do
     it { expect(@funding_round).to respond_to :source_description }
     it { expect(@funding_round).to respond_to :raw_raised_amount }
     it { expect(@funding_round).to respond_to :raised_currency_code }
-    it { expect(@funding_round).to respond_to :funded_year }
-    it { expect(@funding_round).to respond_to :funded_month }
-    it { expect(@funding_round).to respond_to :funded_day }
+    it { expect(@funding_round).to respond_to :funded_on }
     it { expect(@funding_round).to respond_to :company_id }
     it { expect(@funding_round).to respond_to :crunchbase_id }
   end
@@ -63,6 +61,11 @@ describe FundingRound do
 
       it 'should not include funding rounds with no companies' do
         funding_round = FactoryGirl.create(:funding_round, company_id: nil)
+        expect(FundingRound.valid).not_to include(funding_round)
+      end
+
+      it 'should not include funding rounds with valid companies where the funding round is unfunded' do
+        funding_round = FactoryGirl.create(:funding_round, company_id: 1, raw_raised_amount: BigDecimal.new('0'))
         expect(FundingRound.valid).not_to include(funding_round)
       end
     end
@@ -119,16 +122,6 @@ describe FundingRound do
         @funding_round.raised_currency_code = 'LMNOP'
 
         expect(@funding_round.raised_amount).to eql(BigDecimal.new('0'))
-      end
-    end
-
-    describe 'funded_on' do
-      it 'should return a date' do
-        @funding_round.funded_year = 2013
-        @funding_round.funded_month = 1
-        @funding_round.funded_day = 1
-
-        expect(@funding_round.funded_on).to eql(Date.parse('2013-1-1'))
       end
     end
   end
