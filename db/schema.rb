@@ -11,10 +11,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140127140645) do
+ActiveRecord::Schema.define(version: 20140127153537) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "acquisitions", force: true do |t|
+    t.string  "price_amount"
+    t.string  "price_currency_code"
+    t.string  "term_code"
+    t.string  "source_url"
+    t.string  "source_description"
+    t.date    "acquired_on"
+    t.integer "acquiring_company_id"
+    t.integer "acquired_company_id"
+  end
+
+  add_index "acquisitions", ["acquired_company_id"], name: "index_acquisitions_on_acquired_company_id", using: :btree
+  add_index "acquisitions", ["acquiring_company_id"], name: "index_acquisitions_on_acquiring_company_id", using: :btree
 
   create_table "api_queue_elements", force: true do |t|
     t.integer  "num_runs",        default: 0

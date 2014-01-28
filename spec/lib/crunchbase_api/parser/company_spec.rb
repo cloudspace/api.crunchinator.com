@@ -21,8 +21,8 @@ describe ApiQueue::Parser::Company do
     end
 
     it 'should process deadpooled information' do
-      company = Company.where(permalink: @response['permalink']).first.deadpooled_on
-      expect(company).to eq(Date.parse('2014-1-24'))
+      company = Company.where(permalink: @response['permalink']).first
+      expect(company.deadpooled_on).to eq(Date.parse('2014-1-24'))
     end
 
     it 'should create a funding round for each record in the response' do
@@ -32,6 +32,15 @@ describe ApiQueue::Parser::Company do
         expect(fr.funded_on).to eq(
           Date.parse("#{funding_round['funded_year']}/#{funding_round['funded_month']}/#{funding_round['funded_day']}")
         )
+      end
+    end
+
+    it 'should create an acquisition for each acquisition in the response' do
+      acquiring = Company.where(permalink: @response['permalink']).first
+
+      @response['acquisitions'].each do |acquisition|
+        acquired = Company.where(permalink: acquisition['company']['permalink']).first
+        expect(Acquisition.where(acquiring_company_id: acquiring.id, acquired_company_id: acquired.id).count).to eq(1)
       end
     end
 
@@ -180,6 +189,34 @@ describe ApiQueue::Parser::Company do
       it 'should create new office locations' do
         @parser.should_receive(:create_office_location).with({ 'api_data' => '123', headquarters: true }, @company)
         @parser.send(:process_offices)
+      end
+    end
+
+    describe 'process_acquisitions' do
+      before(:each) do
+        @attributes = {
+          'acquisitions' => [
+            {
+              'company' => { 'name' => 'Cloudspace', 'permalink' => 'cloudspace' }
+            }
+          ]
+        }
+
+        @parser.instance_variable_set(:@entity_data, @attributes)
+        @company = ::Company.new
+        @parser.instance_variable_set(:@company, @company)
+
+        @parser.stub(:create_acquisition)
+      end
+
+      it 'should destroy all exisiting acquisitions for the company' do
+        @company.acquisitions.should_receive(:destroy_all)
+        @parser.send(:process_acquisitions)
+      end
+
+      it 'should create new acquisitions' do
+        @parser.should_receive(:create_acquisition).with(@attributes['acquisitions'][0], @company)
+        @parser.send(:process_acquisitions)
       end
     end
   end
