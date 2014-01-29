@@ -1,6 +1,14 @@
 require 'spec_helper'
 
 describe V1::CompaniesController do
+  before(:all) do
+    QueryCounter.setup
+  end
+
+  after(:all) do
+    QueryCounter.cleanup
+  end
+
   describe 'index' do
 
     it 'should return a 200' do
@@ -15,6 +23,8 @@ describe V1::CompaniesController do
         @funding_round = FactoryGirl.create(:funding_round, company: @company)
         @investor =  FactoryGirl.create(:company, permalink: 'boo')
         @investment = FactoryGirl.create(:investment, investor: @investor, funding_round: @funding_round)
+    
+        QueryCounter.reset
       end
 
       it 'with no arguments' do
@@ -70,6 +80,8 @@ describe V1::CompaniesController do
         )
 
         expect(JSON.parse(response.body)).to eq(expected)
+      
+        expect(QueryCounter.over_threshold?).to be_false
       end
     end
   end
