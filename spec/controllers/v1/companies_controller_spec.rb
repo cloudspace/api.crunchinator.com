@@ -60,7 +60,8 @@ describe V1::CompaniesController do
           'latitude' => @company.latitude.to_s,
           'longitude' => @company.longitude.to_s,
           'investor_ids' => [@investment.investor_guid],
-          'founded_on' => @company.founded_on.strftime('%-m/%-d/%Y')
+          'founded_on' => @company.founded_on.strftime('%-m/%-d/%Y'),
+          'status' => 'alive'
         )
 
         expected['companies'][0]['funding_rounds'].push(

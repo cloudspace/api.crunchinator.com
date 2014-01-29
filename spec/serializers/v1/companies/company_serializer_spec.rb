@@ -19,6 +19,7 @@ describe V1::Companies::CompanySerializer do
     expect(output['company']).to have_key('investor_ids')
     expect(output['company']).to have_key('funding_rounds')
     expect(output['company']).to have_key('founded_on')
+    expect(output['company']).to have_key('status')
   end
 
   describe 'investor_ids' do
@@ -40,6 +41,28 @@ describe V1::Companies::CompanySerializer do
 
     it 'should return nil if the date is nil' do
       expect(@serializer.founded_on).to be_nil
+    end
+  end
+
+  describe 'status' do
+    it 'should return deadpooled if deadpooled_on is set' do
+      @company.stub(:deadpooled_on).and_return(Date.today)
+      expect(@serializer.status).to eq('deadpooled')
+    end
+
+    it 'should return acquired if acquired by anyone' do
+      @company.stub(:acquired_by).and_return([Acquisition.new])
+      expect(@serializer.status).to eq('acquired')
+    end
+
+    it 'should return deadpooled if deadpooled and acquired' do
+      @company.stub(:deadpooled_on).and_return(Date.today)
+      @company.stub(:acquired_by).and_return([Acquisition.new])
+      expect(@serializer.status).to eq('deadpooled')
+    end
+
+    it 'should return alive otherwise' do
+      expect(@serializer.status).to eq('alive')
     end
   end
 end
