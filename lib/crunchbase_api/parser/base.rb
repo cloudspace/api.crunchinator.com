@@ -110,9 +110,9 @@ module ApiQueue
         attributes = ipo_data.select { |attribute| column_names.include?(attribute.to_s) }
 
         attributes[:offering_on] = date_converter(
-          ipo_data['offering_year'],
-          ipo_data['offering_month'],
-          ipo_data['offering_day'])
+          ipo_data['pub_year'],
+          ipo_data['pub_month'],
+          ipo_data['pub_day'])
         attributes[:company_id] = company.id
 
         ::InitialPublicOffering.create!(attributes)

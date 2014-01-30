@@ -63,8 +63,8 @@ module ApiQueue
 
       def process_ipo
         if @entity_data['ipo'].present?
-          @company.initial_public_offerings.destroy_all
-          create_acquisition(@entity_data['ipo'], @company)
+          @company.initial_public_offering.try(:destroy)
+          create_ipo(@entity_data['ipo'], @company)
         end
       end
     end
