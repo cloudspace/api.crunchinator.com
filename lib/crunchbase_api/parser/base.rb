@@ -60,16 +60,16 @@ module ApiQueue
         column_names = ::Company.column_names - ['id']
         attributes = company_data.select { |attribute| column_names.include?(attribute.to_s) }
 
-        attributes[:deadpooled_on] = date_converter(
-          company_data['deadpooled_year'],
-          company_data['deadpooled_month'],
-          company_data['deadpooled_day'])
+        # I wouldn't normally do this but the linter passes
+        %w(deadpooled founded).each do |type|
+          attributes["#{type}_on".to_sym] = date_converter(
+            company_data["#{type}_year"],
+            company_data["#{type}_month"],
+            company_data["#{type}_day"])
+        end
 
         category_code = company_data['category_code']
-        if category_code
-          category = create_category(category_code)
-          attributes[:category_id] = category.id
-        end
+        attributes[:category_id] = create_category(category_code).id if category_code
         safe_find_or_create_by(::Company, permalink: attributes['permalink']) { attributes }
       end
 

@@ -20,9 +20,10 @@ describe ApiQueue::Parser::Company do
       expect(Company.where(permalink: @response['permalink']).count).to eq(1)
     end
 
-    it 'should process deadpooled information' do
+    it 'should process the company date information information' do
       company = Company.where(permalink: @response['permalink']).first
       expect(company.deadpooled_on).to eq(Date.parse('2014-1-24'))
+      expect(company.founded_on).to eq(Date.parse('2006-1-1'))
     end
 
     it 'should create a funding round for each record in the response' do
