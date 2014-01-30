@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140127153537) do
+ActiveRecord::Schema.define(version: 20140130165551) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -82,6 +82,7 @@ ActiveRecord::Schema.define(version: 20140127153537) do
     t.text     "overview"
     t.integer  "category_id"
     t.date     "deadpooled_on"
+    t.date     "founded_on"
   end
 
   add_index "companies", ["category_id"], name: "index_companies_on_category_id", using: :btree

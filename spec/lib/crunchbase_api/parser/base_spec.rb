@@ -69,12 +69,21 @@ describe ApiQueue::Parser::Base do
         @parser.create_company(@attributes)
       end
 
-      it 'should use the date_converter to get the date' do
+      it 'should use the date_converter to get the deadpooled date' do
         attributes = @attributes.merge(
           'deadpooled_year' => 2014,
           'deadpooled_month' => 1,
           'deadpooled_day' => 27)
         @parser.should_receive(:date_converter).with(2014, 1, 27)
+        @parser.create_company(attributes)
+      end
+
+      it 'should use the date_converter to get the founded date' do
+        attributes = @attributes.merge(
+          'founded_year' => 2013,
+          'founded_month' => 2,
+          'founded_day' => 30)
+        @parser.should_receive(:date_converter).with(2013, 2, 30)
         @parser.create_company(attributes)
       end
     end

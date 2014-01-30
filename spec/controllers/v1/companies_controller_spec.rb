@@ -59,7 +59,8 @@ describe V1::CompaniesController do
           'funding_rounds' => [],
           'latitude' => @company.latitude.to_s,
           'longitude' => @company.longitude.to_s,
-          'investor_ids' => [@investment.investor_guid]
+          'investor_ids' => [@investment.investor_guid],
+          'founded_on' => @company.founded_on.strftime('%-m/%-d/%Y')
         )
 
         expected['companies'][0]['funding_rounds'].push(
