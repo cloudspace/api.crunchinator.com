@@ -45,6 +45,8 @@ describe ApiQueue::Parser::Company do
       end
     end
 
+    it 'should create an ipo'
+
     it 'should create an investment and an investor for each record in the response' do
       # company = Company.where(permalink: @response['permalink']).first
 
@@ -219,6 +221,12 @@ describe ApiQueue::Parser::Company do
         @parser.should_receive(:create_acquisition).with(@attributes['acquisitions'][0], @company)
         @parser.send(:process_acquisitions)
       end
+    end
+
+    describe 'process_ipo' do
+      it 'should destory all existing ipos for the company'
+      it 'should create a new ipo'
+      it 'needs comments'
     end
   end
 end

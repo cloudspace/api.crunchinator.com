@@ -91,7 +91,7 @@ module ApiQueue
       def create_acquisition(acquisition_data, acquirer)
         column_names = ::Acquisition.column_names
 
-        attributes = acquisition_data.select { |attribute| column_names.include?(attributes.to_s) }
+        attributes = acquisition_data.select { |attribute| column_names.include?(attribute.to_s) }
         attributes[:acquired_on] = date_converter(
           acquisition_data['acquired_year'],
           acquisition_data['acquired_month'],
@@ -103,6 +103,19 @@ module ApiQueue
         attributes[:acquired_company_id] = acquired_company.id
 
         ::Acquisition.create!(attributes)
+      end
+
+      def create_ipo(ipo_data, company)
+        column_names = ::InitialPublicOffering.column_names
+        attributes = ipo_data.select { |attribute| column_names.include?(attribute.to_s) }
+
+        attributes[:offering_on] = date_converter(
+          ipo_data['offering_year'],
+          ipo_data['offering_month'],
+          ipo_data['offering_day'])
+        attributes[:company_id] = company.id
+
+        ::InitialPublicOffering.create!(attributes)
       end
 
       # handles creation of categories. returns a new category if a null attr is passed

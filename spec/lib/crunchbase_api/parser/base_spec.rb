@@ -126,6 +126,13 @@ describe ApiQueue::Parser::Base do
       end
     end
 
+    describe 'create_ipo' do
+      it 'needs comments'
+      it 'needs comments for the acuqistion method'
+      it 'should create an ipo'
+      it 'should set the date'
+    end
+
     describe 'create_category' do
       it 'should try to find a category if a name is given' do
         @parser.should_receive(:safe_find_or_create_by).with(::Category, name: 'a category')
