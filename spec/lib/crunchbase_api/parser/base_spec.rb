@@ -49,6 +49,7 @@ describe ApiQueue::Parser::Base do
         }
 
         @parser.stub(:create_category).and_return(::Category.new)
+        @parser.stub(:date_converter)
         @parser.stub(:safe_find_or_create_by)
       end
 
@@ -67,6 +68,24 @@ describe ApiQueue::Parser::Base do
         @parser.should_receive(:safe_find_or_create_by).with(::Company, permalink: 'company-1')
         @parser.create_company(@attributes)
       end
+
+      it 'should use the date_converter to get the deadpooled date' do
+        attributes = @attributes.merge(
+          'deadpooled_year' => 2014,
+          'deadpooled_month' => 1,
+          'deadpooled_day' => 27)
+        @parser.should_receive(:date_converter).with(2014, 1, 27)
+        @parser.create_company(attributes)
+      end
+
+      it 'should use the date_converter to get the founded date' do
+        attributes = @attributes.merge(
+          'founded_year' => 2013,
+          'founded_month' => 2,
+          'founded_day' => 30)
+        @parser.should_receive(:date_converter).with(2013, 2, 30)
+        @parser.create_company(attributes)
+      end
     end
 
     describe 'create_office_location' do
@@ -75,6 +94,35 @@ describe ApiQueue::Parser::Base do
 
         ::OfficeLocation.should_receive(:create!)
         @parser.create_office_location({}, tenant)
+      end
+    end
+
+    describe 'create_acquisition' do
+      before(:each) do
+        @attributes = {
+          'acquired_year' => 2014,
+          'acquired_month' => 1,
+          'acquired_day' => 27,
+          'company' => { 'permalink' => 'Cloudspace' }
+        }
+        @acquirer = Company.new
+        ::Acquisition.stub(:create!)
+        @parser.stub(:safe_find_or_create_by).and_return(Company.new)
+      end
+
+      it 'should create an acquisition' do
+        ::Acquisition.should_receive(:create!)
+        @parser.create_acquisition(@attributes, @acquirer)
+      end
+
+      it 'should find or create the acquired company' do
+        @parser.should_receive(:safe_find_or_create_by).with(::Company, permalink: 'Cloudspace')
+        @parser.create_acquisition(@attributes, @acquirer)
+      end
+
+      it 'should use the date_converter to get the date' do
+        @parser.should_receive(:date_converter).with(2014, 1, 27)
+        @parser.create_acquisition(@attributes, @acquirer)
       end
     end
 
@@ -101,14 +149,27 @@ describe ApiQueue::Parser::Base do
     end
 
     describe 'create_funding_round' do
-      it 'should find or create a funding round by crunchbase_id' do
-        attributes = {
-          'id' => '12345'
+      before(:each) do
+        @attributes = {
+          'id' => '12345',
+          'funded_year' => 2014,
+          'funded_month' => 1,
+          'funded_day' => 27
         }
-        company = ::Company.new
+        @parser.stub(:date_converter)
+        @parser.stub(:safe_find_or_create_by)
 
+        @company = ::Company.new
+      end
+
+      it 'should find or create a funding round by crunchbase_id' do
         @parser.should_receive(:safe_find_or_create_by).with(::FundingRound, crunchbase_id: '12345')
-        @parser.create_funding_round(attributes, company)
+        @parser.create_funding_round(@attributes, @company)
+      end
+
+      it 'should use the date_converter to get the date' do
+        @parser.should_receive(:date_converter).with(2014, 1, 27)
+        @parser.create_funding_round(@attributes, @company)
       end
     end
 
@@ -133,6 +194,24 @@ describe ApiQueue::Parser::Base do
       it 'should find or create a person based on the permalnk' do
         @parser.stub(:safe_find_or_create_by).with(::Person, permalink: 'john_smith_123')
         @parser.create_person(@attributes)
+      end
+    end
+
+    describe 'date_converter' do
+      it 'should return a date object if all parameters are set' do
+        expect(@parser.send(:date_converter, 2014, 2, 27)).to eq(Date.parse('2014/2/27'))
+      end
+
+      it 'should return a date object with defaults if year is set but month and date are not' do
+        expect(@parser.send(:date_converter, 2014, nil, nil)).to eq(Date.parse('2014/1/1'))
+      end
+
+      it 'should be able to handle missing leading zeroes on the month and day' do
+        expect(@parser.send(:date_converter, 2014, '02', '02')).to eq(Date.parse('2014/2/2'))
+      end
+
+      it 'should return nil if the year isn\'t set' do
+        expect(@parser.send(:date_converter, nil, 2, 2)).to be_nil
       end
     end
   end

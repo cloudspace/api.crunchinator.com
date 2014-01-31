@@ -60,18 +60,16 @@ module ApiQueue
         column_names = ::Company.column_names - ['id']
         attributes = company_data.select { |attribute| column_names.include?(attribute.to_s) }
 
-        # set deadpooled information defaulting to January 1st depending on which fields are missing
-        deadpooled_year = company_data['deadpooled_year']
-        if deadpooled_year
-          deadpooled_month = company_data['deadpooled_month'] || 1
-          deadpooled_day = company_data['deadpooled_day'] || 1
-          attributes[:deadpooled_on] = Date.parse("#{deadpooled_year}/#{deadpooled_month}/#{deadpooled_day}")
+        # I wouldn't normally do this but the linter passes
+        %w(deadpooled founded).each do |type|
+          attributes["#{type}_on".to_sym] = date_converter(
+            company_data["#{type}_year"],
+            company_data["#{type}_month"],
+            company_data["#{type}_day"])
         end
+
         category_code = company_data['category_code']
-        if category_code
-          category = create_category(category_code)
-          attributes[:category_id] = category.id
-        end
+        attributes[:category_id] = create_category(category_code).id if category_code
         safe_find_or_create_by(::Company, permalink: attributes['permalink']) { attributes }
       end
 
@@ -88,6 +86,23 @@ module ApiQueue
         attributes[:latitude] &&= BigDecimal.new(attributes[:latitude])
         attributes[:longitude] &&= BigDecimal.new(attributes[:longitude])
         ::OfficeLocation.create!(attributes)
+      end
+
+      def create_acquisition(acquisition_data, acquirer)
+        column_names = ::Acquisition.column_names
+
+        attributes = acquisition_data.select { |attribute| column_names.include?(attributes.to_s) }
+        attributes[:acquired_on] = date_converter(
+          acquisition_data['acquired_year'],
+          acquisition_data['acquired_month'],
+          acquisition_data['acquired_day'])
+        attributes[:acquiring_company_id] = acquirer.id
+        acquired_company = safe_find_or_create_by(
+          ::Company,
+          permalink: acquisition_data['company']['permalink']) { acquisition_data['company'] }
+        attributes[:acquired_company_id] = acquired_company.id
+
+        ::Acquisition.create!(attributes)
       end
 
       # handles creation of categories. returns a new category if a null attr is passed
@@ -122,13 +137,10 @@ module ApiQueue
         attributes[:crunchbase_id] = attributes.delete('id')
         attributes[:company_id] = company.id
 
-        # set funded information defaulting to January 1st depending on which fields are missing
-        funded_year = funding_round_data['funded_year']
-        if funded_year
-          funded_month = funding_round_data['funded_month'] || 1
-          funded_day = funding_round_data['funded_day'] || 1
-          attributes[:funded_on] = Date.parse("#{funded_year}/#{funded_month}/#{funded_day}")
-        end
+        attributes[:funded_on] = date_converter(
+          funding_round_data['funded_year'],
+          funding_round_data['funded_month'],
+          funding_round_data['funded_day'])
 
         attributes = attributes.select { |attribute| column_names.include?(attribute.to_s) }
         safe_find_or_create_by(::FundingRound, crunchbase_id: attributes[:crunchbase_id]) { attributes }
@@ -153,6 +165,27 @@ module ApiQueue
         attributes['firstname'] = attributes.delete('first_name')
         attributes['lastname'] = attributes.delete('last_name')
         safe_find_or_create_by(::Person, permalink: attributes['permalink']) { attributes }
+      end
+
+      private
+
+      # Converts dates and handles missing values
+      # If year is set, month and day default to 1 if not set
+      #
+      # Important note: if passed a blank string, it will crash or give a bad output
+      #
+      # @param [Integer] year The year for the date
+      # @param [Integer] month The month for the date
+      # @param [Integer] day The day for the date
+      # @return [Date] The given date with default values or nil if year isn't set
+      def date_converter(year, month, day)
+        if year
+          month ||= 1
+          day ||= 1
+          Date.strptime("#{year}/#{month}/#{day}", '%Y/%m/%d')
+        else
+          nil
+        end
       end
     end
   end

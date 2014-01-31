@@ -16,6 +16,8 @@ describe Company do
     it { expect(@company).to have_many :investments }
     it { expect(@company).to have_many :office_locations }
     it { expect(@company).to belong_to :category }
+    it { expect(@company).to have_many :acquisitions }
+    it { expect(@company).to have_many :acquired_by }
   end
 
   describe 'validations' do
@@ -208,6 +210,26 @@ describe Company do
         company = FactoryGirl.create(:company)
         headquarters = FactoryGirl.create(:headquarters, tenant: company)
         expect(company.headquarters).to eql(headquarters)
+      end
+    end
+
+    describe 'most_recent_acquired_on' do
+      it 'should return the most recent acquired_on' do
+        a1 = Acquisition.new(acquired_company: @company, acquired_on: 1.day.ago)
+        a2 = Acquisition.new(acquired_company: @company, acquired_on: 2.days.ago)
+        @company.stub(:acquired_by).and_return([a1, a2])
+
+        expect(@company.most_recent_acquired_on).to eq(a1.acquired_on)
+      end
+    end
+
+    describe 'most_recent_acquired_by_id' do
+      it 'should return the most recent acquiring compnay id' do
+        a1 = Acquisition.new(acquired_company: @company, acquired_on: 1.day.ago, acquiring_company_id: 1)
+        a2 = Acquisition.new(acquired_company: @company, acquired_on: 2.days.ago, acquiring_company_id: 2)
+        @company.stub(:acquired_by).and_return([a1, a2])
+
+        expect(@company.most_recent_acquired_by).to eq(a1.acquiring_company_id)
       end
     end
 

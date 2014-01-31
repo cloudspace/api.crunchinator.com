@@ -6,6 +6,9 @@ class Company < ActiveRecord::Base
   has_many :investments, as: :investor, dependent: :destroy
   has_many :office_locations, as: :tenant, dependent: :destroy
 
+  has_many :acquisitions, class_name: 'Acquisition', foreign_key: 'acquiring_company_id'
+  has_many :acquired_by, class_name: 'Acquisition', foreign_key: 'acquired_company_id'
+
   belongs_to :category
 
   validates :name, uniqueness: true, presence: true
@@ -57,6 +60,7 @@ class Company < ActiveRecord::Base
     ).order('companies.name asc')
   }
 
+  # @return [OfficeLocation] The headquarters office for the company
   def headquarters
     # note that this does not depend on the headquarters scope on the OfficeLocation model
     # to make endpoint response quicker
@@ -64,6 +68,20 @@ class Company < ActiveRecord::Base
     # Here is the traditional way to do this:
     # office_locations.headquarters.first
     office_locations.select { |ol| ol.headquarters }.first
+  end
+
+  # @return [Date] The most recent acquired date for the company
+  def most_recent_acquired_on
+    # note that this does not depend on a scope on the Acquisitions model
+    # to make endpoint response quicker
+    acquired_by.sort { |a, b| b.acquired_on <=> a.acquired_on }.first.acquired_on if acquired_by.any?
+  end
+
+  # @return [Company] Who acquired the company last
+  def most_recent_acquired_by
+    # note that this does not depend on a scope on the Acquisitions model
+    # to make endpoint response quicker
+    acquired_by.sort { |a, b| b.acquired_on <=> a.acquired_on }.first.acquiring_company_id if acquired_by.any?
   end
 
   # Concerned about how slow this will be
