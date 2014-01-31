@@ -213,6 +213,26 @@ describe Company do
       end
     end
 
+    describe 'most_recent_acquired_on' do
+      it 'should return the most recent acquired_on' do
+        a1 = Acquisition.new(acquired_company: @company, acquired_on: 1.day.ago)
+        a2 = Acquisition.new(acquired_company: @company, acquired_on: 2.days.ago)
+        @company.stub(:acquired_by).and_return([a1, a2])
+
+        expect(@company.most_recent_acquired_on).to eq(a1.acquired_on)
+      end
+    end
+
+    describe 'most_recent_acquired_by_id' do
+      it 'should return the most recent acquiring compnay id' do
+        a1 = Acquisition.new(acquired_company: @company, acquired_on: 1.day.ago, acquiring_company_id: 1)
+        a2 = Acquisition.new(acquired_company: @company, acquired_on: 2.days.ago, acquiring_company_id: 2)
+        @company.stub(:acquired_by).and_return([a1, a2])
+
+        expect(@company.most_recent_acquired_by).to eq(a1.acquiring_company_id)
+      end
+    end
+
     describe 'total_funding' do
       it 'should return 0 if there are no funding rounds' do
         expect(@company.total_funding).to eql(0)

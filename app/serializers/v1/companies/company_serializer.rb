@@ -1,7 +1,7 @@
 # Create the json data for a CompaniesController index call
 class V1::Companies::CompanySerializer < ActiveModel::Serializer
   attributes :id, :permalink, :name, :category_id, :total_funding, :funding_rounds,
-             :latitude, :longitude, :investor_ids, :status, :founded_on
+             :latitude, :longitude, :investor_ids, :status, :founded_on, :acquired_on, :acquired_by_id
   has_many :funding_rounds, serializer: V1::Companies::NestedFundingRoundSerializer
 
   # @return [String] The date the company was founded formatted in m/d/y
@@ -29,5 +29,19 @@ class V1::Companies::CompanySerializer < ActiveModel::Serializer
     else
       'alive'
     end
+  end
+
+  # renames and formats the most_recent_acquired_on method
+  def acquired_on
+    if @object.most_recent_acquired_on.present?
+      @object.most_recent_acquired_on.strftime('%-m/%-d/%Y')
+    else
+      nil
+    end
+  end
+
+  # renames the most_recent_acquired_by method
+  def acquired_by_id
+    @object.most_recent_acquired_by
   end
 end

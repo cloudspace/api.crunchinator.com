@@ -20,6 +20,8 @@ describe V1::Companies::CompanySerializer do
     expect(output['company']).to have_key('funding_rounds')
     expect(output['company']).to have_key('founded_on')
     expect(output['company']).to have_key('status')
+    expect(output['company']).to have_key('acquired_on')
+    expect(output['company']).to have_key('acquired_by_id')
   end
 
   describe 'investor_ids' do
@@ -63,6 +65,25 @@ describe V1::Companies::CompanySerializer do
 
     it 'should return alive otherwise' do
       expect(@serializer.status).to eq('alive')
+    end
+  end
+
+  describe 'acquired_on' do
+    it 'should return a formatted date' do
+      @company.stub(:most_recent_acquired_on).and_return(Date.parse('2014/1/28'))
+      expect(@serializer.acquired_on).to eq('1/28/2014')
+    end
+
+    it 'should return a nil if the date is not set' do
+      @company.stub(:most_recent_acquired_on).and_return(nil)
+      expect(@serializer.acquired_on).to be_nil
+    end
+  end
+
+  describe 'acquired_by_id' do
+    it 'should alias most_recent_acquired_by' do
+      @company.should_receive(:most_recent_acquired_by)
+      @serializer.acquired_by_id
     end
   end
 end
