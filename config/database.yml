@@ -48,7 +48,7 @@ test:
   adapter: postgresql
   encoding: unicode
   database: crunchinator_test
-  pool: 5
+  pool: 50
   username: postgres
   password: postgres
   host: localhost
@@ -57,7 +57,7 @@ production:
   adapter: postgresql
   encoding: unicode
   database: crunchinator_production
-  pool: 5
+  pool: 50
   username:
   password:
   host: localhost

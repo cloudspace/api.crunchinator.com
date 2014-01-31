@@ -22,7 +22,7 @@ RSpec.configure do |config|
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
   # instead of true.
-  config.use_transactional_fixtures = true
+  config.use_transactional_fixtures = false
 
   # If true, the base class of anonymous controllers will be inferred
   # automatically. This will be the default behavior in future versions of
@@ -38,6 +38,16 @@ RSpec.configure do |config|
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation)
+  end
+
+  # if the test is running on multiple threads, a transaction won't work because the database changes
+  # are only available on the rails thread.  Fun stuff.
+  config.before(:each, :threaded => true) do
+    DatabaseCleaner.strategy = :truncation
+  end
+
+  config.after(:each, :threaded => true) do
+    DatabaseCleaner.strategy = :transaction
   end
 
   config.before(:each) do

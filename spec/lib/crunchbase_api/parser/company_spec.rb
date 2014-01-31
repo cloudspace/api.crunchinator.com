@@ -6,7 +6,7 @@ describe ApiQueue::Parser::Company do
     before(:all) do
       # note manual database cleaning due to before all.  Running parser once saves a bunch of time.
       DatabaseCleaner.start
-      @response = JSON.parse(IO.read(Rails.root.to_s + '/spec/fixtures/company_endpoint_response.json'))
+      @response = JSON.parse(IO.read(Rails.root.to_s + '/spec/fixtures/companies/rapleaf.json'))
       @parser = ApiQueue::Parser::Company.new
       @parser.process_entity(@response)
     end
