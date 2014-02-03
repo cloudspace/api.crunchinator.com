@@ -127,10 +127,28 @@ describe ApiQueue::Parser::Base do
     end
 
     describe 'create_ipo' do
-      it 'needs comments'
-      it 'needs comments for the acuqistion method'
-      it 'should create an ipo'
-      it 'should set the date'
+      before(:each) do
+        @attributes = {
+          'valuation_amount' => 104000000000.0,
+          'valuation_currency_code' => 'USD',
+          'pub_year' => 2012,
+          'pub_month' => 5,
+          'pub_day' => 18,
+          'stock_symbol' => 'NASDAQ:FB'
+        }
+        @company = Company.new
+        ::InitialPublicOffering.stub(:create!)
+      end
+
+      it 'should create an InitialPublicOffering' do
+        ::InitialPublicOffering.should_receive(:create!)
+        @parser.create_ipo(@attributes, @company)
+      end
+
+      it 'should set the date' do
+        @parser.should_receive(:date_converter).with(2012, 5, 18)
+        @parser.create_ipo(@attributes, @company)
+      end
     end
 
     describe 'create_category' do

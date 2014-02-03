@@ -5,7 +5,9 @@ module ApiQueue
     #
     # See existing code for how the models should be created.
     #
-    # There are additional tickets to complete the ApiParser.
+    # This will disable the class line length rubocop check. This is a temporary fix,
+    # as this class is due for a refactor.
+    # rubocop:disable ClassLength
     class Base
 
       def self.inherited(subclass)
@@ -88,6 +90,11 @@ module ApiQueue
         ::OfficeLocation.create!(attributes)
       end
 
+      # Handles creating an acquisition.
+      #
+      # @param [Hash{String => String}] acquisition_data A representation of the acquisition.
+      #   May contain extraneous keys.
+      # @return [Acquisition] the newly created acquisition.
       def create_acquisition(acquisition_data, acquirer)
         column_names = ::Acquisition.column_names
 
@@ -105,6 +112,11 @@ module ApiQueue
         ::Acquisition.create!(attributes)
       end
 
+      # Handles creating an ipo.
+      #
+      # @param [Hash{String => String}] ipo_data A representation of the ipo.
+      #   May contain extraneous keys.
+      # @return [InitialPublicOffering] the newly created ipo.
       def create_ipo(ipo_data, company)
         column_names = ::InitialPublicOffering.column_names
         attributes = ipo_data.select { |attribute| column_names.include?(attribute.to_s) }
@@ -201,5 +213,6 @@ module ApiQueue
         end
       end
     end
+    # rubocop:enable ClassLength
   end
 end

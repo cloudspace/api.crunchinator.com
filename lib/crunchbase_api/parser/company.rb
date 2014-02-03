@@ -61,6 +61,7 @@ module ApiQueue
         end
       end
 
+      # Handles creating an initial_public_offering for the current company
       def process_ipo
         if @entity_data['ipo'].present?
           @company.initial_public_offering.try(:destroy)

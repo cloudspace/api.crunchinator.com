@@ -25,5 +25,21 @@ describe InitialPublicOffering do
   end
 
   describe 'instance_methods' do
+    describe 'usd_valuation' do
+      it 'should return the valuation_amount if the valuation_currency_code is "USD"' do
+        @ipo.assign_attributes(valuation_amount: 42, valuation_currency_code: 'USD')
+        expect(@ipo.usd_valuation).to eq(42)
+      end
+
+      it 'should be nil if there is no valuation_currency_code' do
+        @ipo.assign_attributes(valuation_amount: 42, valuation_currency_code: nil)
+        expect(@ipo.usd_valuation).to eq(nil)
+      end
+
+      it 'should be nil if the valuation_currency_code is not "USD"' do
+        @ipo.assign_attributes(valuation_amount: 42, valuation_currency_code: 'ABC')
+        expect(@ipo.usd_valuation).to eq(nil)
+      end
+    end
   end
 end

@@ -16,6 +16,7 @@ describe V1::CompaniesController do
         @investor =  FactoryGirl.create(:company, permalink: 'boo')
         @investment = FactoryGirl.create(:investment, investor: @investor, funding_round: @funding_round)
         @acquisition = FactoryGirl.create(:acquisition, acquired_company: @company)
+        @ipo = FactoryGirl.create(:initial_public_offering, company: @company)
       end
 
       it 'with no arguments' do
