@@ -19,6 +19,9 @@ RSpec.configure do |config|
   # run spec tests in all folders
   config.pattern = '**/*_spec.rb'
 
+  # We are using database cleaner for our transactions to allow us to run multithreaded tests
+  # This should be false or some fo the integration tests will fail.
+  #
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
   # instead of true.
@@ -47,6 +50,7 @@ RSpec.configure do |config|
   end
 
   config.after(:each, :threaded => true) do
+    DatabaseCleaner.clean
     DatabaseCleaner.strategy = :transaction
   end
 
