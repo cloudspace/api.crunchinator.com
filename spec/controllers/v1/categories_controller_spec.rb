@@ -9,33 +9,28 @@ describe V1::CategoriesController do
 
     describe 'appropriate response' do
       before(:each) do
-        @company = FactoryGirl.create(:company)
+        @company = FactoryGirl.create(:valid_company)
         @category = @company.category
-        FactoryGirl.create(:headquarters, tenant: @company)
-        @funding_round = FactoryGirl.create(:funding_round, company: @company)
-        @investor =  FactoryGirl.create(:company, permalink: 'boo')
-        @investment = FactoryGirl.create(:investment, investor: @investor, funding_round: @funding_round)
+        @investor = @company.funding_rounds.first.investments.first.investor
       end
 
-      it 'with a valid company' do
+      it 'includes categories that have a valid company' do
         get :index
+
+        category = JSON.parse(response.body)['categories'].first
+        expect(category['id']).to eq(@category.id)
+        expect(category['name']).to eq(@category.name)
+        expect(category['company_ids']).to eq([@company.id])
+        expect(category['investor_ids']).to eq([@investor.guid])
       end
 
-      it 'with a category with no valid companies' do
-        @invalid_company = FactoryGirl.create(:company)
-        @invalid_category = @invalid_company.category
+      it 'excludes categories that have no valid companies' do
+        invalid_category = FactoryGirl.create(:category)
         get :index
-      end
 
-      after(:each) do
-        expected = { 'categories' => [] }
-        expected['categories'].push(
-          'id' => @category.id,
-          'name' => @category.name,
-          'company_ids' => [@company.id],
-          'investor_ids' => [@investment.investor_guid]
-        )
-        expect(JSON.parse(response.body)).to eq(expected)
+        categories = JSON.parse(response.body)['categories']
+        expect(categories.length).to eq(1)
+        expect(categories.map{ |c| c['id'] }).not_to include(invalid_category.id)
       end
     end
   end
