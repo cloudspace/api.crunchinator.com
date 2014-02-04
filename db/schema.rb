@@ -82,6 +82,7 @@ ActiveRecord::Schema.define(version: 20140130205747) do
     t.text     "overview"
     t.integer  "category_id"
     t.date     "deadpooled_on"
+    t.date     "founded_on"
   end
 
   add_index "companies", ["category_id"], name: "index_companies_on_category_id", using: :btree
