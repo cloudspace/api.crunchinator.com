@@ -16,6 +16,7 @@ module ApiQueue
         process_funding_rounds
         process_offices
         process_acquisitions
+        process_ipo
       end
 
       private
@@ -57,6 +58,14 @@ module ApiQueue
           @entity_data['acquisitions'].each do |acquisition|
             create_acquisition(acquisition, @company)
           end
+        end
+      end
+
+      # Handles creating an initial_public_offering for the current company
+      def process_ipo
+        if @entity_data['ipo'].present?
+          @company.initial_public_offering.try(:destroy)
+          create_ipo(@entity_data['ipo'], @company)
         end
       end
     end

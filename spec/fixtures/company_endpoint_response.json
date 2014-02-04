@@ -289,7 +289,13 @@
     "stoneable":
      {"name": "Rapleaf",
       "permalink": "rapleaf"}}],
- "ipo": null,
+ "ipo":
+  { "valuation_amount": 104.0,
+    "valuation_currency_code": "USD",
+    "pub_year": 2012,
+    "pub_month": 5,
+    "pub_day": 18,
+    "stock_symbol": "NASDAQ:RAP"},
  "video_embeds":
   [],
  "screenshots":
