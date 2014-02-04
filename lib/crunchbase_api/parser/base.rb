@@ -197,18 +197,18 @@ module ApiQueue
       # Converts dates and handles missing values
       # If year is set, month and day default to 1 if not set
       #
-      # Important note: if passed a blank string, it will crash or give a bad output
+      # Important note: if passed anything that can't be parsed, it will return nil
       #
       # @param [Integer] year The year for the date
       # @param [Integer] month The month for the date
       # @param [Integer] day The day for the date
-      # @return [Date] The given date with default values or nil if year isn't set
+      # @return [Date] The given date with default values, or nil if date parsing fails
       def date_converter(year, month, day)
-        if year
-          month ||= 1
-          day ||= 1
-          Date.strptime("#{year}/#{month}/#{day}", '%Y/%m/%d')
-        end
+        month ||= 1
+        day ||= 1
+        Date.strptime("#{year}/#{month}/#{day}", '%Y/%m/%d')
+      rescue
+        nil
       end
     end
     # rubocop:enable ClassLength

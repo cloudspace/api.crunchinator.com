@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140130205747) do
+ActiveRecord::Schema.define(version: 20140203215025) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -86,6 +86,8 @@ ActiveRecord::Schema.define(version: 20140130205747) do
   end
 
   add_index "companies", ["category_id"], name: "index_companies_on_category_id", using: :btree
+  add_index "companies", ["name"], name: "index_companies_on_name", using: :btree
+  add_index "companies", ["permalink"], name: "index_companies_on_permalink", using: :btree
 
   create_table "financial_organizations", force: true do |t|
     t.string   "name"

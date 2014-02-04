@@ -13,7 +13,7 @@ class Company < ActiveRecord::Base
 
   belongs_to :category
 
-  validates :name, uniqueness: true, presence: true
+  validates :name, presence: true
   validates :permalink, uniqueness: true, presence: true
 
   # companies that belong to a category
