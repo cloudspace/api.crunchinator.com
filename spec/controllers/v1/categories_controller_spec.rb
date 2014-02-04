@@ -11,7 +11,8 @@ describe V1::CategoriesController do
       before(:each) do
         @company = FactoryGirl.create(:valid_company)
         @category = @company.category
-        @investor = @company.funding_rounds.first.investments.first.investor
+        @investor = FactoryGirl.create(:investor)
+        @investor.investments.first.funding_round.update_attribute :company, @company
       end
 
       it 'includes categories that have a valid company' do
