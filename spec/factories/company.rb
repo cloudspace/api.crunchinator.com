@@ -10,12 +10,14 @@ FactoryGirl.define do
       category
 
       factory :valid_company do
-        after(:create) do |company|
-          create :headquarters, tenant: company
-          funding_round = create :funding_round, company: company
-          create :investment, funding_round: funding_round
-        end
+        funding_rounds { |fr| [fr.association(:funding_round)] }
+        office_locations { |loc| [loc.association(:headquarters)] }
       end
+    end
+
+
+    factory :investor do
+      investments { |i| [i.association(:investment)]}
     end
   end
 end
