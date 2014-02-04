@@ -9,6 +9,8 @@ class Company < ActiveRecord::Base
   has_many :acquisitions, class_name: 'Acquisition', foreign_key: 'acquiring_company_id'
   has_many :acquired_by, class_name: 'Acquisition', foreign_key: 'acquired_company_id'
 
+  has_one :initial_public_offering
+
   belongs_to :category
 
   validates :name, uniqueness: true, presence: true

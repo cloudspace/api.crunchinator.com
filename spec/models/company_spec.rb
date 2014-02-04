@@ -18,6 +18,7 @@ describe Company do
     it { expect(@company).to belong_to :category }
     it { expect(@company).to have_many :acquisitions }
     it { expect(@company).to have_many :acquired_by }
+    it { expect(@company).to have_one :initial_public_offering }
   end
 
   describe 'validations' do

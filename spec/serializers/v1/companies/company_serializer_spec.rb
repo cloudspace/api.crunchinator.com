@@ -22,6 +22,41 @@ describe V1::Companies::CompanySerializer do
     expect(output['company']).to have_key('status')
     expect(output['company']).to have_key('acquired_on')
     expect(output['company']).to have_key('acquired_by_id')
+    expect(output['company']).to have_key('ipo_on')
+    expect(output['company']).to have_key('ipo_valuation')
+  end
+
+  describe 'ipo_on' do
+    it 'should return the offered_on date of the initial_public_offering associated with this company' do
+      today = Date.today
+      ipo = InitialPublicOffering.new(offering_on: today)
+      @company.stub(:initial_public_offering).and_return(ipo)
+      expect(@serializer.ipo_on).to eq(today.strftime('%-m/%-d/%Y'))
+    end
+
+    it 'should return nil if this company has no initial_public_offering association' do
+      @company.stub(:initial_public_offering).and_return(nil)
+      expect(@serializer.ipo_on).to eq(nil)
+    end
+  end
+
+  describe 'ipo_valuation' do
+    it 'should return the valuation of the ipo associated with this company if present and in USD' do
+      ipo = InitialPublicOffering.new(valuation_amount: 42, valuation_currency_code: 'USD')
+      @company.stub(:initial_public_offering).and_return(ipo)
+      expect(@serializer.ipo_valuation).to eq(42)
+    end
+
+    it 'should return nil if the ipo associated with this company is not in USD' do
+      ipo = InitialPublicOffering.new(valuation_amount: 42, valuation_currency_code: 'ABC')
+      @company.stub(:initial_public_offering).and_return(ipo)
+      expect(@serializer.ipo_valuation).to eq(nil)
+    end
+
+    it 'should return nil if this company has no initial_public_offering association' do
+      @company.stub(:initial_public_offering).and_return(nil)
+      expect(@serializer.ipo_valuation).to eq(nil)
+    end
   end
 
   describe 'investor_ids' do

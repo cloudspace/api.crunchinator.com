@@ -16,6 +16,7 @@ describe V1::CompaniesController do
         @investor =  FactoryGirl.create(:company, permalink: 'boo')
         @investment = FactoryGirl.create(:investment, investor: @investor, funding_round: @funding_round)
         @acquisition = FactoryGirl.create(:acquisition, acquired_company: @company)
+        @ipo = FactoryGirl.create(:initial_public_offering, company: @company)
       end
 
       it 'with no arguments' do
@@ -64,7 +65,9 @@ describe V1::CompaniesController do
           'founded_on' => @company.founded_on.strftime('%-m/%-d/%Y'),
           'status' => 'acquired',
           'acquired_on' => @acquisition.acquired_on.strftime('%-m/%-d/%Y'),
-          'acquired_by_id' => @acquisition.acquiring_company_id
+          'acquired_by_id' => @acquisition.acquiring_company_id,
+          'ipo_valuation' => @company.initial_public_offering.usd_valuation,
+          'ipo_on' => @company.initial_public_offering.offering_on.strftime('%-m/%-d/%Y')
         )
 
         expected['companies'][0]['funding_rounds'].push(
