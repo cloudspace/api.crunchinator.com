@@ -208,8 +208,6 @@ module ApiQueue
           month ||= 1
           day ||= 1
           Date.strptime("#{year}/#{month}/#{day}", '%Y/%m/%d')
-        else
-          nil
         end
       end
     end

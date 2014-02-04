@@ -8,10 +8,8 @@ class InitialPublicOffering < ActiveRecord::Base
   #
   # @return [FixNum, nil] the valuation produced by the ipo, in USD, or nil
   def usd_valuation
-    if valuation_currency_code && valuation_currency_code.upcase == 'USD' && valuation_amount
+    if valuation_currency_code.try(:upcase) == 'USD' && valuation_amount
       valuation_amount
-    else
-      nil
     end
   end
 end

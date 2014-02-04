@@ -22,11 +22,7 @@ class V1::Companies::CompanySerializer < ActiveModel::Serializer
 
   # @return [String] The date the company was founded formatted in m/d/y
   def founded_on
-    if @object.founded_on
-      @object.founded_on.strftime('%-m/%-d/%Y')
-    else
-      nil
-    end
+    @object.founded_on.try(:strftime, '%-m/%-d/%Y')
   end
 
   # Whether the company is deadpooled, acquired, or still alive
@@ -45,11 +41,7 @@ class V1::Companies::CompanySerializer < ActiveModel::Serializer
 
   # renames and formats the most_recent_acquired_on method
   def acquired_on
-    if @object.most_recent_acquired_on.present?
-      @object.most_recent_acquired_on.strftime('%-m/%-d/%Y')
-    else
-      nil
-    end
+    @object.most_recent_acquired_on.try(:strftime, '%-m/%-d/%Y')
   end
 
   # renames the most_recent_acquired_by method
