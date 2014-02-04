@@ -25,7 +25,6 @@ describe Company do
     it { expect(@company).to validate_presence_of :permalink }
     it { expect(@company).to validate_uniqueness_of :permalink }
     it { expect(@company).to validate_presence_of :name }
-    it { expect(@company).to validate_uniqueness_of :name }
   end
 
   describe 'fields' do
