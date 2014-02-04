@@ -53,8 +53,8 @@ describe Company do
   describe 'scopes' do
     describe 'categorized' do
       before(:each) do
-        @with_category = FactoryGirl.create(:company)
-        @without_category = FactoryGirl.create(:company, category: nil)
+        @with_category = FactoryGirl.create(:company_with_category)
+        @without_category = FactoryGirl.create(:company)
       end
       it 'should include companies with a category' do
         expect(Company.categorized).to include(@with_category)
@@ -147,7 +147,7 @@ describe Company do
 
     describe 'valid' do
       it 'should return companies with a category, successful funding round, and US headquarters' do
-        company = FactoryGirl.create(:company)
+        company = FactoryGirl.create(:company_with_category)
         FactoryGirl.create(:headquarters, tenant: company)
         FactoryGirl.create(:funding_round, company: company)
         expect(Company.valid).to include(company)
@@ -156,8 +156,7 @@ describe Company do
 
     describe 'invalid' do
       it 'should not include valid companies' do
-        company = FactoryGirl.create(:company)
-        FactoryGirl.create(:headquarters, tenant: company)
+        company = FactoryGirl.create(:valid_company)
         expect(Company.invalid).not_to include(company)
       end
     end

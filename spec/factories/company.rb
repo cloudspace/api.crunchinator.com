@@ -6,12 +6,15 @@ FactoryGirl.define do
     name { FactoryGirl.generate(:unique_company_name) }
     founded_on { 1.day.ago }
 
-    factory :valid_company do
+    factory :company_with_category do
       category
-      after(:create) do |company|
-        create :headquarters, tenant: company
-        funding_round = create :funding_round, company: company
-        create :investment, funding_round: funding_round
+
+      factory :valid_company do
+        after(:create) do |company|
+          create :headquarters, tenant: company
+          funding_round = create :funding_round, company: company
+          create :investment, funding_round: funding_round
+        end
       end
     end
   end

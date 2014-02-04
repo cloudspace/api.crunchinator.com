@@ -9,7 +9,7 @@ describe V1::InvestorsController do
 
     describe 'appropriate response' do
       before(:each) do
-        @company = FactoryGirl.create(:company)
+        @company = FactoryGirl.create(:company_with_category)
         FactoryGirl.create(:headquarters, tenant: @company)
         @funding_round = FactoryGirl.create(:funding_round, company: @company)
         @investor =  FactoryGirl.create(:company, permalink: 'boo')
