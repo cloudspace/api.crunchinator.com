@@ -10,75 +10,92 @@ describe V1::CompaniesController do
 
     describe 'appropriate responses' do
       before(:each) do
-        @company = FactoryGirl.create(:company_with_category)
-        FactoryGirl.create(:headquarters, tenant: @company)
-        @funding_round = FactoryGirl.create(:funding_round, company: @company)
-        @investor =  FactoryGirl.create(:company, permalink: 'boo')
-        @investment = FactoryGirl.create(:investment, investor: @investor, funding_round: @funding_round)
+        @company = FactoryGirl.create(:valid_company)
         @acquisition = FactoryGirl.create(:acquisition, acquired_company: @company)
         @ipo = FactoryGirl.create(:initial_public_offering, company: @company)
+        @funding_round = @company.funding_rounds.first
+        @investor = @funding_round.investments.first.investor
       end
 
-      it 'with no arguments' do
-        # don't do anything, this is already setup
+      it 'includes valid companies' do
         get :index
-      end
 
-      it 'when passing in a letter' do
-        @company.name = 'Albert\s Apples'
-        @company.save
-        get :index, letter: 'a'
-      end
+        company = JSON.parse(response.body)['companies'].first
+        expect(company['id']).to               eq(@company.id)
+        expect(company['permalink']).to        eq(@company.permalink)
+        expect(company['name']).to             eq(@company.name)
+        expect(company['category_id']).to      eq(@company.category_id)
+        expect(company['total_funding']).to    eq(@company.total_funding)
+        expect(company['latitude']).to         eq(@company.latitude.to_s)
+        expect(company['longitude']).to        eq(@company.longitude.to_s)
+        expect(company['founded_on']).to       eq(@company.founded_on.strftime('%-m/%-d/%Y'))
 
-      it 'when passing in a zero' do
-        @company.name = '1st Albert\s Apples'
-        @company.save
-        get :index, letter: '0'
-      end
+        expect(company['investor_ids']).to     eq([@investor.guid])
 
-      it 'with a company that is invalid due to lack of hq' do
-        @unlocated_company = FactoryGirl.create(:company)
-        get :index
-      end
+        expect(company['status']).to           eq('acquired')
+        expect(company['acquired_on']).to      eq(@acquisition.acquired_on.strftime('%-m/%-d/%Y'))
+        expect(company['acquired_by_id']).to   eq(@acquisition.acquiring_company_id)
 
-      it 'with a company with no funded funding rounds' do
-        @unfunded_company = FactoryGirl.create(:company)
-        FactoryGirl.create(:headquarters, tenant: @unfunded_company)
-        @unfunded_funding_round = FactoryGirl.create(:funding_round,
-                                                     company: @unfunded_company,
-                                                     raw_raised_amount: BigDecimal.new('0'))
-        get :index
-      end
+        expect(company['ipo_valuation']).to eq(@company.initial_public_offering.usd_valuation)
+        expect(company['ipo_on']).to eq(@company.initial_public_offering.offering_on.strftime('%-m/%-d/%Y'))
+        expect(company['state_code']).to eq(@company.headquarters.state_code)
 
-      after(:each) do
-        expected = { 'companies' => [] }
-        expected['companies'].push(
-          'id' => @company.id,
-          'permalink' => @company.permalink,
-          'name' => @company.name,
-          'category_id' => @company.category_id,
-          'total_funding' => @company.total_funding,
-          'funding_rounds' => [],
-          'latitude' => @company.latitude.to_s,
-          'longitude' => @company.longitude.to_s,
-          'investor_ids' => [@investment.investor_guid],
-          'founded_on' => @company.founded_on.strftime('%-m/%-d/%Y'),
-          'status' => 'acquired',
-          'acquired_on' => @acquisition.acquired_on.strftime('%-m/%-d/%Y'),
-          'acquired_by_id' => @acquisition.acquiring_company_id,
-          'ipo_valuation' => @company.initial_public_offering.usd_valuation,
-          'ipo_on' => @company.initial_public_offering.offering_on.strftime('%-m/%-d/%Y'),
-          'state_code' => @company.headquarters.state_code
-        )
-
-        expected['companies'][0]['funding_rounds'].push(
+        expect(company['funding_rounds']).to eq([{
           'id' => @funding_round.id,
           'raised_amount' => @funding_round.raised_amount.to_s,
           'funded_on' => @funding_round.funded_on.strftime('%-m/%-d/%Y'),
-          'investor_ids' => [@investment.investor_guid]
-        )
+          'investor_ids' => [@investor.guid]
+        }])
+      end
 
-        expect(JSON.parse(response.body)).to eq(expected)
+      describe 'when passing `letter` query param' do
+        it 'filters out companies that begin with another letter' do
+          @company.update_attribute :name, 'Albert\'s Albert'
+          excluded_company = FactoryGirl.create(:valid_company, name: 'Bob\'s Burgers')
+
+          get :index, :letter => 'A'
+
+          companies = JSON.parse(response.body)['companies']
+          expect(controller.params[:letter]).to eq('A')
+          expect(companies.length).to eq(1)
+          expect(companies.map{ |i| i['id'] }).not_to include(excluded_company.id)
+        end
+
+        describe 'when passing `0` as the `letter`' do
+          it 'filters out investors that begin with a alphabetic letter' do
+            @company.update_attribute :name, '1st Albert'
+            excluded_company = FactoryGirl.create(:valid_company, name: 'Albert\'s Apples')
+
+            get :index, :letter => '0'
+
+            companies = JSON.parse(response.body)['companies']
+            expect(controller.params[:letter]).to eq('0')
+            expect(companies.length).to eq(1)
+            expect(companies.map{ |i| i['id'] }).not_to include(excluded_company.id)
+          end
+        end
+      end
+
+      describe 'excludes' do
+        it 'companies that do not have an hq' do
+          excluded_company = FactoryGirl.create(:valid_company, office_locations: [])
+
+          get :index
+
+          companies = JSON.parse(response.body)['companies']
+          expect(companies.length).to eq(1)
+          expect(companies.map{ |i| i['id'] }).not_to include(excluded_company.id)
+        end
+
+        it 'companies with no funded funding rounds' do
+          excluded_company = FactoryGirl.create(:valid_company, funding_rounds: [])
+
+          get :index
+
+          companies = JSON.parse(response.body)['companies']
+          expect(companies.length).to eq(1)
+          expect(companies.map{ |i| i['id'] }).not_to include(excluded_company.id)
+        end
       end
     end
   end
