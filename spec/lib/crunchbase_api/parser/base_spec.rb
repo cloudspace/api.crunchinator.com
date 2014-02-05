@@ -126,6 +126,31 @@ describe ApiQueue::Parser::Base do
       end
     end
 
+    describe 'create_ipo' do
+      before(:each) do
+        @attributes = {
+          'valuation_amount' => 104000000000.0,
+          'valuation_currency_code' => 'USD',
+          'pub_year' => 2012,
+          'pub_month' => 5,
+          'pub_day' => 18,
+          'stock_symbol' => 'NASDAQ:FB'
+        }
+        @company = Company.new
+        ::InitialPublicOffering.stub(:create!)
+      end
+
+      it 'should create an InitialPublicOffering' do
+        ::InitialPublicOffering.should_receive(:create!)
+        @parser.create_ipo(@attributes, @company)
+      end
+
+      it 'should set the date' do
+        @parser.should_receive(:date_converter).with(2012, 5, 18)
+        @parser.create_ipo(@attributes, @company)
+      end
+    end
+
     describe 'create_category' do
       it 'should try to find a category if a name is given' do
         @parser.should_receive(:safe_find_or_create_by).with(::Category, name: 'a category')

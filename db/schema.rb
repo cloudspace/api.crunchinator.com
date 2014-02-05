@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140130165551) do
+ActiveRecord::Schema.define(version: 20140203215025) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -86,6 +86,8 @@ ActiveRecord::Schema.define(version: 20140130165551) do
   end
 
   add_index "companies", ["category_id"], name: "index_companies_on_category_id", using: :btree
+  add_index "companies", ["name"], name: "index_companies_on_name", using: :btree
+  add_index "companies", ["permalink"], name: "index_companies_on_permalink", using: :btree
 
   create_table "financial_organizations", force: true do |t|
     t.string   "name"
@@ -122,6 +124,16 @@ ActiveRecord::Schema.define(version: 20140130165551) do
   add_index "funding_rounds", ["company_id"], name: "index_funding_rounds_on_company_id", using: :btree
   add_index "funding_rounds", ["crunchbase_id"], name: "index_funding_rounds_on_crunchbase_id", unique: true, using: :btree
   add_index "funding_rounds", ["raised_currency_code"], name: "index_funding_rounds_on_raised_currency_code", using: :btree
+
+  create_table "initial_public_offerings", force: true do |t|
+    t.integer "company_id"
+    t.integer "valuation_amount",        limit: 8
+    t.string  "valuation_currency_code"
+    t.date    "offering_on"
+    t.string  "stock_symbol"
+  end
+
+  add_index "initial_public_offerings", ["company_id"], name: "index_initial_public_offerings_on_company_id", using: :btree
 
   create_table "investments", force: true do |t|
     t.integer  "investor_id"
