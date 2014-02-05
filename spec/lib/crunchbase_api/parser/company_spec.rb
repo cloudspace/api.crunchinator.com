@@ -45,6 +45,16 @@ describe ApiQueue::Parser::Company do
       end
     end
 
+    it 'should create an ipo' do
+      company = Company.where(permalink: @response['permalink']).first
+      expect(company.initial_public_offering.company_id).to eq(company.id)
+      expect(company.initial_public_offering.valuation_amount).to eq(@response['ipo']['valuation_amount'])
+      expect(company.initial_public_offering.stock_symbol).to eq(@response['ipo']['stock_symbol'])
+      expect(company.initial_public_offering.offering_on).to eq(
+        Date.parse("#{@response['ipo']['pub_year']}/#{@response['ipo']['pub_month']}/#{@response['ipo']['pub_day']}")
+      )
+    end
+
     it 'should create an investment and an investor for each record in the response' do
       # company = Company.where(permalink: @response['permalink']).first
 
@@ -218,6 +228,29 @@ describe ApiQueue::Parser::Company do
       it 'should create new acquisitions' do
         @parser.should_receive(:create_acquisition).with(@attributes['acquisitions'][0], @company)
         @parser.send(:process_acquisitions)
+      end
+    end
+
+    describe 'process_ipo' do
+      before(:each) do
+        @attributes = { 'ipo' => 'stuff' }
+        @parser.instance_variable_set(:@entity_data, @attributes)
+        @company = ::Company.new
+        @parser.instance_variable_set(:@company, @company)
+        @ipo = double(::InitialPublicOffering)
+        @company.stub(:initial_public_offering).and_return(@ipo)
+      end
+
+      it 'should destroy all existing ipos for the company' do
+        @ipo.should_receive(:destroy)
+        @parser.stub(:create_ipo)
+        @parser.send(:process_ipo)
+      end
+
+      it 'should create a new ipo' do
+        @ipo.stub(:destroy)
+        @parser.should_receive(:create_ipo).with('stuff', @company)
+        @parser.send(:process_ipo)
       end
     end
   end

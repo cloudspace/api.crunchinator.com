@@ -18,13 +18,13 @@ describe Company do
     it { expect(@company).to belong_to :category }
     it { expect(@company).to have_many :acquisitions }
     it { expect(@company).to have_many :acquired_by }
+    it { expect(@company).to have_one :initial_public_offering }
   end
 
   describe 'validations' do
     it { expect(@company).to validate_presence_of :permalink }
     it { expect(@company).to validate_uniqueness_of :permalink }
     it { expect(@company).to validate_presence_of :name }
-    it { expect(@company).to validate_uniqueness_of :name }
   end
 
   describe 'fields' do

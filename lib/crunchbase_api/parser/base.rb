@@ -5,7 +5,9 @@ module ApiQueue
     #
     # See existing code for how the models should be created.
     #
-    # There are additional tickets to complete the ApiParser.
+    # This will disable the class line length rubocop check. This is a temporary fix,
+    # as this class is due for a refactor.
+    # rubocop:disable ClassLength
     class Base
 
       def self.inherited(subclass)
@@ -88,10 +90,15 @@ module ApiQueue
         ::OfficeLocation.create!(attributes)
       end
 
+      # Handles creating an acquisition.
+      #
+      # @param [Hash{String => String}] acquisition_data A representation of the acquisition.
+      #   May contain extraneous keys.
+      # @return [Acquisition] the newly created acquisition.
       def create_acquisition(acquisition_data, acquirer)
         column_names = ::Acquisition.column_names
 
-        attributes = acquisition_data.select { |attribute| column_names.include?(attributes.to_s) }
+        attributes = acquisition_data.select { |attribute| column_names.include?(attribute.to_s) }
         attributes[:acquired_on] = date_converter(
           acquisition_data['acquired_year'],
           acquisition_data['acquired_month'],
@@ -103,6 +110,24 @@ module ApiQueue
         attributes[:acquired_company_id] = acquired_company.id
 
         ::Acquisition.create!(attributes)
+      end
+
+      # Handles creating an ipo.
+      #
+      # @param [Hash{String => String}] ipo_data A representation of the ipo.
+      #   May contain extraneous keys.
+      # @return [InitialPublicOffering] the newly created ipo.
+      def create_ipo(ipo_data, company)
+        column_names = ::InitialPublicOffering.column_names
+        attributes = ipo_data.select { |attribute| column_names.include?(attribute.to_s) }
+
+        attributes[:offering_on] = date_converter(
+          ipo_data['pub_year'],
+          ipo_data['pub_month'],
+          ipo_data['pub_day'])
+        attributes[:company_id] = company.id
+
+        ::InitialPublicOffering.create!(attributes)
       end
 
       # handles creation of categories. returns a new category if a null attr is passed
@@ -172,21 +197,20 @@ module ApiQueue
       # Converts dates and handles missing values
       # If year is set, month and day default to 1 if not set
       #
-      # Important note: if passed a blank string, it will crash or give a bad output
+      # Important note: if passed anything that can't be parsed, it will return nil
       #
       # @param [Integer] year The year for the date
       # @param [Integer] month The month for the date
       # @param [Integer] day The day for the date
-      # @return [Date] The given date with default values or nil if year isn't set
+      # @return [Date] The given date with default values, or nil if date parsing fails
       def date_converter(year, month, day)
-        if year
-          month ||= 1
-          day ||= 1
-          Date.strptime("#{year}/#{month}/#{day}", '%Y/%m/%d')
-        else
-          nil
-        end
+        month ||= 1
+        day ||= 1
+        Date.strptime("#{year}/#{month}/#{day}", '%Y/%m/%d')
+      rescue
+        nil
       end
     end
+    # rubocop:enable ClassLength
   end
 end
