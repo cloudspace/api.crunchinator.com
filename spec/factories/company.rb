@@ -15,9 +15,8 @@ FactoryGirl.define do
       end
     end
 
-
     factory :investor do
-      investments { |i| [i.association(:investment)]}
+      investments { |i| [i.association(:investment)] }
     end
   end
 end

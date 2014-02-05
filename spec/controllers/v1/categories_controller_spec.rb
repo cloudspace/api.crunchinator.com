@@ -46,7 +46,7 @@ describe V1::CategoriesController do
 
         categories = JSON.parse(response.body)['categories']
         expect(categories.length).to eq(1)
-        expect(categories.map{ |c| c['id'] }).not_to include(excluded_category.id)
+        expect(categories.map { |c| c['id'] }).not_to include(excluded_category.id)
       end
     end
   end

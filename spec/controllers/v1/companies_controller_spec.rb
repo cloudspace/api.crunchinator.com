@@ -44,12 +44,11 @@ describe V1::CompaniesController do
           company = JSON.parse(response.body)['companies'].first
           expect(company['total_funding']).to eq(@company.total_funding)
           expect(company['funding_rounds'].length).to eq(1)
-          expect(company['funding_rounds'].first).to eq({
-            'id' => @funding_round.id,
-            'raised_amount' => @funding_round.raised_amount.to_s,
-            'funded_on' => @funding_round.funded_on.strftime('%-m/%-d/%Y'),
-            'investor_ids' => [@investor.guid]
-          })
+          expect(company['funding_rounds'].first).to eq('id' => @funding_round.id,
+                                                        'raised_amount' => @funding_round.raised_amount.to_s,
+                                                        'funded_on' => @funding_round.funded_on.strftime('%-m/%-d/%Y'),
+                                                        'investor_ids' => [@investor.guid]
+                                                       )
         end
       end
 
@@ -101,12 +100,12 @@ describe V1::CompaniesController do
           @company.update_attribute :name, 'Albert\'s Albert'
           excluded_company = FactoryGirl.create(:valid_company, name: 'Bob\'s Burgers')
 
-          get :index, :letter => 'A'
+          get :index, letter: 'A'
 
           companies = JSON.parse(response.body)['companies']
           expect(controller.params[:letter]).to eq('A')
           expect(companies.length).to eq(1)
-          expect(companies.map{ |i| i['id'] }).not_to include(excluded_company.id)
+          expect(companies.map { |i| i['id'] }).not_to include(excluded_company.id)
         end
 
         describe 'when passing `0` as the `letter`' do
@@ -114,12 +113,12 @@ describe V1::CompaniesController do
             @company.update_attribute :name, '1st Albert'
             excluded_company = FactoryGirl.create(:valid_company, name: 'Albert\'s Apples')
 
-            get :index, :letter => '0'
+            get :index, letter: '0'
 
             companies = JSON.parse(response.body)['companies']
             expect(controller.params[:letter]).to eq('0')
             expect(companies.length).to eq(1)
-            expect(companies.map{ |i| i['id'] }).not_to include(excluded_company.id)
+            expect(companies.map { |i| i['id'] }).not_to include(excluded_company.id)
           end
         end
       end
@@ -132,7 +131,7 @@ describe V1::CompaniesController do
 
           companies = JSON.parse(response.body)['companies']
           expect(companies.length).to eq(1)
-          expect(companies.map{ |i| i['id'] }).not_to include(excluded_company.id)
+          expect(companies.map { |i| i['id'] }).not_to include(excluded_company.id)
         end
 
         it 'companies with no funded funding rounds' do
@@ -142,7 +141,7 @@ describe V1::CompaniesController do
 
           companies = JSON.parse(response.body)['companies']
           expect(companies.length).to eq(1)
-          expect(companies.map{ |i| i['id'] }).not_to include(excluded_company.id)
+          expect(companies.map { |i| i['id'] }).not_to include(excluded_company.id)
         end
       end
     end

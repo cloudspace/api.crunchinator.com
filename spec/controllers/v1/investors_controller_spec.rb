@@ -51,7 +51,7 @@ describe V1::InvestorsController do
 
         investors = JSON.parse(response.body)['investors']
         expect(investors.length).to eq(1)
-        expect(investors.map{ |i| i['id'] }).not_to include(excluded_investor.guid)
+        expect(investors.map { |i| i['id'] }).not_to include(excluded_investor.guid)
       end
 
       describe 'when passing `letter` query param' do
@@ -60,12 +60,12 @@ describe V1::InvestorsController do
           excluded_investor = FactoryGirl.create(:investor, name: 'Bob\'s Bugers')
           excluded_investor.investments.first.funding_round.update_attribute :company, @company
 
-          get :index, :letter => 'A'
+          get :index, letter: 'A'
 
           investors = JSON.parse(response.body)['investors']
           expect(controller.params[:letter]).to eq('A')
           expect(investors.length).to eq(1)
-          expect(investors.map{ |i| i['id'] }).not_to include(excluded_investor.guid)
+          expect(investors.map { |i| i['id'] }).not_to include(excluded_investor.guid)
         end
 
         describe 'when passing `0` as the `letter`' do
@@ -74,12 +74,12 @@ describe V1::InvestorsController do
             excluded_investor = FactoryGirl.create(:investor, name: 'Albert\'s Apples')
             excluded_investor.investments.first.funding_round.update_attribute :company, @company
 
-            get :index, :letter => '0'
+            get :index, letter: '0'
 
             investors = JSON.parse(response.body)['investors']
             expect(controller.params[:letter]).to eq('0')
             expect(investors.length).to eq(1)
-            expect(investors.map{ |i| i['id'] }).not_to include(excluded_investor.guid)
+            expect(investors.map { |i| i['id'] }).not_to include(excluded_investor.guid)
           end
         end
       end
