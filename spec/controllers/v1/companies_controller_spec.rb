@@ -11,10 +11,6 @@ describe V1::CompaniesController do
     describe 'appropriate responses' do
       before(:each) do
         @company = FactoryGirl.create(:valid_company)
-        @acquisition = FactoryGirl.create(:acquisition, acquired_company: @company)
-        @ipo = FactoryGirl.create(:initial_public_offering, company: @company)
-        @funding_round = @company.funding_rounds.first
-        @investor = @funding_round.investments.first.investor
       end
 
       it 'includes valid companies' do
@@ -25,27 +21,79 @@ describe V1::CompaniesController do
         expect(company['permalink']).to        eq(@company.permalink)
         expect(company['name']).to             eq(@company.name)
         expect(company['category_id']).to      eq(@company.category_id)
-        expect(company['total_funding']).to    eq(@company.total_funding)
-        expect(company['latitude']).to         eq(@company.latitude.to_s)
-        expect(company['longitude']).to        eq(@company.longitude.to_s)
         expect(company['founded_on']).to       eq(@company.founded_on.strftime('%-m/%-d/%Y'))
+      end
 
-        expect(company['investor_ids']).to     eq([@investor.guid])
+      describe 'includes investments' do
+        before(:each) do
+          @funding_round = @company.funding_rounds.first
+          investment = FactoryGirl.create(:investment, funding_round: @funding_round)
+          @investor = investment.investor
+        end
 
+        it 'includes investor ids associated with the company' do
+          get :index
+
+          company = JSON.parse(response.body)['companies'].first
+          expect(company['investor_ids']).to eq([@investor.guid])
+        end
+
+        it 'includes funding_rounds associated with the company' do
+          get :index
+
+          company = JSON.parse(response.body)['companies'].first
+          expect(company['total_funding']).to eq(@company.total_funding)
+          expect(company['funding_rounds'].length).to eq(1)
+          expect(company['funding_rounds'].first).to eq({
+            'id' => @funding_round.id,
+            'raised_amount' => @funding_round.raised_amount.to_s,
+            'funded_on' => @funding_round.funded_on.strftime('%-m/%-d/%Y'),
+            'investor_ids' => [@investor.guid]
+          })
+        end
+      end
+
+      describe 'includes geolocation' do
+        it 'includes latitude' do
+          get :index
+
+          company = JSON.parse(response.body)['companies'].first
+          expect(company['latitude']).to eq(@company.latitude.to_s)
+        end
+
+        it 'includes longitude' do
+          get :index
+
+          company = JSON.parse(response.body)['companies'].first
+          expect(company['longitude']).to eq(@company.longitude.to_s)
+        end
+      end
+
+      it 'includes acquisition status' do
+        acquisition = FactoryGirl.create(:acquisition, acquired_company: @company)
+
+        get :index
+
+        company = JSON.parse(response.body)['companies'].first
         expect(company['status']).to           eq('acquired')
-        expect(company['acquired_on']).to      eq(@acquisition.acquired_on.strftime('%-m/%-d/%Y'))
-        expect(company['acquired_by_id']).to   eq(@acquisition.acquiring_company_id)
+        expect(company['acquired_on']).to      eq(acquisition.acquired_on.strftime('%-m/%-d/%Y'))
+        expect(company['acquired_by_id']).to   eq(acquisition.acquiring_company_id)
+      end
 
-        expect(company['ipo_valuation']).to eq(@company.initial_public_offering.usd_valuation)
-        expect(company['ipo_on']).to eq(@company.initial_public_offering.offering_on.strftime('%-m/%-d/%Y'))
+      it 'includes associated IPO' do
+        ipo = FactoryGirl.create(:initial_public_offering, company: @company)
+        get :index
+
+        company = JSON.parse(response.body)['companies'].first
+        expect(company['ipo_valuation']).to eq(ipo.usd_valuation)
+        expect(company['ipo_on']).to eq(ipo.offering_on.strftime('%-m/%-d/%Y'))
+      end
+
+      it 'includes state_code' do
+        get :index
+
+        company = JSON.parse(response.body)['companies'].first
         expect(company['state_code']).to eq(@company.headquarters.state_code)
-
-        expect(company['funding_rounds']).to eq([{
-          'id' => @funding_round.id,
-          'raised_amount' => @funding_round.raised_amount.to_s,
-          'funded_on' => @funding_round.funded_on.strftime('%-m/%-d/%Y'),
-          'investor_ids' => [@investor.guid]
-        }])
       end
 
       describe 'when passing `letter` query param' do
