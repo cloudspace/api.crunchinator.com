@@ -8,6 +8,10 @@ FactoryGirl.define do
     funded_on { 10.days.ago }
     sequence :crunchbase_id
 
+    after(:create) do |funding_round|
+      FactoryGirl.create(:investment, funding_round: funding_round)
+    end
+
     factory :unfunded_funding_round do
       raw_raised_amount { BigDecimal.new('0') }
     end
