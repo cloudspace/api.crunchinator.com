@@ -9,9 +9,9 @@ describe V1::InvestorsController do
 
     describe 'appropriate response' do
       before(:each) do
-        @company = FactoryGirl.create(:valid_company)
+        company = FactoryGirl.create(:valid_company)
         @investor = FactoryGirl.create(:investor)
-        @investor.investments.first.funding_round.update_attribute :company, @company
+        @investor.investments.first.funding_round.update_attribute :company, company
       end
 
       it 'includes investors in valid companies' do
@@ -22,8 +22,24 @@ describe V1::InvestorsController do
         expect(investor['id']).to eq(@investor.guid)
         expect(investor['name']).to eq(@investor.name)
         expect(investor['investor_type']).to eq(@investor.class.to_s.underscore)
-        expect(investor['invested_company_ids']).to eq([@company.id])
-        expect(investor['invested_category_ids']).to eq([@company.category_id])
+      end
+
+      it 'includes company ids associated with the investor' do
+        company = @investor.investments.first.funding_round.company
+
+        get :index
+
+        investor = JSON.parse(response.body)['investors'].first
+        expect(investor['invested_company_ids']).to eq([company.id])
+      end
+
+      it 'includes category ids associated with the company invested in' do
+        company = @investor.investments.first.funding_round.company
+
+        get :index
+
+        investor = JSON.parse(response.body)['investors'].first
+        expect(investor['invested_category_ids']).to eq([company.category_id])
       end
 
       it 'excludes investors in invalid companies' do
