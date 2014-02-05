@@ -2,7 +2,7 @@
 class V1::Companies::CompanySerializer < ActiveModel::Serializer
   attributes :id, :permalink, :name, :category_id, :total_funding, :funding_rounds,
              :latitude, :longitude, :investor_ids, :status, :founded_on, :acquired_on,
-             :acquired_by_id, :ipo_valuation, :ipo_on
+             :acquired_by_id, :ipo_valuation, :ipo_on, :state_code
   has_many :funding_rounds, serializer: V1::Companies::NestedFundingRoundSerializer
 
   # @return [Array<String>] the guids of all investors in this company
@@ -47,5 +47,10 @@ class V1::Companies::CompanySerializer < ActiveModel::Serializer
   # renames the most_recent_acquired_by method
   def acquired_by_id
     @object.most_recent_acquired_by
+  end
+
+  # the state code for this company's headquarters
+  def state_code
+    @object.headquarters.try(:state_code)
   end
 end
