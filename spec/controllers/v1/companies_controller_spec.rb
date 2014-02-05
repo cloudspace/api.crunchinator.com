@@ -67,7 +67,8 @@ describe V1::CompaniesController do
           'acquired_on' => @acquisition.acquired_on.strftime('%-m/%-d/%Y'),
           'acquired_by_id' => @acquisition.acquiring_company_id,
           'ipo_valuation' => @company.initial_public_offering.usd_valuation,
-          'ipo_on' => @company.initial_public_offering.offering_on.strftime('%-m/%-d/%Y')
+          'ipo_on' => @company.initial_public_offering.offering_on.strftime('%-m/%-d/%Y'),
+          'state_code' => @company.headquarters.state_code
         )
 
         expected['companies'][0]['funding_rounds'].push(

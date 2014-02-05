@@ -24,6 +24,7 @@ describe V1::Companies::CompanySerializer do
     expect(output['company']).to have_key('acquired_by_id')
     expect(output['company']).to have_key('ipo_on')
     expect(output['company']).to have_key('ipo_valuation')
+    expect(output['company']).to have_key('state_code')
   end
 
   describe 'ipo_on' do
@@ -119,6 +120,18 @@ describe V1::Companies::CompanySerializer do
     it 'should alias most_recent_acquired_by' do
       @company.should_receive(:most_recent_acquired_by)
       @serializer.acquired_by_id
+    end
+  end
+
+  describe 'state_code' do
+    it 'should return the state code of the headquarters if present' do
+      @company.stub_chain(:headquarters, :state_code).and_return('FOO')
+      expect(@serializer.state_code).to eq('FOO')
+    end
+
+    it 'should return nil if there is no headquarters' do
+      @company.stub(:headquarters).and_return(nil)
+      expect(@serializer.state_code).to eq(nil)
     end
   end
 end
