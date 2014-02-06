@@ -44,11 +44,13 @@ describe V1::CompaniesController do
           company = JSON.parse(response.body)['companies'].first
           expect(company['total_funding']).to eq(@company.total_funding)
           expect(company['funding_rounds'].length).to eq(1)
-          expect(company['funding_rounds'].first).to eq('id' => @funding_round.id,
-                                                        'raised_amount' => @funding_round.raised_amount.to_s,
-                                                        'funded_on' => @funding_round.funded_on.strftime('%-m/%-d/%Y'),
-                                                        'investor_ids' => [@investor.guid]
-                                                       )
+
+          funding_round = company['funding_rounds'].first
+          expect(funding_round['id']).to eq(@funding_round.id)
+          expect(funding_round['id']).to eq(@funding_round.id)
+          expect(funding_round['raised_amount']).to eq(@funding_round.raised_amount.to_s)
+          expect(funding_round['funded_on']).to eq(@funding_round.funded_on.strftime('%-m/%-d/%Y'))
+          expect(funding_round['investor_ids']).to eq([@investor.guid])
         end
       end
 
