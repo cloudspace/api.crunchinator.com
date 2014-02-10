@@ -1,4 +1,5 @@
 require 'logger'
+require 'English'
 
 # Handles execution and printing of code metric gems specified in the exec method
 # Literally it just takes a command and prints results and returns false if it fails
