@@ -10,7 +10,7 @@ class ZipCodeGeo < ActiveRecord::Base
   def self.import_from_csv(file = File.new("#{Rails.root}/seed/zipcode.csv", 'r'))
     CSV.foreach(file.path, headers: true) do |row|
       begin
-        ZipCodeGeo.where(:zip_code => row['zip']).first_or_create do |zcg|
+        ZipCodeGeo.where(zip_code: row['zip']).first_or_create do |zcg|
           zcg.city = row['city']
           zcg.state = row['state']
           zcg.latitude = BigDecimal.new(row['latitude'])
