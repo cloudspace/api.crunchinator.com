@@ -8,16 +8,14 @@ class ZipCodeGeo < ActiveRecord::Base
   # @param file The file to look at.
   #
   def self.import_from_csv(file = File.new("#{Rails.root}/seed/zipcode.csv", 'r'))
-    delete_all
     CSV.foreach(file.path, headers: true) do |row|
       begin
-        attributes = row.to_hash
-        attributes['zip_code'] = attributes.delete('zip')
-        attributes.delete('timezone')
-        attributes.delete('dst')
-        attributes['latitude'] = BigDecimal.new(attributes['latitude'])
-        attributes['longitude'] = BigDecimal.new(attributes['longitude'])
-        self.create! attributes
+        ZipCodeGeo.where(zip_code: row['zip']).first_or_create do |zcg|
+          zcg.city = row['city']
+          zcg.state = row['state']
+          zcg.latitude = BigDecimal.new(row['latitude'])
+          zcg.longitude = BigDecimal.new(row['longitude'])
+        end
       rescue
         next
       end
