@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140203215025) do
+ActiveRecord::Schema.define(version: 20140210172420) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,6 +29,8 @@ ActiveRecord::Schema.define(version: 20140203215025) do
 
   add_index "acquisitions", ["acquired_company_id"], name: "index_acquisitions_on_acquired_company_id", using: :btree
   add_index "acquisitions", ["acquiring_company_id"], name: "index_acquisitions_on_acquiring_company_id", using: :btree
+  add_index "acquisitions", ["price_amount"], name: "index_acquisitions_on_price_amount", using: :btree
+  add_index "acquisitions", ["price_currency_code"], name: "index_acquisitions_on_price_currency_code", using: :btree
 
   create_table "api_queue_elements", force: true do |t|
     t.integer  "num_runs",        default: 0
@@ -36,11 +38,11 @@ ActiveRecord::Schema.define(version: 20140203215025) do
     t.boolean  "complete",        default: false
     t.datetime "last_attempt_at"
     t.string   "permalink"
+    t.string   "data_source"
     t.text     "error"
+    t.string   "namespace"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "data_source"
-    t.string   "namespace"
   end
 
   add_index "api_queue_elements", ["complete"], name: "index_api_queue_elements_on_complete", using: :btree
@@ -61,18 +63,19 @@ ActiveRecord::Schema.define(version: 20140203215025) do
 
   create_table "companies", force: true do |t|
     t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
     t.string   "permalink"
     t.string   "crunchbase_url"
     t.string   "homepage_url"
     t.string   "blog_url"
     t.string   "blog_feed_url"
     t.string   "twitter_username"
+    t.integer  "category_id"
     t.integer  "number_of_employees"
     t.integer  "founded_year"
     t.integer  "founded_month"
     t.integer  "founded_day"
+    t.date     "founded_on"
+    t.date     "deadpooled_on"
     t.string   "deadpooled_url"
     t.string   "tag_list"
     t.string   "alias_list"
@@ -80,14 +83,13 @@ ActiveRecord::Schema.define(version: 20140203215025) do
     t.string   "phone_number"
     t.string   "description"
     t.text     "overview"
-    t.integer  "category_id"
-    t.date     "deadpooled_on"
-    t.date     "founded_on"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   add_index "companies", ["category_id"], name: "index_companies_on_category_id", using: :btree
   add_index "companies", ["name"], name: "index_companies_on_name", using: :btree
-  add_index "companies", ["permalink"], name: "index_companies_on_permalink", using: :btree
+  add_index "companies", ["permalink"], name: "index_companies_on_permalink", unique: true, using: :btree
 
   create_table "financial_organizations", force: true do |t|
     t.string   "name"
@@ -114,11 +116,11 @@ ActiveRecord::Schema.define(version: 20140203215025) do
     t.string   "source_description"
     t.decimal  "raw_raised_amount"
     t.string   "raised_currency_code"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.date     "funded_on"
     t.integer  "company_id"
     t.integer  "crunchbase_id"
-    t.date     "funded_on"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   add_index "funding_rounds", ["company_id"], name: "index_funding_rounds_on_company_id", using: :btree
@@ -134,6 +136,8 @@ ActiveRecord::Schema.define(version: 20140203215025) do
   end
 
   add_index "initial_public_offerings", ["company_id"], name: "index_initial_public_offerings_on_company_id", using: :btree
+  add_index "initial_public_offerings", ["valuation_amount"], name: "index_initial_public_offerings_on_valuation_amount", using: :btree
+  add_index "initial_public_offerings", ["valuation_currency_code"], name: "index_initial_public_offerings_on_valuation_currency_code", using: :btree
 
   create_table "investments", force: true do |t|
     t.integer  "investor_id"
@@ -173,12 +177,12 @@ ActiveRecord::Schema.define(version: 20140203215025) do
   create_table "people", force: true do |t|
     t.string   "firstname"
     t.string   "lastname"
+    t.string   "permalink"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "permalink"
   end
 
-  add_index "people", ["permalink"], name: "index_people_on_permalink", using: :btree
+  add_index "people", ["permalink"], name: "index_people_on_permalink", unique: true, using: :btree
 
   create_table "zip_code_geos", force: true do |t|
     t.string   "zip_code"
@@ -190,6 +194,6 @@ ActiveRecord::Schema.define(version: 20140203215025) do
     t.datetime "updated_at"
   end
 
-  add_index "zip_code_geos", ["zip_code"], name: "index_zip_code_geos_on_zip_code", using: :btree
+  add_index "zip_code_geos", ["zip_code"], name: "index_zip_code_geos_on_zip_code", unique: true, using: :btree
 
 end
