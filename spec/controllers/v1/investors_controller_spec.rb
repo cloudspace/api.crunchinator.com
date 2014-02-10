@@ -9,52 +9,79 @@ describe V1::InvestorsController do
 
     describe 'appropriate response' do
       before(:each) do
-        @company = FactoryGirl.create(:company)
-        FactoryGirl.create(:headquarters, tenant: @company)
-        @funding_round = FactoryGirl.create(:funding_round, company: @company)
-        @investor =  FactoryGirl.create(:company, permalink: 'boo')
-        @investment = FactoryGirl.create(:investment, investor: @investor, funding_round: @funding_round)
+        company = FactoryGirl.create(:valid_company)
+        @investor = FactoryGirl.create(:investor)
+        @investor.investments.first.funding_round.update_attribute :company, company
       end
 
-      it 'with no query params' do
+      it 'includes investors in valid companies' do
         # do nothing, general case
         get :index
+
+        investor = JSON.parse(response.body)['investors'].first
+        expect(investor['id']).to eq(@investor.guid)
+        expect(investor['name']).to eq(@investor.name)
+        expect(investor['investor_type']).to eq(@investor.class.to_s.underscore)
       end
 
-      it 'with a letter as a query param' do
-        @investor.name = 'Albert\'s Apples'
-        @investor.save
+      it 'includes company ids associated with the investor' do
+        company = @investor.investments.first.funding_round.company
+
         get :index
+
+        investor = JSON.parse(response.body)['investors'].first
+        expect(investor['invested_company_ids']).to eq([company.id])
       end
 
-      it 'with a number as a query param' do
-        @investor.name = '1st Apples'
-        @investor.save
+      it 'includes category ids associated with the company invested in' do
+        company = @investor.investments.first.funding_round.company
+
         get :index
+
+        investor = JSON.parse(response.body)['investors'].first
+        expect(investor['invested_category_ids']).to eq([company.category_id])
       end
 
-      it 'should not include investors for companies with no valid funding rounds' do
-        @unfunded_company = FactoryGirl.create(:company)
-        FactoryGirl.create(:headquarters, tenant: @unfunded_company)
-        @unfunded_funding_round = FactoryGirl.create(:unfunded_funding_round, company: @unfunded_company)
-        @unfunded_investor =  FactoryGirl.create(:company, permalink: 'fred')
-        @unfunded_investment = FactoryGirl.create(:investment,
-                                                  investor: @unfunded_investor,
-                                                  funding_round: @unfunded_funding_round)
+      it 'excludes investors in invalid companies' do
+        invalid_company = FactoryGirl.create(:company)
+        excluded_investor = FactoryGirl.create(:investor)
+        excluded_investor.investments.first.funding_round.update_attribute :company, invalid_company
+
         get :index
+
+        investors = JSON.parse(response.body)['investors']
+        expect(investors.length).to eq(1)
+        expect(investors.map { |i| i['id'] }).not_to include(excluded_investor.guid)
       end
 
-      after(:each) do
-        expected = { 'investors' => [] }
-        expected['investors'].push(
-          'id' => @investor.guid,
-          'name' => @investor.name,
-          'investor_type' => @investor.class.to_s.underscore,
-          'invested_company_ids' => [@company.id],
-          'invested_category_ids' => [@company.category_id]
-        )
+      describe 'when passing `letter` query param' do
+        it 'filters out investors that begin with another letter' do
+          @investor.update_attribute :name, 'Albert\'s Apples'
+          excluded_investor = FactoryGirl.create(:investor, name: 'Bob\'s Bugers')
+          excluded_investor.investments.first.funding_round.update_attribute :company, @company
 
-        expect(JSON.parse(response.body)).to eq(expected)
+          get :index, letter: 'A'
+
+          investors = JSON.parse(response.body)['investors']
+          expect(controller.params[:letter]).to eq('A')
+          expect(investors.length).to eq(1)
+          expect(investors.map { |i| i['id'] }).not_to include(excluded_investor.guid)
+        end
+
+        describe 'when passing `0` as the `letter`' do
+          it 'filters out investors that begin with a alphabetic letter' do
+            @investor.update_attribute :name, '1st Apples'
+            excluded_investor = FactoryGirl.create(:investor, name: 'Albert\'s Apples')
+            excluded_investor.investments.first.funding_round.update_attribute :company, @company
+
+            get :index, letter: '0'
+
+            investors = JSON.parse(response.body)['investors']
+            expect(controller.params[:letter]).to eq('0')
+            expect(investors.length).to eq(1)
+            expect(investors.map { |i| i['id'] }).not_to include(excluded_investor.guid)
+          end
+        end
       end
     end
   end

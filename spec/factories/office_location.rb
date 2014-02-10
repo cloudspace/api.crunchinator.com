@@ -8,7 +8,7 @@ FactoryGirl.define do
     longitude { BigDecimal.new(-81) }
     latitude { BigDecimal.new(28) }
 
-    factory :headquarters, class: OfficeLocation do
+    factory :headquarters do
       headquarters { true }
     end
   end

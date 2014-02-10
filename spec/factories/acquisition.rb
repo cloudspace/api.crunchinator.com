@@ -2,8 +2,8 @@ require Rails.root.to_s + '/spec/factories/sequences' unless FactoryGirl.sequenc
 
 FactoryGirl.define do
   factory :acquisition do
-    acquired_company { FactoryGirl.create(:company) }
-    acquiring_company { FactoryGirl.create(:company) }
+    association :acquired_company, factory: :company
+    association :acquiring_company, factory: :company
     acquired_on { Date.today }
   end
 end
