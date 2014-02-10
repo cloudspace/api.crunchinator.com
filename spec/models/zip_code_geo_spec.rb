@@ -20,10 +20,10 @@ describe ZipCodeGeo do
         expect(ZipCodeGeo.count).to eq(1)
       end
 
-      it 'should delete all old zip codes' do
-        zip_code = FactoryGirl.create(:zip_code_geo)
+      it 'should not add zip codes which have already been added' do
         ZipCodeGeo.import_from_csv(File.new(Rails.root.to_s + '/spec/fixtures/zip_codes.csv', 'r'))
-        expect(ZipCodeGeo.all).not_to include(zip_code)
+        ZipCodeGeo.import_from_csv(File.new(Rails.root.to_s + '/spec/fixtures/zip_codes.csv', 'r'))
+        expect(ZipCodeGeo.count).to eq(1)
       end
     end
   end
