@@ -19,8 +19,17 @@ development:
   encoding: unicode
   database: crunchinator_development
   pool: 50
-  username: postgres
-  password: postgres
+  username: <%= ENV['DEVELOPMENT_POSTGRES_USERNAME'] %>
+  password: <%= ENV['DEVELOPMENT_POSTGRES_PASSWORD'] %>
+  host: localhost
+
+staging:
+  adapter: postgresql
+  encoding: unicode
+  database: crunchinator_staging
+  pool: 50
+  username: <%= ENV['STAGING_POSTGRES_USERNAME'] %>
+  password: <%= ENV['STAGING_POSTGRES_PASSWORD'] %>
   host: localhost
 
   # Connect on a TCP socket. Omitted by default since the client uses a
@@ -58,6 +67,6 @@ production:
   encoding: unicode
   database: crunchinator_production
   pool: 5
-  username:
-  password:
+  username: <%= ENV['PRODUCTION_POSTGRES_USERNAME'] %>
+  password: <%= ENV['PRODUCTION_POSTGRES_PASSWORD'] %>
   host: localhost
