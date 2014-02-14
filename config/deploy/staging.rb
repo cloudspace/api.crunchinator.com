@@ -4,10 +4,11 @@
 # server in each group is considered to be the first
 # unless any hosts have the primary property set.
 # Don't declare `role :all`, it's a meta role
+# the host is set in config/environment_variables.rb
 role :app, %W{#{ENV['STAGING_APP_HOST']}}
 role :web, %W{#{ENV['STAGING_APP_HOST']}}
 role :db, %W{#{ENV['STAGING_APP_HOST']}}
-set :branch, '65508940_capistrano_staging'
+set :branch, 'staging'
 set :rails_env, 'staging'
 
 set :default_environment, { 'RAILS_ENV' => 'staging' }

@@ -1,19 +1,9 @@
 # config valid only for Capistrano 3.1
 lock '3.1.0'
 
-def background_rake(task)
-  on roles(:app) do
-    execute "cd #{release_path}; ( ( nohup bundle exec rake RAILS_ENV=#{fetch(:rails_env)} #{task} &>/dev/null ) & )"
-  end
-end
-
-def foreground_rake(task)
-  on roles(:app) do
-    execute "cd #{release_path} && bundle exec rake RAILS_ENV=#{fetch(:rails_env)} #{task}"
-  end
-end
-
 set :application, 'crunchinator'
+
+# the repository url is set in config/environment_variables.rb
 set :repo_url, ENV['REPOSITORY_URL']
 
 set :stages, %w(staging production)
@@ -67,17 +57,6 @@ namespace :deploy do
   task(:seed) { foreground_rake("db:seed") }
 end
 
-namespace :bundler do
-  desc "Run bundle install"
-  task :install do
-    on roles(:app) do
-      within release_path do
-        execute "cd #{release_path} && bundle install --binstubs --without development test"
-      end
-    end
-  end
-end
-
 namespace :data do
   desc "Populate the queue"
   task(:populate_queue) { background_rake("api_queue:populate[local]") }
@@ -99,3 +78,17 @@ end
 
 before "deploy:updated", "deploy:upload_config"
 after "deploy", "bundler:install"
+
+# runs the specified rake task on the server in the background, without blocking the ssh session
+def background_rake(task)
+  on roles(:app) do
+    execute "cd #{release_path}; ( ( nohup bundle exec rake RAILS_ENV=#{fetch(:rails_env)} #{task} &>/dev/null ) & )"
+  end
+end
+
+# runs the specified rake task on the server in the foreground, blocking the ssh session
+def foreground_rake(task)
+  on roles(:app) do
+    execute "cd #{release_path} && bundle exec rake RAILS_ENV=#{fetch(:rails_env)} #{task}"
+  end
+end

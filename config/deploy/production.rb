@@ -4,10 +4,11 @@
 # server in each group is considered to be the first
 # unless any hosts have the primary property set.
 # Don't declare `role :all`, it's a meta role
+# the host is set in config/environment_variables.rb
 role :app, %W{#{ENV['PRODUCTION_APP_HOST']}}
 role :web, %W{#{ENV['PRODUCTION_APP_HOST']}}
 role :db, %W{#{ENV['PRODUCTION_APP_HOST']}}
-set :branch, 'production'
+set :branch, 'master'
 set :rails_env, 'production'
 
 set :default_environment, { 'RAILS_ENV' => 'production' }
