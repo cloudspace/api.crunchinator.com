@@ -16,6 +16,11 @@ gem 'active_model_serializers'
 gem 'thread_safe'
 gem 'httparty'
 
+# Deploy with Capistrano
+gem 'capistrano', '~> 3.1'
+gem 'capistrano-bundler', '~> 1.1.2'
+gem 'capistrano-rails'
+
 group :development, :test do
   gem 'factory_girl'
   gem 'faker'
