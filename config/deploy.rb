@@ -14,7 +14,7 @@ set :default_stage, 'staging'
 # ask :branch, proc { `git rev-parse --abbrev-ref HEAD`.chomp }
 
 # Default deploy_to directory is /var/www/my_app
-set :deploy_to, "/srv/www/api.crunchinator.com"
+set :deploy_to, '/srv/www/api.crunchinator.com'
 
 # Default value for :scm is :git
 set :scm, :git
@@ -41,43 +41,43 @@ set :linked_dirs, %w{log json_data}
 # Default value for keep_releases is 5
 set :keep_releases, 5
 
-set :ssh_options, { :keys => ['~/.ssh/id_rsa'], :forward_agent => true, :user => "root" }
+set :ssh_options, keys: ['~/.ssh/id_rsa'], forward_agent: true, user: 'root'
 
 namespace :deploy do
-  desc "Upload environment_variables to release folder"
+  desc 'Upload environment_variables to release folder'
   task :upload_config do
     on roles(:app) do
       within release_path do
-        upload!("config/environment_variables.rb", "#{release_path}/config")
+        upload!('config/environment_variables.rb', '#{release_path}/config')
       end
     end
   end
 
-  desc "Run the seeds file"
-  task(:seed) { foreground_rake("db:seed") }
+  desc 'Run the seeds file'
+  task(:seed) { foreground_rake('db:seed') }
 end
 
 namespace :data do
-  desc "Populate the queue"
-  task(:populate_queue) { background_rake("api_queue:populate[local]") }
+  desc 'Populate the queue'
+  task(:populate_queue) { background_rake('api_queue:populate[local]') }
 
   namespace :import do
-    desc "Import and process data from s3 (fast)"
-    task(:s3) { background_rake("api_queue:run[20,s3]") }
+    desc 'Import and process data from s3 (fast)'
+    task(:s3) { background_rake('api_queue:run[20,s3]') }
 
-    desc "Import and process data from local (fastest)"
-    task(:local) { background_rake("api_queue:run[20,local]") }
+    desc 'Import and process data from local (fastest)'
+    task(:local) { background_rake('api_queue:run[20,local]') }
 
-    desc "Import and process data from crunchbase (slow)"
-    task(:crunchbase) { background_rake("api_queue:run") }
+    desc 'Import and process data from crunchbase (slow)'
+    task(:crunchbase) { background_rake('api_queue:run') }
   end
 
-  desc "Export json to s3"
-  task(:export) { foreground_rake("api_queue:upload_data") }
+  desc 'Export json to s3'
+  task(:export) { foreground_rake('api_queue:upload_data') }
 end
 
-before "deploy:updated", "deploy:upload_config"
-after "deploy", "bundler:install"
+before 'deploy:updated', 'deploy:upload_config'
+after 'deploy', 'bundler:install'
 
 # runs the specified rake task on the server in the background, without blocking the ssh session
 def background_rake(task)

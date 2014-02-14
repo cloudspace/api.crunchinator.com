@@ -11,7 +11,7 @@ role :db, %W{#{ENV['PRODUCTION_APP_HOST']}}
 set :branch, 'master'
 set :rails_env, 'production'
 
-set :default_environment, { 'RAILS_ENV' => 'production' }
+set :default_environment, 'RAILS_ENV' => 'production'
 # Extended Server Syntax
 # ======================
 # This can be used to drop a more detailed server
