@@ -1,3 +1,6 @@
+# because this is an open source project, credentials for producton and staging 
+# are kept in config/environment_variables.rb and not committed to git
+
 development:
   adapter: postgresql
   encoding: unicode
