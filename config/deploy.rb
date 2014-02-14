@@ -48,7 +48,7 @@ namespace :deploy do
   task :upload_config do
     on roles(:app) do
       within release_path do
-        upload!('config/environment_variables.rb', '#{release_path}/config')
+        upload!('config/environment_variables.rb', "#{release_path}/config")
       end
     end
   end
