@@ -59,7 +59,7 @@ module ApiQueue
       fail 'you must either archive or process the data' unless archive || process
       populate!(data_source: data_source)
       success = start_workers(num_workers)
-      upload_fakedata if upload && success
+      cache_json if upload && success
     end
 
     # flushes the logs, deletes the local json files,
@@ -149,23 +149,25 @@ module ApiQueue
     end
 
     # makes requests to all endpoints and uploads the results to s3
-    def self.upload_fakedata
-      endpoints = {}
-      endpoints['categories'] = 'fakedata/categories.json'
-      endpoints['companies'] = 'fakedata/companies.json'
-      endpoints['investors'] = 'fakedata/investors.json'
+    # this does nothing when run in any environment other than staging or production
+    def self.cache_json
+      version = Crunchinator::Application::VERSION
 
-      # letters = ['0', *('a'..'z')]
-      # letters.each { |letter| endpoints["companies?letter=#{letter}"] = "fakedata/companies/#{letter}.json" }
-      # letters.each { |letter| endpoints["investors?letter=#{letter}"] = "fakedata/investors/#{letter}.json" }
+      endpoints = {}
+      endpoints['categories'] = "api/#{version}/categories.json"
+      endpoints['companies'] = "api/#{version}/companies.json"
+      endpoints['investors'] = "api/#{version}/investors.json"
 
       endpoints.each_pair do |api_endpoint, s3_filename|
         response = query_app(endpoint: api_endpoint)
         log 'parsing json to confirm validity'
         JSON.parse(response.body) # this will error if the response isn't valid json
-        log "uploading json to 'temp.crunchinator.com' bucket as '#{s3_filename}' and exposing to public"
-        ApiQueue::Source::S3.upload_and_expose('temp.crunchinator.com', s3_filename, response.body)
+        log "uploading json to bucket as '#{s3_filename}' and exposing to public"
+        ApiQueue::Source::S3.upload_and_expose(s3_filename, response.body)
       end
+
+      current_release = { release: version }.to_json
+      ApiQueue::Source::S3.upload_and_expose('api/current_release.json', current_release)
     end
 
     # makes a request to an endpoint on the crunchinator app and returns the result

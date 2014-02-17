@@ -24,7 +24,7 @@ namespace :api_queue do
 
   desc "uploads gzipped json data to S3 and sets the ACL to public"
   task upload_data: :environment do
-    ApiQueue.upload_fakedata
+    ApiQueue.cache_json
   end
 
   desc "flushes the queue, re-populates it, starts the workers to process the queue, and uploads json to S3"
