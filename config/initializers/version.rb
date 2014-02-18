@@ -1,7 +1,7 @@
 module Crunchinator
-  # The purpose of this is to store the name of the last git tab as a
+  # The purpose of this is to load last git tag into a
   # constant for use during the process of pushing json to S3
   class Application
-    VERSION = `git tag`.split.last
+    VERSION = File.open(File.join(Rails.root, 'VERSION'), &:read).strip
   end
 end
