@@ -14,7 +14,8 @@ module ApiQueue
       def self.fetch_entities(namespace)
         plural_namespace = namespace.to_s.pluralize
         response = HTTParty.get("http://api.crunchbase.com/v/1/#{plural_namespace}.js?api_key=#{api_key}")
-        response_body = response.body.gsub(/[[:cntrl:]]/, '')
+        # tweak the JSON to correct malformed JSON we have seen which prevents parsing
+        response_body = response.body.gsub(/[[:cntrl:]]/, '').gsub('}][{"name":', '},{"name":')
         JSON::Stream::Parser.parse(response_body).map { |c| c['permalink'] }
       end
 
