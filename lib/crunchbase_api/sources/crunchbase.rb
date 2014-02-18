@@ -15,7 +15,7 @@ module ApiQueue
         plural_namespace = namespace.to_s.pluralize
         response = HTTParty.get("http://api.crunchbase.com/v/1/#{plural_namespace}.js?api_key=#{api_key}")
         # tweak the JSON to correct malformed JSON we have seen which prevents parsing
-        response_body = response.body.gsub(/[[:cntrl:]]/, '').gsub('}][{"name":', '},{"name":')
+        response_body = response.body.gsub(/[[:cntrl:]]/, '').gsub('"}][{"', '"},{"')
         JSON::Stream::Parser.parse(response_body).map { |c| c['permalink'] }
       end
 
