@@ -93,10 +93,16 @@ describe V1::Companies::CompanySerializer do
       expect(@serializer.status).to eq('acquired')
     end
 
-    it 'should return deadpooled if deadpooled and acquired' do
+    it 'should return deadpooled if deadpooled and acquired and IPOed' do
       @company.stub(:deadpooled_on).and_return(Date.today)
       @company.stub(:acquired_by).and_return([Acquisition.new])
+      @company.stub(:initial_public_offering).and_return([InitialPublicOffering.new])
       expect(@serializer.status).to eq('deadpooled')
+    end
+
+    it 'should return IPOed if IPOed' do
+      @company.stub(:initial_public_offering).and_return([InitialPublicOffering.new])
+      expect(@serializer.status).to eq('IPOed')
     end
 
     it 'should return alive otherwise' do

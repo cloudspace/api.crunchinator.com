@@ -34,6 +34,8 @@ class V1::Companies::CompanySerializer < ActiveModel::Serializer
       'deadpooled'
     elsif @object.acquired_by.any?
       'acquired'
+    elsif @object.initial_public_offering.present?
+      'IPOed'
     else
       'alive'
     end
