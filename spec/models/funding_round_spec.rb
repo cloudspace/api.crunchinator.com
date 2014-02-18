@@ -45,27 +45,26 @@ describe FundingRound do
     end
 
     describe 'valid' do
-      before(:each) do
-        Company.stub_chain(:valid, :pluck).and_return([1])
-      end
+      let(:company) { FactoryGirl.create(:valid_company) }
+      let(:funding_round) { FactoryGirl.create(:invested_funding_round, company: company) }
 
       it 'should include funding rounds with valid companies' do
-        funding_round = FactoryGirl.create(:funding_round, company_id: 1)
         expect(FundingRound.valid).to include(funding_round)
       end
 
       it 'should not include funding rounds with no valid companies' do
-        funding_round = FactoryGirl.create(:funding_round, company_id: 2)
+        company = FactoryGirl.create(:company)
+        funding_round = FactoryGirl.create(:funding_round, company: company)
         expect(FundingRound.valid).not_to include(funding_round)
       end
 
       it 'should not include funding rounds with no companies' do
-        funding_round = FactoryGirl.create(:funding_round, company_id: nil)
+        funding_round = FactoryGirl.create(:funding_round, company: nil)
         expect(FundingRound.valid).not_to include(funding_round)
       end
 
       it 'should not include funding rounds with valid companies where the funding round is unfunded' do
-        funding_round = FactoryGirl.create(:funding_round, company_id: 1, raw_raised_amount: BigDecimal.new('0'))
+        funding_round = FactoryGirl.create(:unfunded_funding_round, company: company)
         expect(FundingRound.valid).not_to include(funding_round)
       end
     end
