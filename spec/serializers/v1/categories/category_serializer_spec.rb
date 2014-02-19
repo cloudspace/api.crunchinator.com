@@ -21,7 +21,7 @@ describe V1::Categories::CategorySerializer do
       end
 
       it 'company_ids' do
-        #TODO: THIS IS A CODE SMELL
+        # TODO: THIS IS A CODE SMELL
         companies = FactoryGirl.build_list(:company_with_category, 3, category: category)
 
         company_ids = companies.map(&:id)
@@ -31,7 +31,7 @@ describe V1::Categories::CategorySerializer do
       end
 
       it 'investor_ids' do
-        #TODO: THIS IS A CODE SMELL
+        # TODO: THIS IS A CODE SMELL
         investment = Investment.new(investor_type: 'Company', investor_id: '1')
         Investment.stub_chain(:joins, :merge).and_return([investment])
         expect(hash[:investor_ids]).to eql(['company-1'])
