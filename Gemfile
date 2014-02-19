@@ -3,52 +3,52 @@ source 'https://rubygems.org'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.0.1'
 
-gem 'rails-api'
+gem 'rails-api', '~> 0.1.0'
 
 # Use postgresql as the database for Active Record
-gem 'pg'
+gem 'pg', '~> 0.17.0'
 
 # use aws-sdk for s3
-gem 'aws-sdk'
+gem 'aws-sdk', '~> 1.30.0'
 
-gem 'json-stream'
-gem 'active_model_serializers'
-gem 'thread_safe'
-gem 'httparty'
+gem 'json-stream', '~> 0.1.3'
+gem 'active_model_serializers', '~> 0.8.1'
+gem 'thread_safe', '~> 0.1.3'
+gem 'httparty', '~> 0.11.0'
 
 # Deploy with Capistrano
 gem 'capistrano', '~> 3.1'
 gem 'capistrano-bundler', '~> 1.1.2'
-gem 'capistrano-rails'
+gem 'capistrano-rails', '~> 1.1.1'
 
 group :development, :test do
-  gem 'factory_girl'
-  gem 'faker'
-  gem 'pry-debugger'
+  gem 'factory_girl', '~> 4.3.0'
+  gem 'faker', '~> 1.2.0'
+  gem 'pry-debugger', '~> 0.2.2'
 end
 
 group :development do
-  gem 'librarian-chef'
+  gem 'librarian-chef', '~> 0.0.2'
 
   # Code Metric Gems
-  gem 'rails_best_practices'
-  gem 'rubocop'
-  gem 'metric_fu'
+  gem 'rails_best_practices', '~> 1.14.4'
+  gem 'rubocop', '~> 0.15.0'
+  gem 'metric_fu', '~> 4.6.0'
 end
 
 group :test do
   # rspec
-  gem 'rspec'
-  gem 'rspec-rails'
-  gem 'shoulda'
-  gem 'database_cleaner'
+  gem 'rspec', '~> 2.14.1'
+  gem 'rspec-rails', '~> 2.14.0'
+  gem 'shoulda', '~> 3.5.0'
+  gem 'database_cleaner', '~> 1.2.0'
 end
 
 group :doc do
-  gem 'yard'
-  gem 'yard-activerecord'
-  gem 'redcarpet'
-  gem 'github-markup'
+  gem 'yard', '~> 0.8.7.3'
+  gem 'yard-activerecord', '~> 0.0.11'
+  gem 'redcarpet', '~> 3.0.0'
+  gem 'github-markup', '~> 1.0.0'
 end
 
 # To use ActiveModel has_secure_password
