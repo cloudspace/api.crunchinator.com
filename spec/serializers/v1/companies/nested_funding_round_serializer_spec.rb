@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe V1::Companies::NestedFundingRoundSerializer do
-  let(:funding_round) { FactoryGirl.build(:funding_round, id: rand(100)) }
+  let(:funding_round) { FactoryGirl.build_stubbed(:funding_round) }
   let(:serializer) { V1::Companies::NestedFundingRoundSerializer.new(funding_round) }
 
   describe 'json output' do
@@ -25,7 +25,7 @@ describe V1::Companies::NestedFundingRoundSerializer do
       end
 
       it 'investor_ids' do
-        investments = FactoryGirl.build_list(:investment, 3)
+        investments = FactoryGirl.build_stubbed_list(:investment, 3)
         funding_round.stub(investments: investments)
 
         investor_ids = investments.map(&:investor_guid)

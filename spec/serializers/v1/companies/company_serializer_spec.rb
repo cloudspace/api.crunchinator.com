@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe V1::Companies::CompanySerializer do
-  let(:company) { FactoryGirl.build(:company, id: rand(100)) }
+  let(:company) { FactoryGirl.build_stubbed(:valid_company) }
   let(:serializer) { V1::Companies::CompanySerializer.new(company) }
 
   describe 'json output' do
@@ -25,28 +25,27 @@ describe V1::Companies::CompanySerializer do
       end
 
       it 'investor_ids' do
-        investor = FactoryGirl.create(:investor)
-        FactoryGirl.create(:funding_round, company: company, investments: investor.investments)
+        investor_ids = company.funding_rounds.reduce([]) do |memo, fr|
+          memo | fr.investments.map(&:investor_id)
+        end
 
-        expect(hash[:investor_ids]).to eq([investor.guid])
+        expect(hash[:investor_ids]).to eq(investor_ids)
       end
 
-      it 'total_funding' do
-        fr = FactoryGirl.create(:funding_round, company: company)
-        expect(hash[:total_funding]).to eq(fr.raised_amount.to_i)
+      it 'total_funding', focus: true do
+        total_funding = company.funding_rounds.to_a.sum(&:raw_raised_amount).to_i
+        expect(hash[:total_funding]).to eq(total_funding)
       end
 
       describe 'location' do
-        let(:headquarters) { FactoryGirl.create(:headquarters, tenant: company) }
+        let(:headquarters) { company.office_locations.first }
 
         it 'latitude' do
-          latitude = headquarters.latitude
-          expect(hash[:latitude]).to eq(latitude)
+          expect(hash[:latitude]).to eq(headquarters.latitude)
         end
 
         it 'longitude' do
-          longitude = headquarters.longitude
-          expect(hash[:longitude]).to eq(longitude)
+          expect(hash[:longitude]).to eq(headquarters.longitude)
         end
       end
 
@@ -84,7 +83,7 @@ describe V1::Companies::CompanySerializer do
         end
 
         it 'returns nil if the IPO is not in USD' do
-          ipo = FactoryGirl.build(:initial_public_offering, valuation_currency_code: 'ABC')
+          ipo = FactoryGirl.build_stubbed(:initial_public_offering, valuation_currency_code: 'ABC')
           company.stub(initial_public_offering: ipo)
           expect(hash[:ipo_valuation]).to be_nil
         end
@@ -113,24 +112,32 @@ describe V1::Companies::CompanySerializer do
         end
 
         it 'returns acquired if acquired by anyone' do
-          FactoryGirl.create(:acquisition, acquired_company: company)
+          company.stub(
+            acquired_by: [FactoryGirl.build_stubbed(:acquisition, acquired_company: company)]
+          )
           expect(hash[:status]).to eq('acquired')
         end
 
         it 'returns deadpooled if deadpooled and acquired' do
-          company.stub(deadpooled_on: Date.today)
-          FactoryGirl.create(:acquisition, acquired_company: company)
+          company.stub(
+            deadpooled_on: Date.today,
+            acquired_by: [FactoryGirl.build_stubbed(:acquisition, acquired_company: company)]
+          )
           expect(hash[:status]).to eq('deadpooled')
         end
 
         it 'returns IPOed if IPOed' do
-          FactoryGirl.create(:initial_public_offering, company: company)
+          company.stub(
+            initial_public_offering: FactoryGirl.build_stubbed(:initial_public_offering, company: company)
+          )
           expect(hash[:status]).to eq('IPOed')
         end
 
         it 'returns deadpooled if deadpooled and IPOed' do
-          company.stub(deadpooled_on: Date.today)
-          FactoryGirl.create(:initial_public_offering, company: company)
+          company.stub(
+            deadpooled_on: Date.today,
+            initial_public_offering: FactoryGirl.build(:initial_public_offering, company: company)
+          )
           expect(hash[:status]).to eq('deadpooled')
         end
 
@@ -158,8 +165,7 @@ describe V1::Companies::CompanySerializer do
 
       describe 'state_code' do
         it 'returns the state code of the headquarters' do
-          headquarters = FactoryGirl.create(:headquarters, tenant: company, state_code: 'FOO')
-          expect(hash[:state_code]).to eq(headquarters.state_code)
+          expect(hash[:state_code]).to eq(company.headquarters.state_code)
         end
 
         it 'returns nil if no headquarters' do

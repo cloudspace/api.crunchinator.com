@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe V1::Investors::InvestorSerializer do
-  let(:investor) { FactoryGirl.build(:company, id: rand(100)) }
+  let(:investor) { FactoryGirl.build_stubbed(:company) }
   let(:serializer) { V1::Investors::InvestorSerializer.new(investor) }
 
   describe 'json output' do
@@ -25,7 +25,7 @@ describe V1::Investors::InvestorSerializer do
       end
 
       it 'invested_company_ids' do
-        investments = FactoryGirl.build_list(:investment, 3, investor: investor)
+        investments = FactoryGirl.build_stubbed_list(:investment, 3, investor: investor)
         investor.stub(investments: investments)
 
         company_ids = investments.map { |i| i.funding_round.company_id }
@@ -34,7 +34,7 @@ describe V1::Investors::InvestorSerializer do
       end
 
       it 'invested_category_ids' do
-        investments = FactoryGirl.build_list(:investment, 3, investor: investor)
+        investments = FactoryGirl.build_stubbed_list(:investment, 3, investor: investor)
         investor.stub(investments: investments)
 
         category_ids = investments.map do |i|

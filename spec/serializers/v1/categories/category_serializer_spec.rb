@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe V1::Categories::CategorySerializer do
-  let(:category) { FactoryGirl.build(:category, id: rand(100)) }
+  let(:category) { FactoryGirl.build_stubbed(:category) }
   let(:serializer) { V1::Categories::CategorySerializer.new(category) }
 
   describe 'json output' do
