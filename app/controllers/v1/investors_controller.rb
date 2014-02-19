@@ -8,7 +8,7 @@ class V1::InvestorsController < ApplicationController
 
     @investors = [Person, Company, FinancialOrganization].reduce([]) do |memo, klass|
       investor_ids = Investment.valid.by_investor_class(klass).pluck(:investor_id)
-      memo.concat klass.where(id: investor_ids).starts_with(letter)
+      memo | klass.where(id: investor_ids).starts_with(letter)
     end
 
     @investors.sort! { |x, y| x.name <=> y.name }
