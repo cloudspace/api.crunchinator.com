@@ -18,3 +18,27 @@
 # end
 
 # Learn more: http://github.com/javan/whenever
+
+
+
+# The api_queue run that hits the crunchbase api could take up to 3 days to run
+#
+# As a failsafe we are setting the staging cron to run every wednesday and to
+# use the archived data instead of hitting the crunchbase api
+
+set :output, "log/cron.log"
+
+# On production pull the data from the crunchbase api, archive it, and cache it
+# every :sunday, :at => '12am' do
+#   rake "api_queue:run", :environment => 'production'
+# end
+
+every :sunday, :at => '12am' do
+  rake "api_queue:run"
+end
+
+
+# # On staging read the data from the archive and cache it
+# every :wednesday, :at => '12am' do
+#  rake "api_queue:run[20,s3]", :environment => 'staging'
+# end
