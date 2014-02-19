@@ -34,7 +34,7 @@ describe V1::Categories::CategorySerializer do
         #TODO: THIS IS A CODE SMELL
         investment = Investment.new(investor_type: 'Company', investor_id: '1')
         Investment.stub_chain(:joins, :merge).and_return([investment])
-        expect(@serializer.investor_ids).to eql(['company-1'])
+        expect(hash[:investor_ids]).to eql(['company-1'])
       end
     end
   end
