@@ -1,6 +1,5 @@
-
-
-
+# Use this file to easily define all of your cron jobs.
+#
 # The api_queue run that hits the crunchbase api could take up to 3 days to run
 #
 # As a failsafe we are setting the staging cron to run every wednesday and to
@@ -16,8 +15,8 @@ set :output, "log/cron.log"
 #
 # On staging read the data from the archive and cache it
 
-# @rails_env gets passed from capistrano
-if @environment == 'staging'
+# @environment gets passed from capistrano
+if @environment == 'production'
   every :sunday, :at => '12am' do
     rake "api_queue:run"
   end
