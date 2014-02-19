@@ -38,13 +38,13 @@ class Company < ActiveRecord::Base
   # companies whose headquarters is in the USA
   scope :american, -> { joins(:office_locations).geolocated.merge(OfficeLocation.in_usa) }
 
-  # companies that are considered valid to the client, i.e., will be displayed
-  scope :valid, -> { categorized.funded.geolocated.american.distinct }
+  # companies that are considered legit to the client, i.e., will be displayed
+  scope :legit, -> { categorized.funded.geolocated.american.distinct }
 
-  # companies that are not considered valid to the client, i.e., will not be displayed
+  # companies that are not considered legit to the client, i.e., will not be displayed
   #
-  # IMPORTANT NOTE: this will return no records if valid returns an empty relation
-  scope :invalid, -> { where('companies.id not in (?)', valid.pluck(:id)) }
+  # IMPORTANT NOTE: this will return no records if legit returns an empty relation
+  scope :illegit, -> { where('companies.id not in (?)', legit.pluck(:id)) }
 
   # companies whose name attribute does not begin with an alphabetical character
   scope :starts_with_non_alpha, lambda {

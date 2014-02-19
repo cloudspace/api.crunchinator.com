@@ -25,7 +25,7 @@ describe V1::Categories::CategorySerializer do
         companies = FactoryGirl.build_stubbed_list(:company, 3, category: category)
 
         company_ids = companies.map(&:id)
-        category.stub_chain(:companies, :valid, :pluck).and_return(company_ids)
+        category.stub_chain(:companies, :legit, :pluck).and_return(company_ids)
 
         expect(hash[:company_ids]).to eq(company_ids)
       end

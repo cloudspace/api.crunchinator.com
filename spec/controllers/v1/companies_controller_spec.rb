@@ -10,10 +10,10 @@ describe V1::CompaniesController do
 
     describe 'appropriate responses' do
       before(:each) do
-        @company = FactoryGirl.create(:valid_company)
+        @company = FactoryGirl.create(:legit_company)
       end
 
-      it 'includes valid companies' do
+      it 'includes legit companies' do
         get :index
 
         company = JSON.parse(response.body)['companies'].first
@@ -100,7 +100,7 @@ describe V1::CompaniesController do
       describe 'when passing `letter` query param' do
         it 'filters out companies that begin with another letter' do
           @company.update_attribute :name, 'Albert\'s Albert'
-          excluded_company = FactoryGirl.create(:valid_company, name: 'Bob\'s Burgers')
+          excluded_company = FactoryGirl.create(:legit_company, name: 'Bob\'s Burgers')
 
           get :index, letter: 'A'
 
@@ -113,7 +113,7 @@ describe V1::CompaniesController do
         describe 'when passing `0` as the `letter`' do
           it 'filters out investors that begin with a alphabetic letter' do
             @company.update_attribute :name, '1st Albert'
-            excluded_company = FactoryGirl.create(:valid_company, name: 'Albert\'s Apples')
+            excluded_company = FactoryGirl.create(:legit_company, name: 'Albert\'s Apples')
 
             get :index, letter: '0'
 
@@ -127,7 +127,7 @@ describe V1::CompaniesController do
 
       describe 'excludes' do
         it 'companies that do not have an hq' do
-          excluded_company = FactoryGirl.create(:valid_company, office_locations: [])
+          excluded_company = FactoryGirl.create(:legit_company, office_locations: [])
 
           get :index
 
@@ -137,7 +137,7 @@ describe V1::CompaniesController do
         end
 
         it 'companies with no funded funding rounds' do
-          excluded_company = FactoryGirl.create(:valid_company, funding_rounds: [])
+          excluded_company = FactoryGirl.create(:legit_company, funding_rounds: [])
 
           get :index
 

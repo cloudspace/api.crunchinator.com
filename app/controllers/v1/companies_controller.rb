@@ -11,7 +11,7 @@ class V1::CompaniesController < ApplicationController
       :acquired_by,
       :office_locations,
       funding_rounds: :investments
-    ).valid.starts_with(letter)
+    ).legit.starts_with(letter)
 
     @status = 200
     render json: @companies, status: @status, each_serializer: V1::Companies::CompanySerializer

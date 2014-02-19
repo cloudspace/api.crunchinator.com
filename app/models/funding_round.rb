@@ -11,9 +11,9 @@ class FundingRound < ActiveRecord::Base
     .where(company_id: company_ids)
   }
 
-  # funding rounds attached to a valid company
-  scope :valid, lambda {
-    funded.joins(:company).merge(Company.valid)
+  # funding rounds attached to a legit company
+  scope :legit, lambda {
+    funded.joins(:company).merge(Company.legit)
   }
 
   # Funding rounds with some amount of USD raised

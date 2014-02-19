@@ -9,10 +9,10 @@ describe V1::CategoriesController do
 
     describe 'appropriate response' do
       before(:each) do
-        @category = FactoryGirl.create(:valid_category)
+        @category = FactoryGirl.create(:legit_category)
       end
 
-      it 'includes categories that have a valid company' do
+      it 'includes categories that have a legit company' do
         get :index
 
         category = JSON.parse(response.body)['categories'].first
@@ -40,7 +40,7 @@ describe V1::CategoriesController do
         expect(category['investor_ids']).to eq([@investor.guid])
       end
 
-      it 'excludes categories that have no valid companies' do
+      it 'excludes categories that have no legit companies' do
         excluded_category = FactoryGirl.create(:category, companies: [])
         get :index
 

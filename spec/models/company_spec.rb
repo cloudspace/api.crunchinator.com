@@ -145,19 +145,19 @@ describe Company do
       end
     end
 
-    describe 'valid' do
+    describe 'legit' do
       it 'should return companies with a category, successful funding round, and US headquarters' do
         company = FactoryGirl.create(:company)
         FactoryGirl.create(:headquarters, tenant: company)
         FactoryGirl.create(:funding_round, company: company)
-        expect(Company.valid).to include(company)
+        expect(Company.legit).to include(company)
       end
     end
 
-    describe 'invalid' do
-      it 'should not include valid companies' do
-        company = FactoryGirl.create(:valid_company)
-        expect(Company.invalid).not_to include(company)
+    describe 'illegit' do
+      it 'should not include legit companies' do
+        company = FactoryGirl.create(:legit_company)
+        expect(Company.illegit).not_to include(company)
       end
     end
 
