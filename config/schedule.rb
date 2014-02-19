@@ -17,6 +17,8 @@ set :output, "log/cron.log"
 # On staging read the data from the archive and cache it
 
 # @rails_env gets passed from capistrano
+puts ENV.inspect
+
 if @rails_env == 'staging'
   every :sunday, :at => '12am' do
     rake "api_queue:run"
