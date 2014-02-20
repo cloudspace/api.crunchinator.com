@@ -35,5 +35,18 @@ describe Category do
         expect(Category.associated_with_companies(@companies)).not_to include(@excluded)
       end
     end
+
+    describe 'legit' do
+      let(:included) { FactoryGirl.create(:legit_category) }
+      let(:excluded) { FactoryGirl.create(:category) }
+
+      it 'includes categories that are associated with legit companies' do
+        expect(Category.legit).to include(included)
+      end
+
+      it 'excludes categories that are not associated with legit companies' do
+        expect(Category.legit).not_to include(excluded)
+      end
+    end
   end
 end
