@@ -54,7 +54,7 @@ describe V1::Companies::CompanySerializer do
 
       describe 'ipo_on' do
         let(:ipo) do
-          FactoryGirl.build(:initial_public_offering, company: company).tap do |ipo|
+          FactoryGirl.build_stubbed(:initial_public_offering, company: company).tap do |ipo|
             company.stub(initial_public_offering: ipo)
           end
         end
@@ -72,7 +72,7 @@ describe V1::Companies::CompanySerializer do
 
       describe 'ipo_valuation' do
         let(:ipo) do
-          FactoryGirl.build(:initial_public_offering, company: company).tap do |ipo|
+          FactoryGirl.build_stubbed(:initial_public_offering, company: company).tap do |ipo|
             company.stub(initial_public_offering: ipo)
           end
         end
