@@ -147,20 +147,29 @@ describe V1::Companies::CompanySerializer do
       end
 
       describe 'acquired_on' do
-        it 'returns a formatted date' do
-          company.stub(most_recent_acquired_on: Date.parse('2014/1/28'))
+        it 'should return a formatted date' do
+          company.stub(most_recent_acquired_by_date: Date.parse('2014/1/28'))
           expect(hash[:acquired_on]).to eq('1/28/2014')
         end
 
-        it 'returns nil if the date is not set' do
-          company.stub(most_recent_acquired_on: nil)
+        it 'should return a nil if the date is not set' do
+          company.stub(most_recent_acquired_by_date: nil)
           expect(hash[:acquired_on]).to be_nil
         end
       end
 
-      it 'acquired_by_id' do
-        company.stub(most_recent_acquired_by: 1)
-        expect(hash[:acquired_by_id]).to eq(company.most_recent_acquired_by)
+      describe 'acquired_value' do
+        it 'should alias most_recent_acquired_by_amount' do
+          company.stub(most_recent_acquired_by_amount: 1234)
+          expect(hash[:acquired_value]).to eq(1234)
+        end
+      end
+
+      describe 'acquired_by_id' do
+        it 'should alias most_recent_acquired_by_company_id' do
+          company.stub(most_recent_acquired_by_company_id: 4321)
+          expect(hash[:acquired_by_id]).to eq(4321)
+        end
       end
 
       describe 'state_code' do

@@ -97,34 +97,6 @@ describe V1::CompaniesController do
         expect(company['state_code']).to eq(@company.headquarters.state_code)
       end
 
-      describe 'when passing `letter` query param' do
-        it 'filters out companies that begin with another letter' do
-          @company.update_attribute :name, 'Albert\'s Albert'
-          excluded_company = FactoryGirl.create(:legit_company, name: 'Bob\'s Burgers')
-
-          get :index, letter: 'A'
-
-          companies = JSON.parse(response.body)['companies']
-          expect(controller.params[:letter]).to eq('A')
-          expect(companies.length).to eq(1)
-          expect(companies.map { |i| i['id'] }).not_to include(excluded_company.id)
-        end
-
-        describe 'when passing `0` as the `letter`' do
-          it 'filters out investors that begin with a alphabetic letter' do
-            @company.update_attribute :name, '1st Albert'
-            excluded_company = FactoryGirl.create(:legit_company, name: 'Albert\'s Apples')
-
-            get :index, letter: '0'
-
-            companies = JSON.parse(response.body)['companies']
-            expect(controller.params[:letter]).to eq('0')
-            expect(companies.length).to eq(1)
-            expect(companies.map { |i| i['id'] }).not_to include(excluded_company.id)
-          end
-        end
-      end
-
       describe 'excludes' do
         it 'companies that do not have an hq' do
           excluded_company = FactoryGirl.create(:legit_company, office_locations: [])

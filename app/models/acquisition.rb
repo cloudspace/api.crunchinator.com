@@ -5,5 +5,4 @@ class Acquisition < ActiveRecord::Base
 
   validates :acquired_company, presence: true
   validates :acquiring_company, presence: true
-
 end
