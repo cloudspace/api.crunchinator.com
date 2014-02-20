@@ -4,11 +4,9 @@ class V1::InvestorsController < ApplicationController
   # render all investors to json
   # include companies invested in
   def index
-    letter = params[:letter] ? params[:letter][0] : nil
-
     @investors = [Person, Company, FinancialOrganization].reduce([]) do |memo, klass|
       investor_ids = Investment.legit.by_investor_class(klass).pluck(:investor_id)
-      memo | klass.where(id: investor_ids).starts_with(letter)
+      memo | klass.where(id: investor_ids)
     end
 
     @investors.sort! { |x, y| x.name <=> y.name }
