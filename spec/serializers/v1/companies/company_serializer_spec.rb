@@ -1,143 +1,178 @@
 require 'spec_helper'
 
 describe V1::Companies::CompanySerializer do
-  before(:each) do
-    @company = Company.new(id: '1', name: 'Jeremiah\'s company')
-    @serializer = V1::Companies::CompanySerializer.new(@company)
-  end
+  let(:company) { FactoryGirl.build_stubbed(:valid_company) }
+  let(:serializer) { V1::Companies::CompanySerializer.new(company) }
 
-  it 'output should match expected values' do
-    output = JSON.parse(@serializer.to_json)
+  describe 'json output' do
+    subject(:json) { serializer.as_json }
 
-    expect(output).to have_key('company')
-    expect(output['company']).to have_key('id')
-    expect(output['company']).to have_key('name')
-    expect(output['company']).to have_key('category_id')
-    expect(output['company']).to have_key('total_funding')
-    expect(output['company']).to have_key('longitude')
-    expect(output['company']).to have_key('latitude')
-    expect(output['company']).to have_key('investor_ids')
-    expect(output['company']).to have_key('funding_rounds')
-    expect(output['company']).to have_key('founded_on')
-    expect(output['company']).to have_key('status')
-    expect(output['company']).to have_key('acquired_on')
-    expect(output['company']).to have_key('acquired_by_id')
-    expect(output['company']).to have_key('ipo_on')
-    expect(output['company']).to have_key('ipo_valuation')
-    expect(output['company']).to have_key('state_code')
-  end
+    it { should have_key :company }
 
-  describe 'ipo_on' do
-    it 'should return the offered_on date of the initial_public_offering associated with this company' do
-      today = Date.today
-      ipo = InitialPublicOffering.new(offering_on: today)
-      @company.stub(:initial_public_offering).and_return(ipo)
-      expect(@serializer.ipo_on).to eq(today.strftime('%-m/%-d/%Y'))
-    end
+    describe 'has property' do
+      subject(:hash) { json[:company] }
 
-    it 'should return nil if this company has no initial_public_offering association' do
-      @company.stub(:initial_public_offering).and_return(nil)
-      expect(@serializer.ipo_on).to eq(nil)
-    end
-  end
+      it 'id' do
+        expect(hash[:id]).to eq(company.id)
+      end
 
-  describe 'ipo_valuation' do
-    it 'should return the valuation of the ipo associated with this company if present and in USD' do
-      ipo = InitialPublicOffering.new(valuation_amount: 42, valuation_currency_code: 'USD')
-      @company.stub(:initial_public_offering).and_return(ipo)
-      expect(@serializer.ipo_valuation).to eq(42)
-    end
+      it 'name' do
+        expect(hash[:name]).to eq(company.name)
+      end
 
-    it 'should return nil if the ipo associated with this company is not in USD' do
-      ipo = InitialPublicOffering.new(valuation_amount: 42, valuation_currency_code: 'ABC')
-      @company.stub(:initial_public_offering).and_return(ipo)
-      expect(@serializer.ipo_valuation).to eq(nil)
-    end
+      it 'category_id' do
+        expect(hash[:category_id]).to eq(company.category_id)
+      end
 
-    it 'should return nil if this company has no initial_public_offering association' do
-      @company.stub(:initial_public_offering).and_return(nil)
-      expect(@serializer.ipo_valuation).to eq(nil)
-    end
-  end
+      it 'investor_ids' do
+        investor_ids = company.funding_rounds.reduce([]) do |memo, fr|
+          memo | fr.investments.map(&:investor_id)
+        end
 
-  describe 'investor_ids' do
-    it 'should return a list of investor guids' do
-      investment = Investment.new(investor_type: 'Company', investor_id: '1')
-      funding_round = FundingRound.new
-      funding_round.stub(:investments).and_return([investment])
-      @company.stub(:funding_rounds).and_return([funding_round])
+        expect(hash[:investor_ids]).to eq(investor_ids)
+      end
 
-      expect(@serializer.investor_ids).to eq(['company-1'])
-    end
-  end
+      it 'total_funding', focus: true do
+        total_funding = company.funding_rounds.to_a.sum(&:raw_raised_amount).to_i
+        expect(hash[:total_funding]).to eq(total_funding)
+      end
 
-  describe 'founded_on' do
-    it 'should return a formatted date' do
-      @company.stub(:founded_on).and_return(Date.parse('2014-1-30'))
-      expect(@serializer.founded_on).to eq('1/30/2014')
-    end
+      describe 'location' do
+        let(:headquarters) { company.office_locations.first }
 
-    it 'should return nil if the date is nil' do
-      expect(@serializer.founded_on).to be_nil
-    end
-  end
+        it 'latitude' do
+          expect(hash[:latitude]).to eq(headquarters.latitude)
+        end
 
-  describe 'status' do
-    it 'should return deadpooled if deadpooled_on is set' do
-      @company.stub(:deadpooled_on).and_return(Date.today)
-      expect(@serializer.status).to eq('deadpooled')
-    end
+        it 'longitude' do
+          expect(hash[:longitude]).to eq(headquarters.longitude)
+        end
+      end
 
-    it 'should return acquired if acquired by anyone' do
-      @company.stub(:acquired_by).and_return([Acquisition.new])
-      expect(@serializer.status).to eq('acquired')
-    end
+      # Tested by NestedFundingRoundSerializer
+      it { should have_key :funding_rounds }
 
-    it 'should return deadpooled if deadpooled and acquired and IPOed' do
-      @company.stub(:deadpooled_on).and_return(Date.today)
-      @company.stub(:acquired_by).and_return([Acquisition.new])
-      @company.stub(:initial_public_offering).and_return([InitialPublicOffering.new])
-      expect(@serializer.status).to eq('deadpooled')
-    end
+      describe 'ipo_on' do
+        let(:ipo) do
+          FactoryGirl.build_stubbed(:initial_public_offering, company: company).tap do |ipo|
+            company.stub(initial_public_offering: ipo)
+          end
+        end
 
-    it 'should return IPOed if IPOed' do
-      @company.stub(:initial_public_offering).and_return([InitialPublicOffering.new])
-      expect(@serializer.status).to eq('IPOed')
-    end
+        it 'returns date of IPO' do
+          date = ipo.offering_on.strftime('%-m/%-d/%Y')
+          expect(hash[:ipo_on]).to eq(date)
+        end
 
-    it 'should return alive otherwise' do
-      expect(@serializer.status).to eq('alive')
-    end
-  end
+        it 'returns nil if no IPO' do
+          company.stub(initial_public_offering: nil)
+          expect(hash[:ipo_on]).to be_nil
+        end
+      end
 
-  describe 'acquired_on' do
-    it 'should return a formatted date' do
-      @company.stub(:most_recent_acquired_on).and_return(Date.parse('2014/1/28'))
-      expect(@serializer.acquired_on).to eq('1/28/2014')
-    end
+      describe 'ipo_valuation' do
+        let(:ipo) do
+          FactoryGirl.build_stubbed(:initial_public_offering, company: company).tap do |ipo|
+            company.stub(initial_public_offering: ipo)
+          end
+        end
 
-    it 'should return a nil if the date is not set' do
-      @company.stub(:most_recent_acquired_on).and_return(nil)
-      expect(@serializer.acquired_on).to be_nil
-    end
-  end
+        it 'returns the valuation of the IPO' do
+          valuation = ipo.valuation_amount
+          expect(hash[:ipo_valuation]).to eq(valuation)
+        end
 
-  describe 'acquired_by_id' do
-    it 'should alias most_recent_acquired_by' do
-      @company.should_receive(:most_recent_acquired_by)
-      @serializer.acquired_by_id
-    end
-  end
+        it 'returns nil if the IPO is not in USD' do
+          ipo = FactoryGirl.build_stubbed(:initial_public_offering, valuation_currency_code: 'ABC')
+          company.stub(initial_public_offering: ipo)
+          expect(hash[:ipo_valuation]).to be_nil
+        end
 
-  describe 'state_code' do
-    it 'should return the state code of the headquarters if present' do
-      @company.stub_chain(:headquarters, :state_code).and_return('FOO')
-      expect(@serializer.state_code).to eq('FOO')
-    end
+        it 'returns nil if no IPO' do
+          company.stub(initial_public_offering: nil)
+          expect(hash[:ipo_valuation]).to be_nil
+        end
+      end
 
-    it 'should return nil if there is no headquarters' do
-      @company.stub(:headquarters).and_return(nil)
-      expect(@serializer.state_code).to eq(nil)
+      describe 'founded_on' do
+        it 'returns a formatted date' do
+          expect(hash[:founded_on]).to eq(company.founded_on.strftime('%-m/%-d/%Y'))
+        end
+
+        it 'returns nil if the date is nil' do
+          company.stub(founded_on: nil)
+          expect(hash[:founded_on]).to be_nil
+        end
+      end
+
+      describe 'status' do
+        it 'returns deadpooled if company is dead' do
+          company.stub(deadpooled_on: Date.today)
+          expect(hash[:status]).to eq('deadpooled')
+        end
+
+        it 'returns acquired if acquired by anyone' do
+          company.stub(
+            acquired_by: [FactoryGirl.build_stubbed(:acquisition, acquired_company: company)]
+          )
+          expect(hash[:status]).to eq('acquired')
+        end
+
+        it 'returns deadpooled if deadpooled and acquired' do
+          company.stub(
+            deadpooled_on: Date.today,
+            acquired_by: [FactoryGirl.build_stubbed(:acquisition, acquired_company: company)]
+          )
+          expect(hash[:status]).to eq('deadpooled')
+        end
+
+        it 'returns IPOed if IPOed' do
+          company.stub(
+            initial_public_offering: FactoryGirl.build_stubbed(:initial_public_offering, company: company)
+          )
+          expect(hash[:status]).to eq('IPOed')
+        end
+
+        it 'returns deadpooled if deadpooled and IPOed' do
+          company.stub(
+            deadpooled_on: Date.today,
+            initial_public_offering: FactoryGirl.build(:initial_public_offering, company: company)
+          )
+          expect(hash[:status]).to eq('deadpooled')
+        end
+
+        it 'returns alive otherwise' do
+          expect(hash[:status]).to eq('alive')
+        end
+      end
+
+      describe 'acquired_on' do
+        it 'returns a formatted date' do
+          company.stub(most_recent_acquired_on: Date.parse('2014/1/28'))
+          expect(hash[:acquired_on]).to eq('1/28/2014')
+        end
+
+        it 'returns nil if the date is not set' do
+          company.stub(most_recent_acquired_on: nil)
+          expect(hash[:acquired_on]).to be_nil
+        end
+      end
+
+      it 'acquired_by_id' do
+        company.stub(most_recent_acquired_by: 1)
+        expect(hash[:acquired_by_id]).to eq(company.most_recent_acquired_by)
+      end
+
+      describe 'state_code' do
+        it 'returns the state code of the headquarters' do
+          expect(hash[:state_code]).to eq(company.headquarters.state_code)
+        end
+
+        it 'returns nil if no headquarters' do
+          company.stub(headquarters: nil)
+          expect(hash[:state_code]).to be_nil
+        end
+      end
     end
   end
 end

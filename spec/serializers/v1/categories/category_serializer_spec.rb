@@ -1,34 +1,41 @@
 require 'spec_helper'
 
 describe V1::Categories::CategorySerializer do
-  before(:each) do
-    @category = FactoryGirl.build(:category)
-    @serializer = V1::Categories::CategorySerializer.new(@category)
-  end
+  let(:category) { FactoryGirl.build_stubbed(:category) }
+  let(:serializer) { V1::Categories::CategorySerializer.new(category) }
 
-  it 'output should match expected values' do
-    output = JSON.parse(@serializer.to_json)
+  describe 'json output' do
+    subject(:json) { serializer.as_json }
 
-    expect(output).to have_key('category')
-    expect(output['category']).to have_key('id')
-    expect(output['category']).to have_key('name')
-    expect(output['category']).to have_key('company_ids')
-    expect(output['category']).to have_key('investor_ids')
-  end
+    it { should have_key :category }
 
-  describe 'company_ids' do
-    it 'should return the ids of valid companies' do
-      # this just tests the implementation but I am not sure of a better way to do it
-      @category.stub_chain(:companies, :valid, :pluck).and_return([1])
-      expect(@serializer.company_ids).to eql([1])
-    end
-  end
+    describe 'has properties' do
+      subject(:hash) { json[:category] }
 
-  describe 'investor_ids' do
-    it 'should return type-id unique ids for investors' do
-      investment = Investment.new(investor_type: 'Company', investor_id: '1')
-      Investment.stub_chain(:joins, :merge).and_return([investment])
-      expect(@serializer.investor_ids).to eql(['company-1'])
+      it 'id' do
+        expect(hash[:id]).to eq(category.id)
+      end
+
+      it 'name' do
+        expect(hash[:name]).to eq(category.name)
+      end
+
+      it 'company_ids' do
+        # TODO: THIS IS A CODE SMELL
+        companies = FactoryGirl.build_stubbed_list(:company, 3, category: category)
+
+        company_ids = companies.map(&:id)
+        category.stub_chain(:companies, :valid, :pluck).and_return(company_ids)
+
+        expect(hash[:company_ids]).to eq(company_ids)
+      end
+
+      it 'investor_ids' do
+        # TODO: THIS IS A CODE SMELL
+        investment = Investment.new(investor_type: 'Company', investor_id: '1')
+        Investment.stub_chain(:joins, :merge).and_return([investment])
+        expect(hash[:investor_ids]).to eql(['company-1'])
+      end
     end
   end
 end
