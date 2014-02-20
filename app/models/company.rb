@@ -3,7 +3,6 @@ class Company < ActiveRecord::Base
   include Investor
 
   has_many :funding_rounds, dependent: :destroy
-  has_many :investments, as: :investor, dependent: :destroy
   has_many :office_locations, as: :tenant, dependent: :destroy
 
   has_many :acquisitions, class_name: 'Acquisition', foreign_key: 'acquiring_company_id'
