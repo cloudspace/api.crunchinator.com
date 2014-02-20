@@ -167,7 +167,7 @@ module ApiQueue
       end
 
       current_release = { release: version }.to_json
-      ApiQueue::Source::S3.upload_and_expose('api/current_release.json', current_release)
+      ApiQueue::Source::S3.upload_and_expose('api/current_release.json', current_release, gzip: false)
     end
 
     # makes a request to an endpoint on the crunchinator app and returns the result
