@@ -20,6 +20,10 @@ describe V1::Categories::CategorySerializer do
         expect(hash[:name]).to eq(category.name)
       end
 
+      it 'display_name' do
+        expect(hash[:display_name]).to eq(category.display_name)
+      end
+
       it 'company_ids' do
         # TODO: THIS IS A CODE SMELL
         companies = FactoryGirl.build_stubbed_list(:company, 3, category: category)
