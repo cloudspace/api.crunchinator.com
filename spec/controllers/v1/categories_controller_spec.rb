@@ -18,6 +18,7 @@ describe V1::CategoriesController do
         category = JSON.parse(response.body)['categories'].first
         expect(category['id']).to eq(@category.id)
         expect(category['name']).to eq(@category.name)
+        expect(category['display_name']).to eq(@category.display_name)
       end
 
       it 'includes company ids associated with the category' do

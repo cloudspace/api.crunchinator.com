@@ -16,6 +16,7 @@ describe Category do
 
   describe 'fields' do
     it { expect(@category).to respond_to :name }
+    it { expect(@category).to respond_to :display_name }
   end
 
   describe 'scopes' do
