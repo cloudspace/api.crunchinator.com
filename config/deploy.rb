@@ -76,6 +76,34 @@ namespace :data do
   task(:export) { foreground_rake('api_queue:upload_data') }
 end
 
+namespace :deploy do
+  namespace :import do
+    desc 'Deploy, import and process data from s3 (fast)'
+    task(:s3) do
+      invoke 'deploy'
+      background_rake('api_queue:run[20,s3]')
+    end
+
+    desc 'Deploy, import and process data from local (fastest)'
+    task(:local) do
+      invoke 'deploy'
+      background_rake('api_queue:run[20,local]')
+    end
+
+    desc 'Deploy, import and process data from crunchbase (slow)'
+    task(:crunchbase) do
+      invoke 'deploy'
+      background_rake('api_queue:run')
+    end
+  end
+
+  desc 'Deploy and export cached json to s3'
+  task(:export) do
+    invoke 'deploy'
+    foreground_rake('api_queue:upload_data')
+  end
+end
+
 before 'deploy:updated', 'deploy:upload_config'
 after 'deploy', 'bundler:install'
 
