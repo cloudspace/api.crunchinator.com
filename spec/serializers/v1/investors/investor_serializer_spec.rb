@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe V1::Investors::InvestorSerializer do
-  let(:investor) { FactoryGirl.build_stubbed(:company) }
+  let(:investor) { FactoryGirl.build_stubbed(:investor) }
   let(:serializer) { V1::Investors::InvestorSerializer.new(investor) }
 
   describe 'json output' do
@@ -24,24 +24,24 @@ describe V1::Investors::InvestorSerializer do
         expect(hash[:investor_type]).to eq(investor.class.to_s.underscore)
       end
 
-      it 'invested_company_ids' do
-        investments = FactoryGirl.build_stubbed_list(:investment, 3, investor: investor)
-        investor.stub(investments: investments)
+      describe 'invested_category_ids' do
+        let(:investor) { FactoryGirl.create(:investor) }
 
-        company_ids = investments.map { |i| i.funding_round.company_id }
+        it 'returns the ids of the companies that the investor has invested in' do
+          company_ids = investor.investments.map { |i| i.funding_round.company_id }
 
-        expect(hash[:invested_company_ids]).to eq(company_ids)
+          expect(hash[:invested_company_ids]).to eq(company_ids)
+        end
       end
 
-      it 'invested_category_ids' do
-        investments = FactoryGirl.build_stubbed_list(:investment, 3, investor: investor)
-        investor.stub(investments: investments)
+      describe 'invested_category_ids' do
+        let(:investor) { FactoryGirl.create(:investor) }
 
-        category_ids = investments.map do |i|
-          i.funding_round.company.category_id
+        it 'returns the ids of the categories of the companies that the investor has invested in' do
+          category_ids = investor.investments.map { |i| i.funding_round.company.category_id }
+
+          expect(hash[:invested_category_ids]).to eq(category_ids)
         end
-
-        expect(hash[:invested_category_ids]).to eq(category_ids)
       end
     end
   end
