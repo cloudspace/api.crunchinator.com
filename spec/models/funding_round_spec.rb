@@ -44,28 +44,28 @@ describe FundingRound do
       end
     end
 
-    describe 'valid' do
-      let(:company) { FactoryGirl.create(:valid_company) }
+    describe 'legit' do
+      let(:company) { FactoryGirl.create(:legit_company) }
       let(:funding_round) { FactoryGirl.create(:invested_funding_round, company: company) }
 
-      it 'should include funding rounds with valid companies' do
-        expect(FundingRound.valid).to include(funding_round)
+      it 'should include funding rounds with legit companies' do
+        expect(FundingRound.legit).to include(funding_round)
       end
 
-      it 'should not include funding rounds with no valid companies' do
+      it 'should not include funding rounds with no legit companies' do
         company = FactoryGirl.create(:company)
         funding_round = FactoryGirl.create(:funding_round, company: company)
-        expect(FundingRound.valid).not_to include(funding_round)
+        expect(FundingRound.legit).not_to include(funding_round)
       end
 
       it 'should not include funding rounds with no companies' do
         funding_round = FactoryGirl.create(:funding_round, company: nil)
-        expect(FundingRound.valid).not_to include(funding_round)
+        expect(FundingRound.legit).not_to include(funding_round)
       end
 
-      it 'should not include funding rounds with valid companies where the funding round is unfunded' do
+      it 'should not include funding rounds with legit companies where the funding round is unfunded' do
         funding_round = FactoryGirl.create(:unfunded_funding_round, company: company)
-        expect(FundingRound.valid).not_to include(funding_round)
+        expect(FundingRound.legit).not_to include(funding_round)
       end
     end
 

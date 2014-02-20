@@ -16,7 +16,7 @@ class OfficeLocation < ActiveRecord::Base
     where(headquarters: true)
   }
 
-  # Headquarters that have valid longitude/latitude data
+  # Headquarters that have legit longitude/latitude data
   scope :geolocated_headquarters, lambda {
     headquarters
     .where('office_locations.latitude is not null AND office_locations.longitude is not null')

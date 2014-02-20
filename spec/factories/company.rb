@@ -7,9 +7,9 @@ FactoryGirl.define do
     founded_on { 1.day.ago }
     category
 
-    factory :valid_company do
-      funding_rounds { |c| [c.association(:funding_round)] }
-      office_locations { |c| [c.association(:headquarters)] }
+    factory :legit_company do
+      funding_rounds { |fr| [fr.association(:funding_round)] }
+      office_locations { |loc| [loc.association(:headquarters)] }
     end
 
     factory :investor do

@@ -7,7 +7,7 @@ class V1::InvestorsController < ApplicationController
     letter = params[:letter] ? params[:letter][0] : nil
 
     @investors = [Person, Company, FinancialOrganization].reduce([]) do |memo, klass|
-      investor_ids = Investment.valid.by_investor_class(klass).pluck(:investor_id)
+      investor_ids = Investment.legit.by_investor_class(klass).pluck(:investor_id)
       memo | klass.where(id: investor_ids).starts_with(letter)
     end
 

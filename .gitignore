@@ -19,7 +19,6 @@
 /cookbooks/*
 *.swp
 config/environment_variables.rb
-companies/*
 json_data/*
 .DS_Store
 .yardoc/*

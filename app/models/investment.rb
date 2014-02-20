@@ -5,8 +5,8 @@ class Investment < ActiveRecord::Base
   belongs_to :investor, polymorphic: true
   belongs_to :funding_round
 
-  scope :valid, lambda {
-    joins(funding_round: :company).merge(FundingRound.valid)
+  scope :legit, lambda {
+    joins(funding_round: :company).merge(FundingRound.legit)
   }
 
   # Investors who are associated with the passed in companies
