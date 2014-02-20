@@ -38,7 +38,7 @@ describe V1::Investors::InvestorSerializer do
         investor.stub(investments: investments)
 
         category_ids = investments.map do |i|
-          i.funding_round.company.tap { |c| c.stub(category_id: rand(100)) }.category_id
+          i.funding_round.company.category_id
         end
 
         expect(hash[:invested_category_ids]).to eq(category_ids)
