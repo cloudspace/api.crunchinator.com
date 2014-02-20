@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe V1::Companies::CompanySerializer do
-  let(:company) { FactoryGirl.build_stubbed(:valid_company) }
+  let(:company) { FactoryGirl.build_stubbed(:legit_company) }
   let(:serializer) { V1::Companies::CompanySerializer.new(company) }
 
   describe 'json output' do
