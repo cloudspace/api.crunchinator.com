@@ -20,22 +20,6 @@ describe Category do
   end
 
   describe 'scopes' do
-    describe 'associated_with_companies' do
-      before(:each) do
-        @companies = [FactoryGirl.create(:company)]
-        @included = FactoryGirl.create(:category, companies: @companies)
-        @xcluded = FactoryGirl.create(:category)
-      end
-
-      it 'should return a category associated with the given company' do
-        expect(Category.associated_with_companies(@companies)).to include(@included)
-      end
-
-      it 'should not return a category not associated with the given company' do
-        expect(Category.associated_with_companies(@companies)).not_to include(@excluded)
-      end
-    end
-
     describe 'legit' do
       let(:included) { FactoryGirl.create(:legit_category) }
       let(:excluded) { FactoryGirl.create(:category) }
