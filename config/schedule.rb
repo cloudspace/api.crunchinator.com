@@ -20,8 +20,14 @@ if @environment == 'production'
     rake 'api_queue:run'
   end
 else
+  # This is what we want live
   every :wednesday, at: '12am' do
     rake 'api_queue:run[20,s3]'
+  end
+  
+  # This is for testing
+  every 10.minutes do
+    rake 'api_queue:upload_data'
   end
 end
 
