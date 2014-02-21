@@ -53,9 +53,7 @@ display_names = {
   travel: 'Travel',
   other: 'Other'
 }
+
 display_names.each do |key, display_name|
-  Category.find_or_create_by_name({
-    name: key,
-    display_name: display_name
-  })
+  Category.find_or_create_by(name: key).update_attributes(display_name: display_name)
 end
