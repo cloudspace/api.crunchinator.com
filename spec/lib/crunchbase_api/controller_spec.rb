@@ -173,7 +173,7 @@ describe ApiQueue::Controller do
         ApiQueue::Source::S3.should_receive(:upload_and_expose)
           .with("api/#{version}/investors.json", sample_response.body)
         ApiQueue::Source::S3.should_receive(:upload_and_expose)
-          .with('api/current_release.json', "{\"release\":\"#{version}\"}", {:gzip=>false})
+          .with('api/current_release.json', "{\"release\":\"#{version}\"}", gzip: false)
         ApiQueue::Controller.cache_json
       end
     end
