@@ -104,6 +104,10 @@ namespace :deploy do
   desc 'Deploy and export cached json to s3'
   task(:export) do
     invoke 'deploy'
+    on roles(:all) do |host|
+      info "\r\n\r\nDEPLOY COMPLETED!\r\n\r\n"
+      info "\r\n\r\nRunning Cached Data Export!\r\n\r\n"
+    end
     foreground_rake('api_queue:upload_data')
   end
 end
