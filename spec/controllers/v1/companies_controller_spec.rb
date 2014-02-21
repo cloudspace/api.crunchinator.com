@@ -47,7 +47,7 @@ describe V1::CompaniesController do
 
           funding_round = company['funding_rounds'].first
           expect(funding_round['id']).to eq(@funding_round.id)
-          expect(funding_round['id']).to eq(@funding_round.id)
+          expect(funding_round['round_code']).to eq('Post IPO Equity')
           expect(funding_round['raised_amount']).to eq(@funding_round.raised_amount.to_s)
           expect(funding_round['funded_on']).to eq(@funding_round.funded_on.strftime('%-m/%-d/%Y'))
           expect(funding_round['investor_ids']).to eq([@investor.guid])
