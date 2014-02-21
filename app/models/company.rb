@@ -3,13 +3,11 @@ class Company < ActiveRecord::Base
   include Investor
 
   has_many :funding_rounds, dependent: :destroy
+  has_many :incoming_investments, through: :funding_rounds, source: :investments
   has_many :office_locations, as: :tenant, dependent: :destroy
-
   has_many :acquisitions, class_name: 'Acquisition', foreign_key: 'acquiring_company_id'
   has_many :acquired_by, class_name: 'Acquisition', foreign_key: 'acquired_company_id'
-
   has_one :initial_public_offering
-
   belongs_to :category
 
   validates :name, presence: true

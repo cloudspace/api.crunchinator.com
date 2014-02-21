@@ -32,7 +32,7 @@ describe V1::Categories::CategorySerializer do
 
       it 'investor_ids' do
         company = FactoryGirl.create(:legit_company, category: category)
-        investor_guids = company.incomming_investments.map(&:investor_guid)
+        investor_guids = company.incoming_investments.map(&:investor_guid)
 
         expect(hash[:investor_ids]).to eql(investor_guids)
       end
