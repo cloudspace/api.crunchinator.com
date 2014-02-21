@@ -7,6 +7,7 @@ FactoryGirl.define do
     raised_currency_code { 'USD' }
     funded_on { 10.days.ago }
     sequence :crunchbase_id
+    round_code { 'post_ipo_equity' }
 
     factory :invested_funding_round do
       after(:create) do |funding_round|

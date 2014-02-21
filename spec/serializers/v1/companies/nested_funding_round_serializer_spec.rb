@@ -16,6 +16,10 @@ describe V1::Companies::NestedFundingRoundSerializer do
         expect(hash[:id]).to eq(funding_round.id)
       end
 
+      it 'round_code' do
+        expect(hash[:round_code]).to eq('Post IPO Equity')
+      end
+
       it 'raised_amount' do
         expect(hash[:raised_amount]).to eq(funding_round.raised_amount)
       end
