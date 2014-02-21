@@ -7,6 +7,11 @@
 
 set :output, 'log/cron.log'
 
+# The crons can't find the local copies of bundle and rake so we need to use the absolute path
+# Here is the custom command to do so.
+cmd = 'cd :path && RAILS_ENV=:environment /usr/local/bin/bundle exec /usr/local/bin/rake :task --silent :output'
+job_type :rake_with_full_path, cmd
+
 # On production pull the data from the crunchbase api, archive it, and cache it
 # every :sunday, :at => '12am' do
 #   rake "api_queue:run", :environment => 'production'
@@ -17,12 +22,18 @@ set :output, 'log/cron.log'
 # @environment gets passed from capistrano
 if @environment == 'production'
   every :sunday, at: '12am' do
-    rake 'api_queue:run'
+    rake_with_full_path 'api_queue:run'
   end
 else
+  # This is what we want live
   every :wednesday, at: '12am' do
-    rake 'api_queue:run[20,s3]'
+    rake_with_full_path 'api_queue:run[20,s3]'
   end
+
+  # This is for testing
+  # every 10.minutes do
+  #   rake_with_full_path 'api_queue:upload_data'
+  # end
 end
 
 # Use this file to easily define all of your cron jobs.
