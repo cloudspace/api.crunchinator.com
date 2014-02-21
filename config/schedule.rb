@@ -14,20 +14,23 @@ set :output, 'log/cron.log'
 #
 # On staging read the data from the archive and cache it
 
+cmd = "cd :path && RAILS_ENV=:environment /usr/local/bin/bundle exec /usr/local/bin/rake :task --silent :output"
+job_type :rake_with_full_path, cmd
+
 # @environment gets passed from capistrano
 if @environment == 'production'
   every :sunday, at: '12am' do
-    rake 'api_queue:run'
+    rake_with_full_path 'api_queue:run'
   end
 else
   # This is what we want live
   every :wednesday, at: '12am' do
-    rake 'api_queue:run[20,s3]'
+    rake_with_full_path 'api_queue:run[20,s3]'
   end
   
   # This is for testing
   every 10.minutes do
-    rake 'api_queue:upload_data'
+    rake_with_full_path 'api_queue:upload_data'
   end
 end
 
