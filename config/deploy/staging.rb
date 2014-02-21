@@ -8,11 +8,7 @@
 role :app, %W{#{ENV['STAGING_APP_HOST']}}
 role :web, %W{#{ENV['STAGING_APP_HOST']}}
 role :db, %W{#{ENV['STAGING_APP_HOST']}}
-# set :branch, 'staging'
-
-set :branch, '64746408_setup_whenever_fix'
-
-
+set :branch, 'staging'
 set :rails_env, 'staging'
 
 set :default_environment, 'RAILS_ENV' => 'staging'
