@@ -41,6 +41,10 @@ set :linked_dirs, %w{log json_data}
 # Default value for keep_releases is 5
 set :keep_releases, 5
 
+# Sets the cron using the whenever gem by starting whenever command
+set :whenever_environment,  ->{ fetch :rails_env, 'staging' }
+SSHKit.config.command_map[:whenever] = 'bundle exec whenever'
+
 set :ssh_options, keys: ['~/.ssh/id_rsa'], forward_agent: true, user: 'root'
 
 namespace :deploy do
