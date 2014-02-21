@@ -3,7 +3,6 @@
 class FinancialOrganization < ActiveRecord::Base
   include Investor
 
-  has_many :investments, as: :investor
   has_many :office_locations, as: :tenant
 
   validates :permalink, uniqueness: true, presence: true

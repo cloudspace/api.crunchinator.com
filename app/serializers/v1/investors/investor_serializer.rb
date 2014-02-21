@@ -12,13 +12,4 @@ class V1::Investors::InvestorSerializer < ActiveModel::Serializer
     @object.class.to_s.underscore
   end
 
-  # @return [Array<Fixnum>] the ids of the companies in which the investor has invested
-  def invested_company_ids
-    @object.investments.map { |inv| inv.funding_round.company_id }.uniq
-  end
-
-  # @return [Array<Fixnum>] the ids of the categories of the companies in which the investor has invested
-  def invested_category_ids
-    @object.investments.map { |inv| inv.funding_round.company.category_id }.uniq
-  end
 end
