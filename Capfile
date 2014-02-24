@@ -6,6 +6,9 @@ require 'capistrano/setup'
 # Includes default deployment tasks
 require 'capistrano/deploy'
 
+
+
+
 # Includes tasks from other gems included in your Gemfile
 #
 # For documentation on these, see for example:
@@ -23,6 +26,9 @@ require 'capistrano/bundler'
 # require 'capistrano/rails/assets'
 require 'capistrano/rails/migrations'
 require 'capistrano/rails'
+
+# Includes default whenever gem tasks
+require "whenever/capistrano"
 
 # Loads custom tasks from `lib/capistrano/tasks' if you have any defined.
 Dir.glob('lib/capistrano/tasks/*.cap').each { |r| import r }

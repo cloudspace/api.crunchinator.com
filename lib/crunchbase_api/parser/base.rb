@@ -136,7 +136,7 @@ module ApiQueue
       # @param [String, nil] name the name of the category to be created, or nil
       # @return [Category] the newly created category
       def create_category(name)
-        name.present? ? safe_find_or_create_by(::Category, name: name) : ::Category.new
+        name.present? ? safe_find_or_create_by(::Category, name: name) { { display_name: name } } : ::Category.new
       end
 
       # Handles creating a financial organization while ignoring extraneous keys.

@@ -10,25 +10,10 @@ module Investor
   end
 
   included do
-    # placeholders scopes, should be overridden
-    scope :starts_with_letter, ->(letter) { where(nil) }
-    scope :starts_with_non_alpha, -> { where(nil) }
+    has_many :investments, as: :investor, dependent: :destroy
+    has_many :outgoing_funding_rounds, through: :investments, source: :funding_round
+    has_many :invested_companies, -> { distinct }, through: :outgoing_funding_rounds, source: :company
+    has_many :invested_categories, -> { distinct }, through: :invested_companies, source: :category
   end
 
-  # The class methods
-  # yay linter
-  module ClassMethods
-    # selects a scope for what letter to start with
-    def starts_with(char)
-      if char
-        if char == '0'
-          starts_with_non_alpha
-        else
-          starts_with_letter(char)
-        end
-      else
-        where(nil) # don't change the query
-      end
-    end
-  end
 end

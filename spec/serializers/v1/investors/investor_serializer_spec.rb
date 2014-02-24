@@ -1,55 +1,48 @@
 require 'spec_helper'
 
 describe V1::Investors::InvestorSerializer do
-  before(:each) do
-    @investor = Person.new(id: 1)
-    @serializer = V1::Investors::InvestorSerializer.new(@investor)
-  end
+  let(:investor) { FactoryGirl.build_stubbed(:investor) }
+  let(:serializer) { V1::Investors::InvestorSerializer.new(investor) }
 
-  it 'output should match expected values' do
-    output = JSON.parse(@serializer.to_json)
+  describe 'json output' do
+    subject(:json) { serializer.as_json }
 
-    expect(output).to have_key('investor')
-    expect(output['investor']).to have_key('id')
-    expect(output['investor']).to have_key('name')
-    expect(output['investor']).to have_key('investor_type')
-    expect(output['investor']).to have_key('invested_company_ids')
-    expect(output['investor']).to have_key('invested_category_ids')
-  end
+    it { should have_key :investor }
 
-  describe 'id' do
-    it 'should match an investment guid' do
-      expect(@serializer.id).to eql('person-1')
-    end
+    describe 'has properties' do
+      subject(:hash) { json[:investor] }
 
-    it 'should have the same output as investment.investor_guid' do
-      investment = Investment.new(investor: @investor)
-      expect(@serializer.id).to eq(investment.investor_guid)
-    end
-  end
+      it 'id' do
+        expect(hash[:id]).to eq(investor.guid)
+      end
 
-  describe 'investor_type' do
-    it 'should return the investor type' do
-      expect(@serializer.investor_type).to eq('person')
-    end
-  end
+      it 'name' do
+        expect(hash[:name]).to eq(investor.name)
+      end
 
-  describe 'invested_company_ids' do
-    it 'should return company ids' do
-      funding_round = FundingRound.new(company_id: 1)
-      investment = Investment.new
-      investment.stub(:funding_round).and_return(funding_round)
-      @investor.stub(:investments).and_return([investment])
-      expect(@serializer.invested_company_ids).to eql([1])
-    end
-  end
+      it 'investor_type' do
+        expect(hash[:investor_type]).to eq(investor.class.to_s.underscore)
+      end
 
-  describe 'invested_category_ids' do
-    it 'should return category ids' do
-      investment = Investment.new
-      investment.stub_chain(:funding_round, :company).and_return(Company.new(category_id: 1))
-      @investor.stub(:investments).and_return([investment])
-      expect(@serializer.invested_category_ids).to eql([1])
+      describe 'invested_category_ids' do
+        let(:investor) { FactoryGirl.create(:investor) }
+
+        it 'returns the ids of the companies that the investor has invested in' do
+          company_ids = investor.investments.map { |i| i.funding_round.company_id }
+
+          expect(hash[:invested_company_ids]).to eq(company_ids)
+        end
+      end
+
+      describe 'invested_category_ids' do
+        let(:investor) { FactoryGirl.create(:investor) }
+
+        it 'returns the ids of the categories of the companies that the investor has invested in' do
+          category_ids = investor.investments.map { |i| i.funding_round.company.category_id }
+
+          expect(hash[:invested_category_ids]).to eq(category_ids)
+        end
+      end
     end
   end
 end

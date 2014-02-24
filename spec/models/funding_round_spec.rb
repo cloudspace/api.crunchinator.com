@@ -44,29 +44,28 @@ describe FundingRound do
       end
     end
 
-    describe 'valid' do
-      before(:each) do
-        Company.stub_chain(:valid, :pluck).and_return([1])
+    describe 'legit' do
+      let(:company) { FactoryGirl.create(:legit_company) }
+      let(:funding_round) { FactoryGirl.create(:invested_funding_round, company: company) }
+
+      it 'should include funding rounds with legit companies' do
+        expect(FundingRound.legit).to include(funding_round)
       end
 
-      it 'should include funding rounds with valid companies' do
-        funding_round = FactoryGirl.create(:funding_round, company_id: 1)
-        expect(FundingRound.valid).to include(funding_round)
-      end
-
-      it 'should not include funding rounds with no valid companies' do
-        funding_round = FactoryGirl.create(:funding_round, company_id: 2)
-        expect(FundingRound.valid).not_to include(funding_round)
+      it 'should not include funding rounds with no legit companies' do
+        company = FactoryGirl.create(:company)
+        funding_round = FactoryGirl.create(:funding_round, company: company)
+        expect(FundingRound.legit).not_to include(funding_round)
       end
 
       it 'should not include funding rounds with no companies' do
-        funding_round = FactoryGirl.create(:funding_round, company_id: nil)
-        expect(FundingRound.valid).not_to include(funding_round)
+        funding_round = FactoryGirl.create(:funding_round, company: nil)
+        expect(FundingRound.legit).not_to include(funding_round)
       end
 
-      it 'should not include funding rounds with valid companies where the funding round is unfunded' do
-        funding_round = FactoryGirl.create(:funding_round, company_id: 1, raw_raised_amount: BigDecimal.new('0'))
-        expect(FundingRound.valid).not_to include(funding_round)
+      it 'should not include funding rounds with legit companies where the funding round is unfunded' do
+        funding_round = FactoryGirl.create(:unfunded_funding_round, company: company)
+        expect(FundingRound.legit).not_to include(funding_round)
       end
     end
 

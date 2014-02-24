@@ -17,25 +17,6 @@ describe Investment do
   end
 
   describe 'scopes' do
-    describe 'associated_with_companies' do
-      before(:each) do
-        company = FactoryGirl.create(:company)
-        funding_round = FactoryGirl.create(:funding_round, company: company)
-        @associated = FactoryGirl.create(:investment, funding_round: funding_round)
-        @not_associated = FactoryGirl.create(:investment)
-
-        @investments = Investment.associated_with_companies([company.id])
-      end
-
-      it 'should include investments associated with the companies' do
-        expect(@investments).to include(@associated)
-      end
-
-      it 'should not include investments associated with other companies' do
-        expect(@investments).not_to include(@not_associated)
-      end
-    end
-
     describe 'associated_with_financial_organizations' do
       before(:each) do
         financial_organization = FactoryGirl.create(:financial_organization)

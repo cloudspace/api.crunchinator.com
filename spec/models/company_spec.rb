@@ -53,8 +53,8 @@ describe Company do
   describe 'scopes' do
     describe 'categorized' do
       before(:each) do
-        @with_category = FactoryGirl.create(:company_with_category)
-        @without_category = FactoryGirl.create(:company)
+        @with_category = FactoryGirl.create(:company)
+        @without_category = FactoryGirl.create(:company, category: nil)
       end
       it 'should include companies with a category' do
         expect(Company.categorized).to include(@with_category)
@@ -145,55 +145,19 @@ describe Company do
       end
     end
 
-    describe 'valid' do
+    describe 'legit' do
       it 'should return companies with a category, successful funding round, and US headquarters' do
-        company = FactoryGirl.create(:company_with_category)
+        company = FactoryGirl.create(:company)
         FactoryGirl.create(:headquarters, tenant: company)
         FactoryGirl.create(:funding_round, company: company)
-        expect(Company.valid).to include(company)
+        expect(Company.legit).to include(company)
       end
     end
 
-    describe 'invalid' do
-      it 'should not include valid companies' do
-        company = FactoryGirl.create(:valid_company)
-        expect(Company.invalid).not_to include(company)
-      end
-    end
-
-    describe 'starts_with_non_alpha' do
-      it 'should return companies whose name starts with a number' do
-        included = FactoryGirl.create(:company, name: '#Hashtag')
-        expect(Company.starts_with_non_alpha).to include(included)
-      end
-
-      it 'should return companies whose name starts with a symbol' do
-        included = FactoryGirl.create(:company, name: '1st')
-        expect(Company.starts_with_non_alpha).to include(included)
-      end
-
-      it 'should not return companies whose name starts with a letter' do
-        excluded = FactoryGirl.create(:company, name: 'Albert\'s Apples')
-        expect(Company.starts_with_non_alpha).not_to include(excluded)
-      end
-    end
-
-    describe 'starts_with_letter' do
-      before(:each) do
-        @included = FactoryGirl.create(:company, name: 'Albert\'s Apples')
-      end
-
-      it 'should return companies whose name starts with the specified character' do
-        expect(Company.starts_with_letter('A')).to include(@included)
-      end
-
-      it 'should not exclude companies due to capitalization' do
-        expect(Company.starts_with_letter('a')).to include(@included)
-      end
-
-      it 'should not return companies whose name does not start with the specified character' do
-        excluded = FactoryGirl.create(:company, name: 'Pete\'s Pears')
-        expect(Company.starts_with_letter('a')).not_to include(excluded)
+    describe 'illegit' do
+      it 'should not include legit companies' do
+        company = FactoryGirl.create(:legit_company)
+        expect(Company.illegit).not_to include(company)
       end
     end
   end
@@ -212,23 +176,59 @@ describe Company do
       end
     end
 
-    describe 'most_recent_acquired_on' do
+    describe 'most_recent_acquired_by_date' do
       it 'should return the most recent acquired_on' do
+        a = Acquisition.new(acquired_company: @company)
+        @company.stub(:most_recent_acquired_by).and_return(a)
+
+        expect(@company.most_recent_acquired_by_date).to eq(a.acquired_on)
+      end
+    end
+
+    describe 'most_recent_acquired_by_company_id' do
+      it 'should return the id of the most recent acquiring company' do
+        a = Acquisition.new(acquired_company: @company, acquired_on: 1.day.ago, acquiring_company_id: 1)
+        @company.stub(:most_recent_acquired_by).and_return(a)
+
+        expect(@company.most_recent_acquired_by_company_id).to eq(a.acquiring_company_id)
+      end
+    end
+
+    describe 'most_recent_acquired_by_amount' do
+      it 'should return the amount in USD for which the company was last acquired' do
+        a = Acquisition.new(acquired_company: @company, price_amount: '1500.0', price_currency_code: 'USD')
+        @company.stub(:most_recent_acquired_by).and_return(a)
+
+        expect(@company.most_recent_acquired_by_amount).to eq(1500)
+      end
+
+      it 'should return 0 if the company has never been acquired' do
+        @company.stub(:most_recent_acquired_by).and_return(nil)
+
+        expect(@company.most_recent_acquired_by_amount).to eq(0)
+      end
+
+      it 'should return 0 if the company has last been acquired for an amount not in USD' do
+        a = Acquisition.new(acquired_company: @company, price_amount: '1500.0', price_currency_code: 'ABC')
+        @company.stub(:most_recent_acquired_by).and_return(a)
+
+        expect(@company.most_recent_acquired_by_amount).to eq(0)
+      end
+    end
+
+    describe 'most_recent_acquired_by' do
+      it 'should return the acquisition representing the last time the company was acquired' do
         a1 = Acquisition.new(acquired_company: @company, acquired_on: 1.day.ago)
         a2 = Acquisition.new(acquired_company: @company, acquired_on: 2.days.ago)
         @company.stub(:acquired_by).and_return([a1, a2])
 
-        expect(@company.most_recent_acquired_on).to eq(a1.acquired_on)
+        expect(@company.most_recent_acquired_by).to eq(a1)
       end
-    end
 
-    describe 'most_recent_acquired_by_id' do
-      it 'should return the most recent acquiring compnay id' do
-        a1 = Acquisition.new(acquired_company: @company, acquired_on: 1.day.ago, acquiring_company_id: 1)
-        a2 = Acquisition.new(acquired_company: @company, acquired_on: 2.days.ago, acquiring_company_id: 2)
-        @company.stub(:acquired_by).and_return([a1, a2])
+      it 'should return nil if the company has never been acquired' do
+        @company.stub(:acquired_by).and_return([])
 
-        expect(@company.most_recent_acquired_by).to eq(a1.acquiring_company_id)
+        expect(@company.most_recent_acquired_by).to eq(nil)
       end
     end
 

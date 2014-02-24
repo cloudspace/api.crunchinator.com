@@ -2,7 +2,7 @@
 class V1::Companies::CompanySerializer < ActiveModel::Serializer
   attributes :id, :permalink, :name, :category_id, :total_funding, :funding_rounds,
              :latitude, :longitude, :investor_ids, :status, :founded_on, :acquired_on,
-             :acquired_by_id, :ipo_valuation, :ipo_on, :state_code
+             :acquired_value, :acquired_by_id, :ipo_valuation, :ipo_on, :state_code
   has_many :funding_rounds, serializer: V1::Companies::NestedFundingRoundSerializer
 
   # @return [Array<String>] the guids of all investors in this company
@@ -34,6 +34,8 @@ class V1::Companies::CompanySerializer < ActiveModel::Serializer
       'deadpooled'
     elsif @object.acquired_by.any?
       'acquired'
+    elsif @object.initial_public_offering.present?
+      'IPOed'
     else
       'alive'
     end
@@ -41,12 +43,17 @@ class V1::Companies::CompanySerializer < ActiveModel::Serializer
 
   # renames and formats the most_recent_acquired_on method
   def acquired_on
-    @object.most_recent_acquired_on.try(:strftime, '%-m/%-d/%Y')
+    @object.most_recent_acquired_by_date.try(:strftime, '%-m/%-d/%Y')
+  end
+
+  # renames and formats the most_recent_acquired_on method
+  def acquired_value
+    @object.most_recent_acquired_by_amount
   end
 
   # renames the most_recent_acquired_by method
   def acquired_by_id
-    @object.most_recent_acquired_by
+    @object.most_recent_acquired_by_company_id
   end
 
   # the state code for this company's headquarters

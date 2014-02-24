@@ -24,7 +24,9 @@ describe ApiQueue::Source::S3 do
 
     describe 'save_entity' do
       it 'should call upload_file with the proper arguments' do
-        ApiQueue::Source::S3.should_receive(:upload_file).with('crunchinator.com', 'companies/cloudspace.json', 'json')
+        ApiQueue::Source::S3.should_receive(:upload_file).with('archive.crunchinator.com',
+                                                               'companies/cloudspace.json',
+                                                               'json')
         ApiQueue::Source::S3.save_entity(:company, 'cloudspace', 'json')
       end
     end
@@ -39,15 +41,28 @@ describe ApiQueue::Source::S3 do
     end
 
     describe 'upload_and_expose' do
-      it 'should attempt to write a file to S3' do
-        ApiQueue::Source::S3.stub(:gzip) { 'gzipped json' }
-        receiver = double
-        receiver.should_receive(:write).with('gzipped json',
-                                             acl: :public_read,
-                                             content_type: 'json',
-                                             content_encoding: 'gzip')
-        ApiQueue::Source::S3.stub_chain(:bucket, :objects, :[]) { receiver }
-        ApiQueue::Source::S3.upload_and_expose(:companies, 'filename', 'json data')
+      %w{staging production}.each do |mode|
+        it "should attempt to write a file to S3 in #{mode} mode" do
+          Rails.stub(:env) { mode }
+          ApiQueue::Source::S3.stub(:gzip) { 'gzipped json' }
+          receiver = double
+          receiver.should_receive(:write).with('gzipped json',
+                                               acl: :public_read,
+                                               content_type: 'json',
+                                               content_encoding: 'gzip')
+          ApiQueue::Source::S3.stub_chain(:bucket, :objects, :[]) { receiver }
+          ApiQueue::Source::S3.upload_and_expose('filename', 'json data')
+        end
+      end
+
+      %w{development test}.each do |mode|
+        it "should return false in #{mode} mode" do
+          Rails.stub(:env) { mode }
+          receiver = double
+          receiver.should_not_receive(:write)
+          ApiQueue::Source::S3.stub_chain(:bucket, :objects, :[]) { receiver }
+          expect(ApiQueue::Source::S3.upload_and_expose('bar', 'baz')).to eq(false)
+        end
       end
     end
 

@@ -9,12 +9,14 @@ describe V1::InvestorsController do
 
     describe 'appropriate response' do
       before(:each) do
-        company = FactoryGirl.create(:valid_company)
+        company = FactoryGirl.create(:legit_company)
         @investor = FactoryGirl.create(:investor)
-        @investor.investments.first.funding_round.update_attribute :company, company
+        fr = @investor.investments.first.funding_round
+        fr.update_attribute :company, company
+        company.funding_rounds = [fr]
       end
 
-      it 'includes investors in valid companies' do
+      it 'includes investors in legit companies' do
         # do nothing, general case
         get :index
 
@@ -42,10 +44,10 @@ describe V1::InvestorsController do
         expect(investor['invested_category_ids']).to eq([company.category_id])
       end
 
-      it 'excludes investors in invalid companies' do
-        invalid_company = FactoryGirl.create(:company)
+      it 'excludes investors in illegit companies' do
+        illegit_company = FactoryGirl.create(:company)
         excluded_investor = FactoryGirl.create(:investor)
-        excluded_investor.investments.first.funding_round.update_attribute :company, invalid_company
+        excluded_investor.investments.first.funding_round.update_attribute :company, illegit_company
 
         get :index
 

@@ -3,14 +3,11 @@ class Company < ActiveRecord::Base
   include Investor
 
   has_many :funding_rounds, dependent: :destroy
-  has_many :investments, as: :investor, dependent: :destroy
+  has_many :incoming_investments, through: :funding_rounds, source: :investments
   has_many :office_locations, as: :tenant, dependent: :destroy
-
   has_many :acquisitions, class_name: 'Acquisition', foreign_key: 'acquiring_company_id'
   has_many :acquired_by, class_name: 'Acquisition', foreign_key: 'acquired_company_id'
-
   has_one :initial_public_offering
-
   belongs_to :category
 
   validates :name, presence: true
@@ -38,29 +35,13 @@ class Company < ActiveRecord::Base
   # companies whose headquarters is in the USA
   scope :american, -> { joins(:office_locations).geolocated.merge(OfficeLocation.in_usa) }
 
-  # companies that are considered valid to the client, i.e., will be displayed
-  scope :valid, -> { categorized.funded.geolocated.american.distinct }
+  # companies that are considered legit to the client, i.e., will be displayed
+  scope :legit, -> { categorized.funded.geolocated.american.distinct }
 
-  # companies that are not considered valid to the client, i.e., will not be displayed
+  # companies that are not considered legit to the client, i.e., will not be displayed
   #
-  # IMPORTANT NOTE: this will return no records if valid returns an empty relation
-  scope :invalid, -> { where('companies.id not in (?)', valid.pluck(:id)) }
-
-  # companies whose name attribute does not begin with an alphabetical character
-  scope :starts_with_non_alpha, lambda {
-    where(
-      'substr(companies.name,1,1) NOT IN (?)',
-      [*('a'..'z'), *('A'..'Z')]
-    ).order('companies.name asc')
-  }
-
-  # companies whose name attribute begins with the specified character
-  scope :starts_with_letter, lambda { |char|
-    where(
-      'Upper(substr(companies.name,1,1)) = :char',
-      char: char.upcase
-    ).order('companies.name asc')
-  }
+  # IMPORTANT NOTE: this will return no records if legit returns an empty relation
+  scope :illegit, -> { where('companies.id not in (?)', legit.pluck(:id)) }
 
   # @return [OfficeLocation] The headquarters office for the company
   def headquarters
@@ -73,17 +54,28 @@ class Company < ActiveRecord::Base
   end
 
   # @return [Date] The most recent acquired date for the company
-  def most_recent_acquired_on
-    # note that this does not depend on a scope on the Acquisitions model
-    # to make endpoint response quicker
-    acquired_by.sort { |a, b| b.acquired_on <=> a.acquired_on }.first.acquired_on if acquired_by.any?
+  def most_recent_acquired_by_date
+    most_recent_acquired_by.acquired_on if most_recent_acquired_by.present?
   end
 
-  # @return [Company] Who acquired the company last
+  # @return [Fixnum] Id of company which acquired the company last
+  def most_recent_acquired_by_company_id
+    most_recent_acquired_by.acquiring_company_id if most_recent_acquired_by.present?
+  end
+
+  # @return [Fixnum] The monetary amount for which the company was last acquired, in USD
+  def most_recent_acquired_by_amount
+    (most_recent_acquired_by.try(:price_currency_code) == 'USD' ? most_recent_acquired_by.price_amount : 0).to_i
+  end
+
+  # @return [Acquisition] The most recent acquisition where this company was acquired
   def most_recent_acquired_by
     # note that this does not depend on a scope on the Acquisitions model
     # to make endpoint response quicker
-    acquired_by.sort { |a, b| b.acquired_on <=> a.acquired_on }.first.acquiring_company_id if acquired_by.any?
+    unless instance_variables.include?(:@most_recent_acquired_by)
+      @most_recent_acquired_by = acquired_by.sort { |a, b| b.acquired_on <=> a.acquired_on }.first
+    end
+    @most_recent_acquired_by
   end
 
   # Concerned about how slow this will be

@@ -58,7 +58,7 @@ describe ApiQueue::Controller do
         ApiQueue::Controller.stub(:populate)
         ApiQueue::Controller.stub(:start_workers)
         ApiQueue::Controller.stub(:upload)
-        ApiQueue::Controller.stub(:upload_fakedata)
+        ApiQueue::Controller.stub(:cache_json)
       end
 
       it 'should populate the queue' do
@@ -74,14 +74,14 @@ describe ApiQueue::Controller do
       it 'should upload fake data if all conditions are met' do
         ApiQueue::Controller.stub(:upload).and_return(true)
         ApiQueue::Controller.stub(:start_workers).and_return(true)
-        ApiQueue::Controller.should_receive(:upload_fakedata)
+        ApiQueue::Controller.should_receive(:cache_json)
         ApiQueue::Controller.run
       end
 
       it 'should not upload fake data if the workers stopped before finishing' do
         ApiQueue::Controller.stub(:upload).and_return(true)
         ApiQueue::Controller.stub(:start_workers).and_return(false)
-        ApiQueue::Controller.should_not_receive(:upload_fakedata)
+        ApiQueue::Controller.should_not_receive(:cache_json)
         ApiQueue::Controller.run
       end
     end
@@ -158,20 +158,23 @@ describe ApiQueue::Controller do
       end
     end
 
-    describe 'upload_fakedata' do
+    describe 'cache_json' do
       it 'should upload data for each endpoint' do
         sample_response = double
         sample_response.stub(:body).and_return('{"hello": "world"}')
         ApiQueue::Controller.stub(:query_app).and_return(sample_response)
 
-        ApiQueue::Source::S3.should_receive(:upload_and_expose)
-          .with('temp.crunchinator.com', 'fakedata/categories.json', sample_response.body)
-        ApiQueue::Source::S3.should_receive(:upload_and_expose)
-          .with('temp.crunchinator.com', 'fakedata/companies.json', sample_response.body)
-        ApiQueue::Source::S3.should_receive(:upload_and_expose)
-          .with('temp.crunchinator.com', 'fakedata/investors.json', sample_response.body)
+        version = Crunchinator::Application::VERSION
 
-        ApiQueue::Controller.upload_fakedata
+        ApiQueue::Source::S3.should_receive(:upload_and_expose)
+          .with("api/#{version}/categories.json", sample_response.body)
+        ApiQueue::Source::S3.should_receive(:upload_and_expose)
+          .with("api/#{version}/companies.json", sample_response.body)
+        ApiQueue::Source::S3.should_receive(:upload_and_expose)
+          .with("api/#{version}/investors.json", sample_response.body)
+        ApiQueue::Source::S3.should_receive(:upload_and_expose)
+          .with('api/current_release.json', "{\"release\":\"#{version}\"}", gzip: false)
+        ApiQueue::Controller.cache_json
       end
     end
 

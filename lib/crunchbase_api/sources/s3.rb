@@ -7,7 +7,7 @@ module ApiQueue
     # An interface to interact with S3 buckets and retrieve JSON data for queue workers
     # as well as uploading data to S3.
     class S3
-      BUCKET_NAME = 'crunchinator.com'
+      BUCKET_NAME = 'archive.crunchinator.com'
 
       # Retrieves the list of permalinks corresponding to entities for which there is data
       #   within the specified namespace.
@@ -56,9 +56,20 @@ module ApiQueue
       # @param [String] bucket_name the name of the bucket
       # @param [Symbol, String] file_name the filename to save the content as
       # @param [String] content the data to be saved
-      def self.upload_and_expose(bucket_name, file_name, content)
+      # @param [Boolean] gzip whether the file should be gzipped
+      def self.upload_and_expose(file_name, content, gzip: true)
+        bucket_name = case Rails.env
+                      when 'staging' then 'staging.crunchinator.com'
+                      when 'production' then 'crunchinator.com'
+                      else return false
+                      end
+
         new_object = bucket(bucket_name).objects[file_name]
-        new_object.write(gzip(content), acl: :public_read, content_type: 'json', content_encoding: 'gzip')
+        if gzip
+          new_object.write(gzip(content), acl: :public_read, content_type: 'json', content_encoding: 'gzip')
+        else
+          new_object.write(content, acl: :public_read, content_type: 'json')
+        end
         new_object
       end
 

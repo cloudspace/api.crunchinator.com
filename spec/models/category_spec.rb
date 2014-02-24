@@ -16,22 +16,20 @@ describe Category do
 
   describe 'fields' do
     it { expect(@category).to respond_to :name }
+    it { expect(@category).to respond_to :display_name }
   end
 
   describe 'scopes' do
-    describe 'associated_with_companies' do
-      before(:each) do
-        @companies = [FactoryGirl.create(:company)]
-        @included = FactoryGirl.create(:category, companies: @companies)
-        @xcluded = FactoryGirl.create(:category)
+    describe 'legit' do
+      let(:included) { FactoryGirl.create(:legit_category) }
+      let(:excluded) { FactoryGirl.create(:category) }
+
+      it 'includes categories that are associated with legit companies' do
+        expect(Category.legit).to include(included)
       end
 
-      it 'should return a category associated with the given company' do
-        expect(Category.associated_with_companies(@companies)).to include(@included)
-      end
-
-      it 'should not return a category not associated with the given company' do
-        expect(Category.associated_with_companies(@companies)).not_to include(@excluded)
+      it 'excludes categories that are not associated with legit companies' do
+        expect(Category.legit).not_to include(excluded)
       end
     end
   end

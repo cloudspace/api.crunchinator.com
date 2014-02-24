@@ -41,6 +41,10 @@ set :linked_dirs, %w{log json_data}
 # Default value for keep_releases is 5
 set :keep_releases, 5
 
+# Sets the cron using the whenever gem by starting whenever command
+set :whenever_environment,  ->{ fetch :rails_env, 'staging' }
+SSHKit.config.command_map[:whenever] = 'bundle exec whenever'
+
 set :ssh_options, keys: ['~/.ssh/id_rsa'], forward_agent: true, user: 'root'
 
 namespace :deploy do
@@ -74,6 +78,38 @@ namespace :data do
 
   desc 'Export json to s3'
   task(:export) { foreground_rake('api_queue:upload_data') }
+end
+
+namespace :deploy do
+  namespace :import do
+    desc 'Deploy, import and process data from s3 (fast)'
+    task(:s3) do
+      invoke 'deploy'
+      background_rake('api_queue:run[20,s3]')
+    end
+
+    desc 'Deploy, import and process data from local (fastest)'
+    task(:local) do
+      invoke 'deploy'
+      background_rake('api_queue:run[20,local]')
+    end
+
+    desc 'Deploy, import and process data from crunchbase (slow)'
+    task(:crunchbase) do
+      invoke 'deploy'
+      background_rake('api_queue:run')
+    end
+  end
+
+  desc 'Deploy and export cached json to s3'
+  task(:export) do
+    invoke 'deploy'
+    on roles(:all) do |host|
+      info "\r\n\r\nDEPLOY COMPLETED!\r\n\r\n"
+      info "\r\n\r\nRunning Cached Data Export!\r\n\r\n"
+    end
+    foreground_rake('api_queue:upload_data')
+  end
 end
 
 before 'deploy:updated', 'deploy:upload_config'
