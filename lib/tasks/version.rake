@@ -9,7 +9,9 @@ namespace :version do
       versioner.bump
       versioner.write_app_version
       execute_and_output("git add VERSION")
-      execute_and_output("git commit -m \"bumping version from #{versioner.original_version} to #{versioner.version}\"")
+      git_author = "--author=\"Crunchinator <crunchinator@cloudspace.com>\""
+      git_message = "\"bumping version from #{versioner.original_version} to #{versioner.version}\""
+      execute_and_output("git commit #{git_author} -m #{git_message}")
       execute_and_output("git tag #{versioner.version}")
       puts "To complete the tagging process, run: 'git push origin master && git push origin --tags'"
     else
