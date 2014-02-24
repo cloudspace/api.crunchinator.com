@@ -8,12 +8,9 @@ namespace :version do
       versioner = Versioner.new(args.segment)
       versioner.bump
       versioner.write_app_version
-      puts "EXECUTING: `git add VERSION`"
-      puts `git add VERSION`
-      puts "EXECUTING: `git commit -m \"bumping version from #{versioner.original_version} to #{versioner.version}\"`"
-      puts `git commit -m \"bumping version from #{versioner.original_version} to #{versioner.version}\"`
-      puts "EXECUTING: `git tag #{versioner.version}`"
-      puts `git tag #{versioner.version}`
+      execute_and_output("git add VERSION")
+      execute_and_output("git commit -m \"bumping version from #{versioner.original_version} to #{versioner.version}\"")
+      execute_and_output("git tag #{versioner.version}")
       puts "To complete the tagging process, run: 'git push origin master && git push origin --tags'"
     else
       puts 'please specify a segment to bump (major/minor/patch)'
@@ -29,6 +26,12 @@ def prompt_user(prompt)
     puts 'Exiting!'
     exit
   end
+end
+
+# prints and executes code
+def execute_and_output(code)
+  puts "EXECUTING: `#{code}`"
+  Kernel.system(code)
 end
 
 # a namespace/wrapper class for the versioning functionality
