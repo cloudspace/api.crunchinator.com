@@ -24,10 +24,6 @@ class FundingRound < ActiveRecord::Base
   #
   # @return [BigDecimal] the raised amount.
   def raised_amount
-    if raised_currency_code && raised_currency_code.upcase == 'USD' && raw_raised_amount
-      raw_raised_amount
-    else
-      BigDecimal.new('0')
-    end
+    raised_currency_code =~ /USD/i && raw_raised_amount || BigDecimal.new('0')
   end
 end
