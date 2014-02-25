@@ -5,4 +5,8 @@ class Acquisition < ActiveRecord::Base
 
   validates :acquired_company, presence: true
   validates :acquiring_company, presence: true
+
+  def usd?
+    price_currency_code == 'USD'
+  end
 end

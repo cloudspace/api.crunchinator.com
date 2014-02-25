@@ -65,7 +65,8 @@ class Company < ActiveRecord::Base
 
   # @return [Fixnum] The monetary amount for which the company was last acquired, in USD
   def most_recent_acquired_by_amount
-    (most_recent_acquired_by.try(:price_currency_code) == 'USD' ? most_recent_acquired_by.price_amount : 0).to_i
+    return 0 unless most_recent_acquired_by.try(:usd?)
+    most_recent_acquired_by.price_amount.to_i
   end
 
   # @return [Acquisition] The most recent acquisition where this company was acquired
