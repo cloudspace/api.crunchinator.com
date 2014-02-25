@@ -7,8 +7,7 @@ class FundingRound < ActiveRecord::Base
 
   # all funding rounds attached to the given list of companies
   scope :for_companies, lambda { |company_ids|
-    joins(:company)
-    .where(company_id: company_ids)
+    joins(:company).where(company_id: company_ids)
   }
 
   # funding rounds attached to a legit company
@@ -18,9 +17,7 @@ class FundingRound < ActiveRecord::Base
 
   # Funding rounds with some amount of USD raised
   scope :funded, lambda {
-    where(raised_currency_code: 'USD')
-    .where('funding_rounds.raw_raised_amount is not null AND funding_rounds.raw_raised_amount > 0')
-    .references(:funding_rounds)
+    where(raised_currency_code: 'USD').where('raw_raised_amount > 0')
   }
 
   # Returns the raised amount if in USD, else 0 (expressed as a BigDecimal)
