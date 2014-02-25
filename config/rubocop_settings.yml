@@ -1,14 +1,3 @@
-# Do not prefix reader method names with get_.
-AccessorMethodName:
-  Severity: warning
-
-# Cyclomatic complexity for _ is too high.
-CyclomaticComplexity:
-  Severity: warning
-
-Documentation:
-  Severity: warning
-
 EmptyLinesAroundBody:
   Enabled: false
 
@@ -17,10 +6,6 @@ LineLength:
 
 MethodLength:
   Max: 15
-
-# Do not use semicolons to terminate expressions.
-Semicolon:
-  Severity: warning
 
 WhileUntilModifier:
   Enabled: false
