@@ -7,8 +7,8 @@ class OfficeLocation < ActiveRecord::Base
 
   # longitude for USA coasts
   USA_LOCATION = {
-    west: BigDecimal.new(-157),
-    east: BigDecimal.new(-65)
+    west: -157,
+    east: -65
   }
 
   # Headquarters only
@@ -24,10 +24,7 @@ class OfficeLocation < ActiveRecord::Base
   # Country code is USA Location is in North or South America
   # may be updated at some point to just look at lat/long for USA
   scope :in_usa, lambda {
-    where(
-      "office_locations.country_code = 'USA' AND office_locations.longitude BETWEEN :min_long AND :max_long",
-      min_long: USA_LOCATION[:west], max_long: USA_LOCATION[:east]
-    )
+    where(country_code: 'USA', longitude: USA_LOCATION[:west]..USA_LOCATION[:east])
   }
 
   after_create :geolocate
