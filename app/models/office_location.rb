@@ -18,8 +18,7 @@ class OfficeLocation < ActiveRecord::Base
 
   # Headquarters that have legit longitude/latitude data
   scope :geolocated_headquarters, lambda {
-    headquarters
-    .where('office_locations.latitude is not null AND office_locations.longitude is not null')
+    headquarters.where.not(latitude: nil, longitude: nil)
   }
 
   # Country code is USA Location is in North or South America
