@@ -90,9 +90,7 @@ class Company < ActiveRecord::Base
   # instance and populates the cache for the longitude value, if needed
   #
   def latitude
-    unless instance_variables.include?(:@latitude)
-      set_lat_long_cache
-    end
+    set_lat_long_cache unless instance_variables.include?(:@latitude)
     @latitude
   end
 
@@ -100,9 +98,7 @@ class Company < ActiveRecord::Base
   # instance and populates the cache for the latitude value, if needed
   #
   def longitude
-    unless instance_variables.include?(:@longitude)
-      set_lat_long_cache
-    end
+    set_lat_long_cache unless instance_variables.include?(:@longitude)
     @longitude
   end
 

@@ -28,7 +28,7 @@ class ApiQueue::Element < ActiveRecord::Base
   # Elements with a no last attempt or a last attempt more than 1 hour ago
   scope :not_recently_errored, lambda {
     last_attempt = arel_table[:last_attempt_at]
-    where(last_attempt.eq(nil).or( last_attempt.lt(1.hour.ago) ))
+    where(last_attempt.eq(nil).or(last_attempt.lt(1.hour.ago)))
   }
 
   # Elements with less than 5 attempts
