@@ -54,20 +54,13 @@ class Company < ActiveRecord::Base
   end
 
   # @return [Date] The most recent acquired date for the company
-  def most_recent_acquired_by_date
-    most_recent_acquired_by.try(:acquired_on)
-  end
+  delegate :date, to: :most_recent_acquired_by, prefix: true, allow_nil: true
 
   # @return [Fixnum] Id of company which acquired the company last
-  def most_recent_acquired_by_company_id
-    most_recent_acquired_by.try(:acquiring_company_id)
-  end
+  delegate :company_id, to: :most_recent_acquired_by, prefix: true, allow_nil: true
 
   # @return [Fixnum] The monetary amount for which the company was last acquired, in USD
-  def most_recent_acquired_by_amount
-    return 0 unless most_recent_acquired_by.try(:usd?)
-    most_recent_acquired_by.price_amount.to_i
-  end
+  delegate :amount, to: :most_recent_acquired_by, prefix: true, allow_nil: true
 
   # @return [Acquisition] The most recent acquisition where this company was acquired
   def most_recent_acquired_by
