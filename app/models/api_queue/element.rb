@@ -5,13 +5,13 @@ class ApiQueue::Element < ActiveRecord::Base
   validates :permalink, uniqueness: true, presence: true
 
   # errors
-  scope :errors, -> { where('error is not null') }
+  scope :errors, -> { where.not(error: nil) }
 
   # FIFO Queue order
-  scope :order_by_fifo, -> { order('id asc') }
+  scope :order_by_fifo, -> { order(:id) }
 
   # Order by most recently modified
-  scope :order_by_most_recently_modified, -> { order('updated_at desc') }
+  scope :order_by_most_recently_modified, -> { order(updated_at: :desc) }
 
   # Elements that are flagged as complete
   scope :complete, -> { where(complete: true) }
@@ -43,7 +43,7 @@ class ApiQueue::Element < ActiveRecord::Base
   scope :failed, -> { where('num_runs >= 5').incomplete }
 
   # Elements that have errored and are marked for retry
-  scope :waiting_for_retry, -> { where('num_runs > ? AND complete != ?', 0, true) }
+  scope :waiting_for_retry, -> { incomplete.where('num_runs > 0') }
 
   # flags an element to indicate it is being processed
   def mark_for_processing
