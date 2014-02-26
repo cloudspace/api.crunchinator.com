@@ -163,6 +163,11 @@ describe V1::Companies::CompanySerializer do
           company.stub(most_recent_acquired_by_amount: 1234)
           expect(hash[:acquired_value]).to eq(1234)
         end
+
+        it 'should return 0 if most_recent_acquired_by_amount is nil' do
+          company.stub(most_recent_acquired_by_amount: nil)
+          expect(hash[:acquired_value]).to eq(0)
+        end
       end
 
       describe 'acquired_by_id' do
