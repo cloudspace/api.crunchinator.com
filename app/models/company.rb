@@ -50,7 +50,9 @@ class Company < ActiveRecord::Base
     #
     # Here is the traditional way to do this:
     # office_locations.headquarters.first
-    office_locations.select { |ol| ol.headquarters }.first
+    #
+    # Use `lazy` since we don't need to find all headquarters, just the first one
+    office_locations.lazy.select { |ol| ol.headquarters }.first
   end
 
   # @return [Date] The most recent acquired date for the company
