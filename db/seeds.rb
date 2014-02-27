@@ -41,7 +41,6 @@ display_names = {
   pets: 'Pets',
   photo_video: 'Photo/Video',
   public_relations: 'Public Relations',
-  public_relation: 'Public Relation',  #Yes there are two of these, they will need to be merged later
   real_estate: 'Real Estate',
   search: 'Search',
   security: 'Security',
