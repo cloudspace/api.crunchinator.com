@@ -49,9 +49,6 @@ describe V1::Companies::CompanySerializer do
         end
       end
 
-      # Tested by NestedFundingRoundSerializer
-      it { should have_key :funding_rounds }
-
       describe 'ipo_on' do
         let(:ipo) do
           FactoryGirl.build_stubbed(:initial_public_offering, company: company).tap do |ipo|
