@@ -1,9 +1,8 @@
 # Create the json data for a CompaniesController index call
 class V1::Companies::CompanySerializer < ActiveModel::Serializer
-  attributes :id, :permalink, :name, :category_id, :total_funding, :funding_rounds,
-             :latitude, :longitude, :investor_ids, :status, :founded_on, :acquired_on,
+  attributes :id, :permalink, :name, :category_id, :total_funding, :latitude, :longitude,
+             :investor_ids, :status, :founded_on, :most_recent_raised_amount, :acquired_on,
              :acquired_value, :acquired_by_id, :ipo_valuation, :ipo_on, :state_code
-  has_many :funding_rounds, serializer: V1::Companies::NestedFundingRoundSerializer
 
   # @return [Array<String>] the guids of all investors in this company
   def investor_ids
@@ -20,9 +19,14 @@ class V1::Companies::CompanySerializer < ActiveModel::Serializer
     @object.initial_public_offering.try(:usd_valuation)
   end
 
-  # @return [String] The date the company was founded formatted in m/d/y
+  # @return [String] the date the company was founded formatted in m/d/y
   def founded_on
     @object.founded_on.try(:strftime, '%-m/%-d/%Y')
+  end
+
+  # @return [Fixnum] the amount in USD raised by the company in its most recent funding round
+  def most_recent_raised_amount
+    @object.funding_rounds.order(funded_on: :asc).last.try(:raised_amount)
   end
 
   # Whether the company is deadpooled, acquired, or still alive

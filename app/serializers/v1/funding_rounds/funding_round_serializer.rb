@@ -1,6 +1,6 @@
 # Funding rounds for companies on the companies index endpoint
-class V1::Companies::NestedFundingRoundSerializer < ActiveModel::Serializer
-  attributes :id, :round_code, :raised_amount, :funded_on, :investor_ids
+class V1::FundingRounds::FundingRoundSerializer < ActiveModel::Serializer
+  attributes :id, :company_id, :round_code, :raised_amount, :funded_on, :investor_ids
 
   def round_code
     @object.round_code.try(:titleize).try(:gsub, 'Ipo', 'IPO')

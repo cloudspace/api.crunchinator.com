@@ -1,19 +1,23 @@
 require 'spec_helper'
 
-describe V1::Companies::NestedFundingRoundSerializer do
+describe V1::FundingRounds::FundingRoundSerializer do
   let(:funding_round) { FactoryGirl.build_stubbed(:funding_round) }
-  let(:serializer) { V1::Companies::NestedFundingRoundSerializer.new(funding_round) }
+  let(:serializer) { V1::FundingRounds::FundingRoundSerializer.new(funding_round) }
 
   describe 'json output' do
     subject(:json) { serializer.as_json }
 
-    it { should have_key :nested_funding_round }
+    it { should have_key :funding_round }
 
     describe 'has properties' do
-      subject(:hash) { json[:nested_funding_round] }
+      subject(:hash) { json[:funding_round] }
 
       it 'id' do
         expect(hash[:id]).to eq(funding_round.id)
+      end
+
+      it 'company_id' do
+        expect(hash[:company_id]).to eq(funding_round.company_id)
       end
 
       it 'round_code' do

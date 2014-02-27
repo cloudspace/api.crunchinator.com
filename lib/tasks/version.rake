@@ -5,8 +5,7 @@ namespace :version do
     Versioner::Git.ensure_staging_area_clear
     Versioner::Git.ensure_master
     if args.segment
-      versioner = Versioner.new(args.segment)
-      versioner.bump
+      versioner = Versioner.bump(args.segment)
       versioner.write_app_version
       execute_and_output("git add VERSION")
       git_author = "--author=\"Crunchinator <crunchinator@cloudspace.com>\""
@@ -69,20 +68,33 @@ class Versioner
     end
   end
 
-  # valid segment arguments are ['major', 'minor', 'patch']
-  def initialize(segment)
-    @segment = segment
-    raise 'invalid argument' unless [:major, :minor, :patch].include?(@segment.to_sym)
+  # an alternate constructor
+  def self.bump(segment)
+    self.new.bump(segment)
+  end
+
+  def initialize
     @original_version = File.read(File.join(Rails.root, 'VERSION'))
     @major, @minor, @patch = @original_version.sub('v','').split('.')
   end
 
-  attr_accessor :original_version, :segment
+  attr_accessor :original_version
 
-  # bumps the version of @segment (E.g., if @segment == 'patch', bumps the patch version)
-  def bump
-    sym = ('@' + @segment.to_s).to_sym
-    instance_variable_set(sym, (instance_variable_get(sym).to_i + 1).to_s)
+  # bumps the version of segment (E.g., if @segment == 'patch', bumps the patch version)
+  # valid segment arguments are ['major', 'minor', 'patch']
+  def bump(segment)
+    raise 'invalid argument' unless [:major, :minor, :patch].include?(segment.to_sym)
+    case segment.to_sym
+    when :major
+      @major = @major.to_i + 1
+      @minor = @patch = 0
+    when :minor
+      @minor = @minor.to_i + 1
+      @patch = 0
+    when :patch
+      @patch = @patch.to_i + 1
+    end
+    self
   end
 
   # produces a string representing the version of the object so far

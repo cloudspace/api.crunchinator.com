@@ -5,6 +5,7 @@ Crunchinator::Application.routes.draw do
       resources :companies, only: [:index]
       resources :investors, only: [:index]
       resources :categories, only: [:index]
+      resources :funding_rounds, only: [:index]
     end
   end
 end

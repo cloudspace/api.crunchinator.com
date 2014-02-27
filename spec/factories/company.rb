@@ -12,6 +12,11 @@ FactoryGirl.define do
       office_locations { |loc| [loc.association(:headquarters)] }
     end
 
+    factory :legit_company_with_investors do
+      funding_rounds { |fr| [fr.association(:invested_funding_round)] }
+      office_locations { |loc| [loc.association(:headquarters)] }
+    end
+
     factory :investor do
       investments { |c| [c.association(:investment)] }
     end
