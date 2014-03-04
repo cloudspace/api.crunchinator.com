@@ -14,10 +14,6 @@ class Acquisition < ActiveRecord::Base
   alias_attribute :company_id, :acquiring_company_id
 
   def amount
-    if usd?
-      price_amount.to_i
-    else
-      0
-    end
+    (usd?) ? price_amount.to_i : 0
   end
 end
