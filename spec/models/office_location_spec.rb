@@ -67,7 +67,29 @@ describe OfficeLocation do
       end
     end
 
-    describe 'in_america' do
+    describe 'geolocated_in_usa' do
+      it 'should include locations in america' do
+        office = FactoryGirl.create(:office_location)
+        expect(OfficeLocation.geolocated_in_usa).to include(office)
+      end
+
+      it 'should not include locations outside of america based on the country code' do
+        office = FactoryGirl.create(:office_location, country_code: 'Canada')
+        expect(OfficeLocation.geolocated_in_usa).not_to include(office)
+      end
+
+      it 'should not include locations outside of america based on the longitude' do
+        office = FactoryGirl.create(:office_location, longitude: '0')
+        expect(OfficeLocation.geolocated_in_usa).not_to include(office)
+      end
+
+      it 'should not include recordswith a missing longitude or latitude' do
+        office = FactoryGirl.create(:office_location, longitude: nil, latitude: nil)
+        expect(OfficeLocation.geolocated_in_usa).not_to include(office)
+      end
+    end
+
+    describe 'in_usa' do
       it 'should include locations in america' do
         office = FactoryGirl.create(:office_location)
         expect(OfficeLocation.in_usa).to include(office)
@@ -75,16 +97,6 @@ describe OfficeLocation do
 
       it 'should not include locations outside of america based on the country code' do
         office = FactoryGirl.create(:office_location, country_code: 'Canada')
-        expect(OfficeLocation.in_usa).not_to include(office)
-      end
-
-      it 'should not include locations outside of america based on the longitude' do
-        office = FactoryGirl.create(:office_location, longitude: '0')
-        expect(OfficeLocation.in_usa).not_to include(office)
-      end
-
-      it 'should not include recordswith a missing longitude or latitude' do
-        office = FactoryGirl.create(:office_location, longitude: nil, latitude: nil)
         expect(OfficeLocation.in_usa).not_to include(office)
       end
     end

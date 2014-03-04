@@ -27,16 +27,22 @@ class Company < ActiveRecord::Base
   # companies that have a geolocated headquarters
   scope :geolocated, -> { joins(:office_locations).merge(OfficeLocation.geolocated_headquarters) }
 
+  # companies that have a headquarters with a non-blank state_code
+  scope :with_state_code, -> { joins(:office_locations).merge(OfficeLocation.headquarters_with_state_code) }
+
   # companies that have no geolocated headquarters
   #
   # IMPORTANT NOTE: this will return no records if geolocated returns an empty relation
   scope :unlocated, -> { where.not(id: geolocated.pluck(:id)) }
 
-  # companies whose headquarters is in the USA
-  scope :american, -> { joins(:office_locations).geolocated.merge(OfficeLocation.in_usa) }
+  # companies whose headquarters is in the USA according to lat/long of HQ and country code
+  scope :geolocated_american, -> { joins(:office_locations).geolocated.merge(OfficeLocation.geolocated_in_usa) }
+
+  # companies whose headquarters is in the USA according to country code
+  scope :american, -> { joins(:office_locations).merge(OfficeLocation.in_usa) }
 
   # companies that are considered legit to the client, i.e., will be displayed
-  scope :legit, -> { categorized.funded.geolocated.american.distinct }
+  scope :legit, -> { categorized.funded.with_state_code.american.distinct }
 
   # companies that are not considered legit to the client, i.e., will not be displayed
   #

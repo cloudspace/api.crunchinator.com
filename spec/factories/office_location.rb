@@ -5,6 +5,7 @@ FactoryGirl.define do
     association :tenant, factory: :company
     zip_code { '12345' }
     country_code { 'USA' }
+    state_code { 'FL' }
     longitude { BigDecimal.new(-81) }
     latitude { BigDecimal.new(28) }
 

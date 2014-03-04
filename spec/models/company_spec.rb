@@ -131,6 +131,20 @@ describe Company do
       end
     end
 
+    describe 'geolocated_american'  do
+      it 'should include companies with an american headquarters' do
+        company = FactoryGirl.create(:company)
+        FactoryGirl.create(:headquarters, tenant: company)
+        expect(Company.geolocated_american).to include(company)
+      end
+
+      it 'should not include companies with an outside headquarters' do
+        company = FactoryGirl.create(:company)
+        FactoryGirl.create(:headquarters, tenant: company, country_code: 'Canada')
+        expect(Company.geolocated_american).not_to include(company)
+      end
+    end
+
     describe 'american'  do
       it 'should include companies with an american headquarters' do
         company = FactoryGirl.create(:company)
