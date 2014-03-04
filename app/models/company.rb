@@ -28,7 +28,7 @@ class Company < ActiveRecord::Base
   scope :geolocated, -> { joins(:office_locations).merge(OfficeLocation.geolocated_headquarters) }
 
   # companies that have a headquarters with a non-blank state_code
-  scope :with_state_code, -> { joins(:office_locations).merge(OfficeLocation.headquarters_with_state_code) }
+  scope :with_state_code, -> { joins(:office_locations).merge(OfficeLocation.headquarters.with_state_code) }
 
   # companies that have no geolocated headquarters
   #

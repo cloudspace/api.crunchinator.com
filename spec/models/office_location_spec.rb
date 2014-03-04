@@ -100,6 +100,23 @@ describe OfficeLocation do
         expect(OfficeLocation.in_usa).not_to include(office)
       end
     end
+
+    describe 'with_state_code' do
+      it 'should include locations with a state code' do
+        office = FactoryGirl.create(:office_location, state_code: 'FL')
+        expect(OfficeLocation.with_state_code).to include(office)
+      end
+
+      it 'should not include locations that have a nil state code' do
+        office = FactoryGirl.create(:office_location, state_code: nil)
+        expect(OfficeLocation.with_state_code).not_to include(office)
+      end
+
+      it 'should not include locations that have a blank state code' do
+        office = FactoryGirl.create(:office_location, state_code: '')
+        expect(OfficeLocation.with_state_code).not_to include(office)
+      end
+    end
   end
 
   describe 'instance methods' do
