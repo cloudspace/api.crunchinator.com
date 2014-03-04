@@ -17,7 +17,7 @@ class FundingRound < ActiveRecord::Base
 
   # Funding rounds with some amount of USD raised
   scope :funded, lambda {
-    where(raised_currency_code: 'USD').where(arel_table[:raw_raised_amount].gt(0))
+    where(raised_currency_code: 'USD').where('funding_rounds.raw_raised_amount > 0')
   }
 
   # Returns the raised amount if in USD, else 0 (expressed as a BigDecimal)
