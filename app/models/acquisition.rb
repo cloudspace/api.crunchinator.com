@@ -10,13 +10,8 @@ class Acquisition < ActiveRecord::Base
     price_currency_code == 'USD'
   end
 
-  def date
-    acquired_on
-  end
-
-  def company_id
-    acquiring_company_id
-  end
+  alias_attribute :date, :acquired_on
+  alias_attribute :company_id, :acquiring_company_id
 
   def amount
     if usd?
