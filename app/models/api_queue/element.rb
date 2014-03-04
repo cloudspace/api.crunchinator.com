@@ -32,16 +32,16 @@ class ApiQueue::Element < ActiveRecord::Base
   }
 
   # Elements with less than 5 attempts
-  scope :not_failed, -> { where(arel_table[:num_runs].lt(5)) }
+  scope :not_failed, -> { where('num_runs < 5') }
 
   # Elements that match all of the above scopes
   scope :pending, -> { incomplete.not_processing.not_recently_errored.not_failed }
 
   # Elements that have failed (they have been attempted 5 times and still haven't succeeded)
-  scope :failed, -> { incomplete.where(arel_table[:num_runs].gteq(5)) }
+  scope :failed, -> { incomplete.where('num_runs >= 5') }
 
   # Elements that have errored and are marked for retry
-  scope :waiting_for_retry, -> { incomplete.where(arel_table[:num_runs].gt(0)) }
+  scope :waiting_for_retry, -> { incomplete.where('num_runs > 0') }
 
   # flags an element to indicate it is being processed
   def mark_for_processing
