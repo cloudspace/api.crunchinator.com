@@ -14,7 +14,7 @@ class Person < ActiveRecord::Base
   end
 
   def fullname
-    "#{firstname} #{lastname}" if fullname?
+    fullname? ? "#{firstname} #{lastname}" : nil
   end
 
   def fullname?
