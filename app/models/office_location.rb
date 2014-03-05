@@ -26,9 +26,7 @@ class OfficeLocation < ActiveRecord::Base
 
   # Country code is USA Location is in North or South America according to lat/long
   scope :geolocated_in_usa, lambda {
-    where(
-      where(country_code: 'USA', longitude: USA_LOCATION[:west]..USA_LOCATION[:east])
-    )
+    where(country_code: 'USA', longitude: USA_LOCATION[:west]..USA_LOCATION[:east])
   }
 
   # Country code is 'USA'
