@@ -37,21 +37,6 @@ describe V1::CompaniesController do
           company = JSON.parse(response.body)['companies'].first
           expect(company['investor_ids']).to eq([@investor.guid])
         end
-
-        it 'includes funding_rounds associated with the company' do
-          get :index
-
-          company = JSON.parse(response.body)['companies'].first
-          expect(company['total_funding']).to eq(@company.total_funding)
-          expect(company['funding_rounds'].length).to eq(1)
-
-          funding_round = company['funding_rounds'].first
-          expect(funding_round['id']).to eq(@funding_round.id)
-          expect(funding_round['round_code']).to eq('Post IPO Equity')
-          expect(funding_round['raised_amount']).to eq(@funding_round.raised_amount.to_s)
-          expect(funding_round['funded_on']).to eq(@funding_round.funded_on.strftime('%-m/%-d/%Y'))
-          expect(funding_round['investor_ids']).to eq([@investor.guid])
-        end
       end
 
       describe 'includes geolocation' do

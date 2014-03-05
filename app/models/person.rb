@@ -10,9 +10,14 @@ class Person < ActiveRecord::Base
   # @return [String] - returns a name value for the person it is called on
   # it will return 'Unknown Name' if the Person has no name values
   def name
-    (return 'Unknown Name') if !firstname && !lastname
-    (return firstname + ' ' + lastname) if firstname && lastname
-    (return firstname) if firstname
-    lastname
+    fullname || firstname || lastname || 'Unknown Name'
+  end
+
+  def fullname
+    fullname? ? "#{firstname} #{lastname}" : nil
+  end
+
+  def fullname?
+    firstname? && lastname?
   end
 end

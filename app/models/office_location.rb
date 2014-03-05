@@ -7,8 +7,8 @@ class OfficeLocation < ActiveRecord::Base
 
   # longitude for USA coasts
   USA_LOCATION = {
-    west: BigDecimal.new(-157),
-    east: BigDecimal.new(-65)
+    west: -157,
+    east: -65
   }
 
   # Headquarters only
@@ -18,26 +18,28 @@ class OfficeLocation < ActiveRecord::Base
 
   # Headquarters that have legit longitude/latitude data
   scope :geolocated_headquarters, lambda {
-    headquarters
-    .where('office_locations.latitude is not null AND office_locations.longitude is not null')
+    headquarters.where.not(latitude: nil, longitude: nil)
   }
 
-  # Country code is USA Location is in North or South America
-  # may be updated at some point to just look at lat/long for USA
-  scope :in_usa, lambda {
-    where(
-      "office_locations.country_code = 'USA' AND office_locations.longitude BETWEEN :min_long AND :max_long",
-      min_long: USA_LOCATION[:west], max_long: USA_LOCATION[:east]
-    )
+  # Those have a state_code
+  scope :with_state_code, -> { where.not(state_code: [nil, '']) }
+
+  # Country code is USA Location is in North or South America according to lat/long
+  scope :geolocated_in_usa, lambda {
+    where(country_code: 'USA', longitude: USA_LOCATION[:west]..USA_LOCATION[:east])
   }
+
+  # Country code is 'USA'
+  scope :in_usa, -> { where(country_code: 'USA') }
 
   after_create :geolocate
 
   def geolocate
-    if country_code == 'USA' && zip_code.present?
-      zip_matches = zip_code.match(/\d{5}/)
-      return true if zip_matches.blank?
-      zip_geo = ZipCodeGeo.find_by_zip_code(zip_matches[0])
+    if country_code == 'USA' && zip_code?
+      zip = zip_code[/\d{5}/]
+      return true unless zip
+
+      zip_geo = ZipCodeGeo.find_by_zip_code(zip)
       if zip_geo
         self.latitude = zip_geo.latitude
         self.longitude = zip_geo.longitude

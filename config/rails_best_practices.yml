@@ -25,8 +25,9 @@ RemoveEmptyHelpersCheck: { }
 RemoveUnusedMethodsInControllersCheck: { except_methods: [] }
 RemoveUnusedMethodsInHelpersCheck: { except_methods: [] }
 RemoveUnusedMethodsInModelsCheck: { except_methods: [ 
+  'Acquisition#company_id', 'Acquisition#amount',
   'ApiQueue::Element#errors', 'ApiQueue::Element#order_by_most_recently_modified', 'ApiQueue::Element#complete', 'ApiQueue::Element#processing', 'ApiQueue::Element#failed', 'ApiQueue::Element#waiting_for_retry', 
-  'Company#unfunded', 'Company#unlocated', 'Company#illegit', 'Company#total_funding', 
+  'Company#unfunded', 'Company#unlocated', 'Company#illegit', 'Company#total_funding', 'Company#geolocated_american',
   'FundingRound#funded_on', 
   'Investment#associated_with_financial_organizations', 'Investment#investor_guid',
   'Investment#by_investor_class', 'ZipCodeGeo#import_from_csv' ] }

@@ -49,9 +49,6 @@ describe V1::Companies::CompanySerializer do
         end
       end
 
-      # Tested by NestedFundingRoundSerializer
-      it { should have_key :funding_rounds }
-
       describe 'ipo_on' do
         let(:ipo) do
           FactoryGirl.build_stubbed(:initial_public_offering, company: company).tap do |ipo|
@@ -162,6 +159,11 @@ describe V1::Companies::CompanySerializer do
         it 'should alias most_recent_acquired_by_amount' do
           company.stub(most_recent_acquired_by_amount: 1234)
           expect(hash[:acquired_value]).to eq(1234)
+        end
+
+        it 'should return 0 if most_recent_acquired_by_amount is nil' do
+          company.stub(most_recent_acquired_by_amount: nil)
+          expect(hash[:acquired_value]).to eq(0)
         end
       end
 

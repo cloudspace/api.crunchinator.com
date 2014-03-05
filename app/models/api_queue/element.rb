@@ -5,13 +5,13 @@ class ApiQueue::Element < ActiveRecord::Base
   validates :permalink, uniqueness: true, presence: true
 
   # errors
-  scope :errors, -> { where('error is not null') }
+  scope :errors, -> { where.not(error: nil) }
 
   # FIFO Queue order
-  scope :order_by_fifo, -> { order('id asc') }
+  scope :order_by_fifo, -> { order(:id) }
 
   # Order by most recently modified
-  scope :order_by_most_recently_modified, -> { order('updated_at desc') }
+  scope :order_by_most_recently_modified, -> { order(updated_at: :desc) }
 
   # Elements that are flagged as complete
   scope :complete, -> { where(complete: true) }
@@ -27,10 +27,8 @@ class ApiQueue::Element < ActiveRecord::Base
 
   # Elements with a no last attempt or a last attempt more than 1 hour ago
   scope :not_recently_errored, lambda {
-    where(
-      'last_attempt_at is null OR last_attempt_at < :an_hour_ago',
-      an_hour_ago: Time.now - 1.hour
-    )
+    last_attempt = arel_table[:last_attempt_at]
+    where(last_attempt.eq(nil).or(last_attempt.lt(1.hour.ago)))
   }
 
   # Elements with less than 5 attempts
@@ -40,10 +38,10 @@ class ApiQueue::Element < ActiveRecord::Base
   scope :pending, -> { incomplete.not_processing.not_recently_errored.not_failed }
 
   # Elements that have failed (they have been attempted 5 times and still haven't succeeded)
-  scope :failed, -> { where('num_runs >= 5').incomplete }
+  scope :failed, -> { incomplete.where('num_runs >= 5') }
 
   # Elements that have errored and are marked for retry
-  scope :waiting_for_retry, -> { where('num_runs > ? AND complete != ?', 0, true) }
+  scope :waiting_for_retry, -> { incomplete.where('num_runs > 0') }
 
   # flags an element to indicate it is being processed
   def mark_for_processing

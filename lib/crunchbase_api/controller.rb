@@ -157,6 +157,7 @@ module ApiQueue
       endpoints['categories'] = "api/#{version}/categories.json"
       endpoints['companies'] = "api/#{version}/companies.json"
       endpoints['investors'] = "api/#{version}/investors.json"
+      endpoints['funding_rounds'] = "api/#{version}/funding_rounds.json"
 
       endpoints.each_pair do |api_endpoint, s3_filename|
         response = query_app(endpoint: api_endpoint)

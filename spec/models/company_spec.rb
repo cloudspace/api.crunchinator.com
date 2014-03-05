@@ -131,6 +131,20 @@ describe Company do
       end
     end
 
+    describe 'geolocated_american'  do
+      it 'should include companies with an american headquarters' do
+        company = FactoryGirl.create(:company)
+        FactoryGirl.create(:headquarters, tenant: company)
+        expect(Company.geolocated_american).to include(company)
+      end
+
+      it 'should not include companies with an outside headquarters' do
+        company = FactoryGirl.create(:company)
+        FactoryGirl.create(:headquarters, tenant: company, country_code: 'Canada')
+        expect(Company.geolocated_american).not_to include(company)
+      end
+    end
+
     describe 'american'  do
       it 'should include companies with an american headquarters' do
         company = FactoryGirl.create(:company)
@@ -195,24 +209,11 @@ describe Company do
     end
 
     describe 'most_recent_acquired_by_amount' do
-      it 'should return the amount in USD for which the company was last acquired' do
+      it 'should return the amount for which the company was last acquired' do
         a = Acquisition.new(acquired_company: @company, price_amount: '1500.0', price_currency_code: 'USD')
         @company.stub(:most_recent_acquired_by).and_return(a)
 
         expect(@company.most_recent_acquired_by_amount).to eq(1500)
-      end
-
-      it 'should return 0 if the company has never been acquired' do
-        @company.stub(:most_recent_acquired_by).and_return(nil)
-
-        expect(@company.most_recent_acquired_by_amount).to eq(0)
-      end
-
-      it 'should return 0 if the company has last been acquired for an amount not in USD' do
-        a = Acquisition.new(acquired_company: @company, price_amount: '1500.0', price_currency_code: 'ABC')
-        @company.stub(:most_recent_acquired_by).and_return(a)
-
-        expect(@company.most_recent_acquired_by_amount).to eq(0)
       end
     end
 

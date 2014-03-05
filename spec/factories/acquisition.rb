@@ -5,5 +5,7 @@ FactoryGirl.define do
     association :acquired_company, factory: :company
     association :acquiring_company, factory: :company
     acquired_on { Date.today }
+    price_currency_code 'USD'
+    price_amount { rand(1000) }
   end
 end
