@@ -104,7 +104,7 @@ class Versioner
 
   # writes the version to the VERSION file
   def write_app_version
-    prompt_user "Bumping #{@segment.upcase} from #{@original_version} to #{version}. Continue?"
+    prompt_user "Bumping from #{@original_version} to #{version}. Continue?"
     File.open(File.join(Rails.root, 'VERSION'), 'w') { |file| file.write(version) }
     puts "VERSION file saved"
   end
