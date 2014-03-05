@@ -137,7 +137,7 @@ module ApiQueue
       # @return [Category] the newly created category
       def create_category(name)
         name = 'public_relations' if name == 'public_relation'
-        name.present? ? safe_find_or_create_by(::Category, name: name) { { display_name: name } } : ::Category.new
+        name.present? ? safe_find_or_create_by(::Category, name: name) : ::Category.new
       end
 
       # Handles creating a financial organization while ignoring extraneous keys.
