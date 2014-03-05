@@ -21,11 +21,16 @@ class OfficeLocation < ActiveRecord::Base
     headquarters.where.not(latitude: nil, longitude: nil)
   }
 
-  # Country code is USA Location is in North or South America
-  # may be updated at some point to just look at lat/long for USA
-  scope :in_usa, lambda {
+  # Those have a state_code
+  scope :with_state_code, -> { where.not(state_code: [nil, '']) }
+
+  # Country code is USA Location is in North or South America according to lat/long
+  scope :geolocated_in_usa, lambda {
     where(country_code: 'USA', longitude: USA_LOCATION[:west]..USA_LOCATION[:east])
   }
+
+  # Country code is 'USA'
+  scope :in_usa, -> { where(country_code: 'USA') }
 
   after_create :geolocate
 
