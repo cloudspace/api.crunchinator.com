@@ -14,7 +14,7 @@ class Company < ActiveRecord::Base
   validates :permalink, uniqueness: true, presence: true
 
   # companies that belong to a category
-  scope :categorized, -> { where('companies.category_id is not null') }
+  scope :categorized, -> { where.not(category_id: nil) }
 
   # companies that have positive funding in USD on some funding round
   scope :funded, -> { joins(:funding_rounds).merge(FundingRound.funded) }
@@ -22,7 +22,7 @@ class Company < ActiveRecord::Base
   # companies that DO NOT have positive funding in USD on any funding round
   #
   # IMPORTANT NOTE: this will return no records if funded returns an empty relation
-  scope :unfunded, -> { where('companies.id not in (?)', funded.pluck(:id)) }
+  scope :unfunded, -> { where.not(id: funded.pluck(:id)) }
 
   # companies that have a geolocated headquarters
   scope :geolocated, -> { joins(:office_locations).merge(OfficeLocation.geolocated_headquarters) }
@@ -30,7 +30,7 @@ class Company < ActiveRecord::Base
   # companies that have no geolocated headquarters
   #
   # IMPORTANT NOTE: this will return no records if geolocated returns an empty relation
-  scope :unlocated, -> { where('companies.id not in (?)', geolocated.pluck(:id)) }
+  scope :unlocated, -> { where.not(id: geolocated.pluck(:id)) }
 
   # companies whose headquarters is in the USA
   scope :american, -> { joins(:office_locations).geolocated.merge(OfficeLocation.in_usa) }
@@ -41,7 +41,7 @@ class Company < ActiveRecord::Base
   # companies that are not considered legit to the client, i.e., will not be displayed
   #
   # IMPORTANT NOTE: this will return no records if legit returns an empty relation
-  scope :illegit, -> { where('companies.id not in (?)', legit.pluck(:id)) }
+  scope :illegit, -> { where.not(id: legit.pluck(:id)) }
 
   # @return [OfficeLocation] The headquarters office for the company
   def headquarters
@@ -50,23 +50,19 @@ class Company < ActiveRecord::Base
     #
     # Here is the traditional way to do this:
     # office_locations.headquarters.first
-    office_locations.select { |ol| ol.headquarters }.first
+    #
+    # Use `lazy` since we don't need to find all headquarters, just the first one
+    office_locations.lazy.select { |ol| ol.headquarters }.first
   end
 
   # @return [Date] The most recent acquired date for the company
-  def most_recent_acquired_by_date
-    most_recent_acquired_by.acquired_on if most_recent_acquired_by.present?
-  end
+  delegate :date, to: :most_recent_acquired_by, prefix: true, allow_nil: true
 
   # @return [Fixnum] Id of company which acquired the company last
-  def most_recent_acquired_by_company_id
-    most_recent_acquired_by.acquiring_company_id if most_recent_acquired_by.present?
-  end
+  delegate :company_id, to: :most_recent_acquired_by, prefix: true, allow_nil: true
 
   # @return [Fixnum] The monetary amount for which the company was last acquired, in USD
-  def most_recent_acquired_by_amount
-    (most_recent_acquired_by.try(:price_currency_code) == 'USD' ? most_recent_acquired_by.price_amount : 0).to_i
-  end
+  delegate :amount, to: :most_recent_acquired_by, prefix: true, allow_nil: true
 
   # @return [Acquisition] The most recent acquisition where this company was acquired
   def most_recent_acquired_by
@@ -89,14 +85,16 @@ class Company < ActiveRecord::Base
   # instance and populates the cache for the longitude value, if needed
   #
   def latitude
-    instance_variables.include?(:@latitude) ? @latitude : (set_lat_long_cache && @latitude)
+    set_lat_long_cache unless instance_variables.include?(:@latitude)
+    @latitude
   end
 
   # Returns the longitude of this company's HQ. caches the result on the
   # instance and populates the cache for the latitude value, if needed
   #
   def longitude
-    instance_variables.include?(:@longitude) ? @longitude : (set_lat_long_cache && @longitude)
+    set_lat_long_cache unless instance_variables.include?(:@longitude)
+    @longitude
   end
 
   private
@@ -108,8 +106,8 @@ class Company < ActiveRecord::Base
   #
   def set_lat_long_cache
     hq = headquarters
-    @latitude = hq ? hq.latitude : nil
-    @longitude = hq ? hq.longitude : nil
+    @latitude = hq.try(:latitude)
+    @longitude = hq.try(:longitude)
   end
 
 end

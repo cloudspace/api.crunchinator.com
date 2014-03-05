@@ -52,7 +52,7 @@ class V1::Companies::CompanySerializer < ActiveModel::Serializer
 
   # renames and formats the most_recent_acquired_on method
   def acquired_value
-    @object.most_recent_acquired_by_amount
+    @object.most_recent_acquired_by_amount || 0
   end
 
   # renames the most_recent_acquired_by method
