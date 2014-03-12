@@ -7,6 +7,10 @@ module ApiQueue
     #
     # This will disable the class line length rubocop check. This is a temporary fix,
     # as this class is due for a refactor.
+    # TODO: this class (and its descendants possibly) needs to be replaced entirely
+    # with a more general solution so that it can be more easily scaled to consume
+    # the entire crunchbase API, and so that it is less tedious to extend and modify.
+    #
     # rubocop:disable ClassLength
     class Base
 
