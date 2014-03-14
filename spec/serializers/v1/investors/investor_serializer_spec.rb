@@ -24,6 +24,10 @@ describe V1::Investors::InvestorSerializer do
         expect(hash[:investor_type]).to eq(investor.class.to_s.underscore)
       end
 
+      it 'permalink' do
+        expect(hash[:permalink]).to eq(investor.permalink)
+      end
+
       describe 'invested_category_ids' do
         let(:investor) { FactoryGirl.create(:investor) }
 
